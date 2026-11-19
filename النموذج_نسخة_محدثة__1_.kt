@@ -1082,8 +1082,17 @@ class Brain private constructor(private val ctx: Context) {
                 val plan = Effort.plan(ctx, q, hit)
                 val t0 = System.nanoTime()
                 // 5 ثوانٍ تفكير فعلي حقيقي (مو مجرد عدد محاولات) على أي رسالة، طالما الجهاز مو مضطر لوضع أسرع لحماية البطارية/الحرارة/الذاكرة.
-                val minThinkMs = if (plan.level == Level.THINK) 5000L else 0L
-                val r = if (plan.tries > 1) s.replyThink(q, plan.maxChars, plan.tries, plan.temp, minThinkMs) else s.reply(q, plan.maxChars, plan.temp)
+                // Every non-math chat reply gets a minimum five-second deliberation, even in FAST/NORMAL plans.
+                // Candidate filter rejects short, question-echoing, or heavily repetitive drafts; it cannot verify factual truth.
+                val minThinkMs = 5000L
+                val r = s.replyThink(q, plan.maxChars, plan.tries, plan.temp, minThinkMs) { candidate ->
+                    val cand = candidate.trim()
+                    val qWords = q.trim().split(Regex("\\s+")).filter { it.length > 2 }
+                    val echoed = if (qWords.isEmpty()) 0 else qWords.count { cand.contains(it, ignoreCase = true) }
+                    val echoRatio = if (qWords.isEmpty()) 0.0 else echoed.toDouble() / qWords.size
+                    val repeated = Regex("(.{5,})\\\\1").containsMatchIn(cand)
+                    cand.length >= 12 && echoRatio <= 0.75 && !repeated
+                }
                 val made = maxOf(20, r.first.length) * plan.tries
                 val ms = (System.nanoTime() - t0) / 1_000_000.0 / made
                 Effort.msPerChar = if (Effort.msPerChar <= 0.0) ms else 0.7 * Effort.msPerChar + 0.3 * ms
