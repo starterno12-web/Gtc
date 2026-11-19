@@ -152,7 +152,7 @@ def main():
     ap.add_argument("--out",default="weights/nlm2_clean_memory.bin")
     ap.add_argument("--report",default="memory_test_50.json")
     ap.add_argument("--lr",type=float,default=0.00001)
-    ap.add_argument("--max-clean-examples",type=int,default=160)
+    ap.add_argument("--max-clean-examples",type=int,default=10000)
     args=ap.parse_args()
     torch.set_num_threads(2); torch.manual_seed(20261119); np.random.seed(20261119)
     base=GRULM.from_bytes(Path(args.base).read_bytes())
