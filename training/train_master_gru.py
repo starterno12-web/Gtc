@@ -65,12 +65,16 @@ def main():
             for key in ("gru.weight_ih_l0","gru.weight_hh_l0","gru.bias_ih_l0","gru.bias_hh_l0"):
                 if key in old and old[key].shape == model.state_dict()[key].shape:
                     model.state_dict()[key].copy_(old[key])
-        if ck.get("optimizer_state"):
+        # Adam moments are only valid when parameter shapes and vocabulary are identical.
+        if ck.get("optimizer_state") and oldv == vocab:
             try: opt.load_state_dict(ck["optimizer_state"])
-            except (ValueError,KeyError): print("Optimizer state incompatible; continuing with fresh optimizer.")
+            except (ValueError,KeyError,RuntimeError): print("Optimizer state incompatible; continuing with fresh optimizer.")
+        elif ck.get("optimizer_state"):
+            print("Vocabulary changed; mapped model weights retained and optimizer moments reset safely.")
         prior_records=int(ck.get("records",0)); rounds=int(ck.get("training_rounds",0))
         completed=int(ck.get("completed_epochs",0)); best=float(ck.get("best_valid_loss",float("inf")))
-        best_state=ck.get("best_model_state")
+        # Rebase the best snapshot to the current vocabulary; never keep stale-shaped tensors.
+        best_state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
         sources=ck.get("checkpoint_sources",[])+ck.get("consolidation_manifest",{}).get("source_files",[])
         print(f"Resumed durable checkpoint: epoch={completed}, records={prior_records}, rounds={rounds}")
     elif not checkpoint.exists():
