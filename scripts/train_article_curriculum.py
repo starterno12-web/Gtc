@@ -32,7 +32,8 @@ def build_checks(text):
     if len(candidates) < 10:
         raise RuntimeError(f"Article yielded only {len(candidates)} usable facts; at least 10 required.")
     # Spread selection across the source rather than taking only the beginning.
-    count = min(68, len(candidates))\n    picks = [candidates[round(i * (len(candidates)-1) / max(1, count-1))] for i in range(count)]
+    count = min(68, len(candidates))
+    picks = [candidates[round(i * (len(candidates)-1) / max(1, count-1))] for i in range(count)]
     checks = []
     for i, answer in enumerate(picks, 1):
         anchor = answer[:min(34, len(answer))]
