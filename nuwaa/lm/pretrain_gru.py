@@ -54,6 +54,7 @@ def load_pairs(root):
         raise SystemExit(f"Curated game-development corpus too small after filtering: {len(unique)} unique examples")
     print(f"Advanced curriculum categories verified: {', '.join(sorted(advanced_categories))}")
     print(f"Unique examples retained after deduplication: {len(unique)}")
+    return unique
 
 
 def main():
@@ -61,7 +62,7 @@ def main():
     ap.add_argument("--data",default="data"); ap.add_argument("--out",default="weights/nlm2.npz")
     ap.add_argument("--bin",default="nlm2.bin"); ap.add_argument("--init",default="")
     ap.add_argument("--epochs",type=int,default=12); ap.add_argument("--lr",type=float,default=.0003)
-    ap.add_argument("--seconds",type=int,default=16000); ap.add_argument("--embed",type=int,default=64); ap.add_argument("--hidden",type=int,default=384)
+    ap.add_argument("--seconds",type=int,default=22000); ap.add_argument("--embed",type=int,default=96); ap.add_argument("--hidden",type=int,default=512)
     a=ap.parse_args()
     if a.epochs < 1 or a.lr <= 0 or a.seconds < 1:
         raise SystemExit("epochs, learning rate, and seconds must all be positive")
@@ -116,5 +117,5 @@ def main():
     check=GRULM.from_bytes(Path(a.bin).read_bytes())
     if check.e!=e or check.h!=h or check.chars!=model.chars or any(not np.isfinite(p).all() for p in check.P):
         raise SystemExit("NLM2 round-trip validation failed")
-    print(json.dumps({"examples":len(texts),"epochs_requested":a.epochs,"steps":step,"loss":best,"bytes":Path(a.bin).stat().st_size,"optimizer":"Adam","bptt":"full-character-sequence"},ensure_ascii=False),flush=True)
+    print(json.dumps({"examples":len(texts),"epochs_requested":a.epochs,"steps":step,"loss":best,"bytes":Path(a.bin).stat().st_size,"parameters":sum(int(p.size) for p in model.P),"vocab":model.v,"embed":model.e,"hidden":model.h,"optimizer":"Adam","bptt":"full-character-sequence"},ensure_ascii=False),flush=True)
 if __name__=="__main__": main()
