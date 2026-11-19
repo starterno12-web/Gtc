@@ -29,7 +29,7 @@ def build_checks(text):
             line = re.sub(r"\s+", " ", line).strip(" -•")
             if 55 <= len(line) <= 420 and line not in candidates:
                 candidates.append(line)
-    if len(candidates) < 68:
+    if len(candidates) < 10:
         raise RuntimeError(f"Article yielded only {len(candidates)} usable facts; at least 10 required.")
     # Spread selection across the source rather than taking only the beginning.
     count = min(68, len(candidates))\n    picks = [candidates[round(i * (len(candidates)-1) / max(1, count-1))] for i in range(count)]
