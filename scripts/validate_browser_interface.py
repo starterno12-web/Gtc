@@ -9,13 +9,13 @@ answer = source.split(marker, 1)[1] if marker in source else source
 # Permit a model to wrap its complete HTML in a Markdown fence, but validate the code itself.
 answer = re.sub(r"```(?:html)?", "", answer, flags=re.IGNORECASE)
 checks = {
-    "html_document": bool(re.search(r"<!doctype\\s+html|<html\\b", answer, re.I)),
-    "css": bool(re.search(r"<style\\b|style\\s*=", answer, re.I)),
-    "javascript": bool(re.search(r"<script\\b", answer, re.I)),
+    "html_document": bool(re.search(r"<!doctype\s+html|<html\b", answer, re.I)),
+    "css": bool(re.search(r"<style\b|style\s*=", answer, re.I)),
+    "javascript": bool(re.search(r"<script\b", answer, re.I)),
     "visible_status_word": "شغال" in answer,
-    "ten_distinct_hex_colors": len(set(re.findall(r"#[0-9a-fA-F]{6}\\b", answer))) >= 10,
+    "ten_distinct_hex_colors": len(set(re.findall(r"#[0-9a-fA-F]{6}\b", answer))) >= 10,
     "real_dom_event_binding": "addEventListener" in answer,
-    "dom_update_or_clipboard": bool(re.search(r"textContent|style\\.|navigator\\.clipboard", answer)),
+    "dom_update_or_clipboard": bool(re.search(r"textContent|style\.|navigator\.clipboard", answer)),
 }
 passed = all(checks.values())
 if passed:
