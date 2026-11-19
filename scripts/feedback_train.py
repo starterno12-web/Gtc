@@ -76,8 +76,7 @@ def extend_vocab(model,texts):
     p8=np.zeros(new,np.float32);p8[:old]=model.P[8]
     model.P[0],model.P[7],model.P[8]=p0,p7,p8;model.chars.extend(extra);model.v=new
 def main():
-    ap=argparse.ArgumentParser()
-description="Auto-generate simple questions from Arabic location sentences, train, retry after correction."
+    ap=argparse.ArgumentParser(description="Auto-generate simple questions from Arabic location sentences, train, retry after correction.")
     ap.add_argument("--text",default="training/feedback_text.txt")
     ap.add_argument("--base",default="nlm2.bin");ap.add_argument("--out",default="nlm2_feedback.bin")
     ap.add_argument("--read-times",type=int,default=20,choices=range(10,51));ap.add_argument("--max-retries",type=int,default=8)
