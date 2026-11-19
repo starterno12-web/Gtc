@@ -31,7 +31,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p nuwaa/lm
-          git show 3390a7729b2acc7bee1eb94ada2b1fd963a145d9:nuwaa/lm/gru.py > nuwaa/lm/gru.py
+          curl -fsSL https://raw.githubusercontent.com/starterno12-web/Gtc/3390a7729b2acc7bee1eb94ada2b1fd963a145d9/nuwaa/lm/gru.py -o nuwaa/lm/gru.py
+          test -s nuwaa/lm/gru.py
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
