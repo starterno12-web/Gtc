@@ -1,5 +1,5 @@
 {
-  "purpose": "Single complete high-accuracy NLM2 training run on the combined original curriculum plus 53 filtered advanced examples covering Arabic/English geometry, Python, browser APIs, pixel/color processing, image-analysis limits, language marks, and strict developer requirements. Persist and verify every model weight file in GitHub.",
+  "purpose": "One full accuracy-first NLM2 training run combining the previous curated curriculum with 100 advanced Arabic-English examples. Expanded coverage includes triangles and every common polygon family (2D and star/self-intersecting polygons), circles and conics, quadrilaterals, polyhedra and solids, polygon algorithms and game-engine geometry, advanced Python, browser APIs, pixels/colors/computer-vision foundations, Arabic diacritics/grammar, and strict developer requirement adherence. Train one enlarged model (embedding 96, hidden 512), 20 epochs, then mirror and verify every trained weight on GitHub and Android asset.",
   "scope": [
     "Original curated curriculum",
     "Arabic and English",
@@ -18,5 +18,18 @@
   "workflow": "train-gru.yml",
   "corpus": "curated-only; exclude personal-memory and unrelated chat JSONL; no offensive-language filtering",
   "training_mode": "one full training run; combined corpus; 16 epochs; single job; no APK build",
-  "advanced_corpus": "training/curriculum_geometry_vision_python_advanced.jsonl"
+  "advanced_corpus": "training/curriculum_geometry_vision_python_advanced.jsonl",
+  "advanced_examples": 100,
+  "model_dimensions": {
+    "embedding": 96,
+    "hidden": 512
+  },
+  "epochs": 20,
+  "persistence": [
+    "nlm2.bin",
+    "nlm2.npz",
+    "weights/nlm2.npz",
+    "android/app/src/main/assets/nlm2.bin"
+  ],
+  "no_apk_build": true
 }
