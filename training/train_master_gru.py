@@ -22,13 +22,25 @@ def atomic_save(payload, path):
         if os.path.exists(tmp): os.unlink(tmp)
 
 def persist_git(paths, epoch):
+    import time
     subprocess.run(["git","config","user.name","github-actions[bot]"],check=True)
     subprocess.run(["git","config","user.email","41898282+github-actions[bot]@users.noreply.github.com"],check=True)
     subprocess.run(["git","add",*paths],check=True)
     changed=subprocess.run(["git","diff","--cached","--quiet"]).returncode != 0
-    if changed:
-        subprocess.run(["git","commit","-m",f"[training-checkpoint] durable epoch {epoch}"],check=True)
-        subprocess.run(["git","push"],check=True)
+    if not changed: return
+    subprocess.run(["git","commit","-m",f"[training-checkpoint] durable epoch {epoch}"],check=True)
+    # The Android build workflow or a user commit may update main while this job trains.
+    # Rebase our checkpoint commit on the newest main before pushing; never force-push.
+    for attempt in range(1,6):
+        subprocess.run(["git","fetch","origin","main"],check=True)
+        subprocess.run(["git","rebase","origin/main"],check=True)
+        push=subprocess.run(["git","push"])
+        if push.returncode == 0:
+            print(f"Checkpoint epoch {epoch} pushed to origin/main.",flush=True)
+            return
+        print(f"Push race at epoch {epoch}; retry {attempt}/5 after fetching latest main.",flush=True)
+        time.sleep(min(2 ** attempt,20))
+    raise RuntimeError(f"Could not persist epoch {epoch} after 5 safe push attempts; local checkpoint retained in runner.")
 
 def main():
     ap=argparse.ArgumentParser()
