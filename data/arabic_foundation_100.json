@@ -1,0 +1,1204 @@
+{
+  "title": "بنك تأسيس الفهم والتعبير باللغة العربية",
+  "version": 1,
+  "language": "ar",
+  "target": "تعلم العربية وفهمها والتعبير بها؛ لا يتضمن أسئلة برمجة أو متصفح أو ثلاثي الأبعاد.",
+  "question_count": 100,
+  "pass_threshold": 0.75,
+  "questions": [
+    {
+      "id": 1,
+      "category": "نحو",
+      "question": "ما الفاعل في جملة «قرأَ الطالبُ الكتابَ»؟",
+      "reference_answer": "الطالبُ؛ لأنه من قام بفعل القراءة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "نحو",
+      "question": "ما المفعول به في «كتبتْ مريمُ الرسالةَ»؟",
+      "reference_answer": "الرسالةَ؛ لأنها وقع عليها فعل الكتابة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "نحو",
+      "question": "حوّل «المعلمُ حاضرٌ» إلى المثنى.",
+      "reference_answer": "المعلمان حاضران.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "نحو",
+      "question": "حوّل «الطالبةُ مجتهدةٌ» إلى جمع مؤنث سالم.",
+      "reference_answer": "الطالباتُ مجتهداتٌ.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "نحو",
+      "question": "ما نوع «لن» في «لن أهملَ واجبي»؟",
+      "reference_answer": "حرف نصب ونفي واستقبال.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "نحو",
+      "question": "لماذا كُتبت الهمزة في «مسؤول» على واو؟",
+      "reference_answer": "لأنها همزة متوسطة مضمومة وما قبلها ساكن، والضمة تناسب الواو.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "نحو",
+      "question": "أعرب كلمة «العلمَ» في «طلبتُ العلمَ».",
+      "reference_answer": "مفعول به منصوب وعلامة نصبه الفتحة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 8,
+      "category": "نحو",
+      "question": "ما علامة رفع جمع المذكر السالم؟",
+      "reference_answer": "الواو.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 9,
+      "category": "نحو",
+      "question": "صحح: «إن الطالبُ حاضرٌ».",
+      "reference_answer": "إن الطالبَ حاضرٌ؛ اسم إن منصوب.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 10,
+      "category": "نحو",
+      "question": "ما الفرق الإعرابي بين «المعلمون» و«المعلمين»؟",
+      "reference_answer": "الأولى للرفع، والثانية للنصب أو الجر، وعلامة الإعراب الياء في الثانية.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 11,
+      "category": "صرف واشتقاق",
+      "question": "ما مصدر الفعل «استخرج»؟",
+      "reference_answer": "استخراج.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 12,
+      "category": "صرف واشتقاق",
+      "question": "ما اسم الفاعل من «كتب»؟",
+      "reference_answer": "كاتب.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 13,
+      "category": "صرف واشتقاق",
+      "question": "ما اسم المفعول من «احترم»؟",
+      "reference_answer": "مُحترَم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 14,
+      "category": "صرف واشتقاق",
+      "question": "ما جمع «مدينة»؟",
+      "reference_answer": "مُدُن، ويصح مدائن بحسب السياق.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 15,
+      "category": "صرف واشتقاق",
+      "question": "ما مفرد «أقلام»؟",
+      "reference_answer": "قلم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 16,
+      "category": "صرف واشتقاق",
+      "question": "ما ضد «متواضع»؟",
+      "reference_answer": "متكبر.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 17,
+      "category": "صرف واشتقاق",
+      "question": "ما مرادف «أوجز»؟",
+      "reference_answer": "اختصر.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 18,
+      "category": "صرف واشتقاق",
+      "question": "ما وزن كلمة «مكتبة»؟",
+      "reference_answer": "مَفْعَلَة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 19,
+      "category": "صرف واشتقاق",
+      "question": "اشتق اسم مكان من «جلس».",
+      "reference_answer": "مَجْلِس.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 20,
+      "category": "صرف واشتقاق",
+      "question": "ما الفرق بين «عالِم» و«معلوم»؟",
+      "reference_answer": "عالِم اسم فاعل يدل على من يعلم، ومعلوم اسم مفعول يدل على ما وقع عليه العلم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 21,
+      "category": "مفردات ودلالة",
+      "question": "ما معنى «يتريث»؟",
+      "reference_answer": "يتمهل ولا يتعجل.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 22,
+      "category": "مفردات ودلالة",
+      "question": "ضع «رغم» في جملة مفيدة.",
+      "reference_answer": "رغم التعب، أكملَ عمله.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 23,
+      "category": "مفردات ودلالة",
+      "question": "ما معنى «أثمر الجهد» مجازًا؟",
+      "reference_answer": "أدى الجهد إلى نتيجة نافعة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 24,
+      "category": "مفردات ودلالة",
+      "question": "ما الفرق بين «النصيحة» و«الأمر»؟",
+      "reference_answer": "النصيحة إرشاد لمصلحة المخاطب، أما الأمر فهو طلب فعل وقد يكون ملزمًا أو مباشرًا.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 25,
+      "category": "مفردات ودلالة",
+      "question": "ما معنى «تدارك الخطأ»؟",
+      "reference_answer": "أصلح الخطأ أو عالج أثره قبل تفاقمه.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 26,
+      "category": "مفردات ودلالة",
+      "question": "استخدم «لذلك» لربط سبب بنتيجة.",
+      "reference_answer": "تدرّب يوميًا، لذلك تحسّن أداؤه.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 27,
+      "category": "مفردات ودلالة",
+      "question": "ما معنى «على سبيل المثال»؟",
+      "reference_answer": "أي ذكر حالة توضيحية لتقريب الفكرة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 28,
+      "category": "مفردات ودلالة",
+      "question": "ما المقصود بالتعبير «ضاق به الأمر»؟",
+      "reference_answer": "اشتدت عليه الصعوبة أو شعر بالحرج.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 29,
+      "category": "مفردات ودلالة",
+      "question": "ما الفرق بين «ربما» و«حتماً»؟",
+      "reference_answer": "ربما تفيد الاحتمال، وحتماً تفيد التأكيد.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 30,
+      "category": "مفردات ودلالة",
+      "question": "اشرح «لا تحكم على الكتاب من غلافه».",
+      "reference_answer": "لا تكوّن حكمًا على الشيء من مظهره وحده؛ افحص مضمونه.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 31,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "قرأ خالد عشر صفحات صباحًا وعشرًا مساءً. كم صفحة قرأ؟",
+      "reference_answer": "عشرون صفحة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 32,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "وصلت سارة قبل الموعد بعشر دقائق، وكان الموعد التاسعة. متى وصلت؟",
+      "reference_answer": "الثامنة وخمسون دقيقة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 33,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "كل الورود نباتات، وبعض النباتات طبية. هل يلزم أن تكون كل الورود طبية؟",
+      "reference_answer": "لا؛ لا توجد معلومة تثبت أن الورود كلها من النباتات الطبية.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 34,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "قالت ليلى: «أغلقت النافذة لأن الجو بارد». ما سبب إغلاقها؟",
+      "reference_answer": "لأن الجو بارد.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 35,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "إذا تأخر القطار بسبب المطر، فهل المطر هو القطار؟ وضح العلاقة.",
+      "reference_answer": "لا؛ المطر سبب التأخير، والقطار هو الشيء الذي تأخر.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 36,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "قرأ أحمد التعليمات قبل تشغيل الجهاز، ثم اتبعها. ما السلوك الذي أظهره؟",
+      "reference_answer": "التصرف بحذر واتباع التعليمات.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 37,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "ما المعلومة التي نحتاجها لمعرفة سرعة سيارة قطعت 120 كيلومترًا؟",
+      "reference_answer": "الزمن الذي استغرقته لقطع المسافة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 38,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "إذا كان كل طبيب متعلمًا، فهل كل متعلم طبيب؟",
+      "reference_answer": "لا؛ العبارة لا تعني أن كل متعلم طبيب.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 39,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "قال الكاتب: «الكلمة الطيبة تفتح القلوب». هل يقصد بابًا حقيقيًا؟",
+      "reference_answer": "لا؛ يقصد مجازًا أن الكلام اللطيف يقرب الناس ويكسب مودتهم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 40,
+      "category": "فهم المقروء والاستنتاج",
+      "question": "ما الفرق بين الحقيقة والرأي؟",
+      "reference_answer": "الحقيقة يمكن التحقق منها بالأدلة، أما الرأي فهو وجهة نظر قد تختلف بين الأشخاص.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 41,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تبدأ حديثًا مهذبًا مع شخص لا تعرفه؟",
+      "reference_answer": "يمكن أن أقول: السلام عليكم، اسمي ...، هل تسمح لي أن أسألك؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 42,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تطلب إعادة شرح فكرة لم تفهمها؟",
+      "reference_answer": "عذرًا، هل يمكنك توضيح الفكرة مرة أخرى بمثال؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 43,
+      "category": "تواصل ومحادثة",
+      "question": "كيف ترفض دعوة بأدب؟",
+      "reference_answer": "شكرًا جزيلًا على دعوتك، لكن لدي ارتباط في ذلك الوقت. أتمنى لكم وقتًا ممتعًا.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 44,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تعتذر عن مقاطعة شخص؟",
+      "reference_answer": "أعتذر عن المقاطعة، تفضل أكمل حديثك.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 45,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تسأل عن الاتجاهات إلى المكتبة؟",
+      "reference_answer": "لو سمحت، كيف أصل إلى المكتبة من هنا؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 46,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تعبّر عن اختلافك دون إساءة؟",
+      "reference_answer": "أفهم وجهة نظرك، لكنني أرى الأمر بطريقة مختلفة للأسباب التالية...",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 47,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تطلب المساعدة في العمل؟",
+      "reference_answer": "هل يمكنك مساعدتي في هذه المهمة عندما يتاح لك وقت؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 48,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تشكر شخصًا ساعدك؟",
+      "reference_answer": "شكرًا لك على مساعدتك ووقتك، أقدّر ذلك كثيرًا.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 49,
+      "category": "تواصل ومحادثة",
+      "question": "ماذا تقول إذا لم تسمع كلام المتحدث؟",
+      "reference_answer": "عذرًا، لم أسمع الجزء الأخير. هل يمكنك إعادته؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 50,
+      "category": "تواصل ومحادثة",
+      "question": "كيف تنهي محادثة باحترام؟",
+      "reference_answer": "سعدت بالحديث معك، وأشكرك على وقتك. إلى اللقاء.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 51,
+      "category": "تراكيب وتعبير",
+      "question": "كوّن جملة شرطية باستخدام «إذا».",
+      "reference_answer": "إذا نظمت وقتك، أنجزت أعمالك.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 52,
+      "category": "تراكيب وتعبير",
+      "question": "اربط الجملتين بأداة تعليل: «اعتذر. تأخر».",
+      "reference_answer": "اعتذر لأنه تأخر.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 53,
+      "category": "تراكيب وتعبير",
+      "question": "حوّل «الجو جميل» إلى سؤال.",
+      "reference_answer": "هل الجو جميل؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 54,
+      "category": "تراكيب وتعبير",
+      "question": "اكتب جملة تبدأ بظرف زمان.",
+      "reference_answer": "صباحًا، أراجع دروسي.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 55,
+      "category": "تراكيب وتعبير",
+      "question": "أكمل: «مع أن الطريق طويل، ...»",
+      "reference_answer": "مع أن الطريق طويل، وصلنا في الوقت المحدد.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 56,
+      "category": "تراكيب وتعبير",
+      "question": "اجعل الجملة أكثر تهذيبًا: «أعطني الماء».",
+      "reference_answer": "من فضلك، هل يمكنك أن تعطيني الماء؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 57,
+      "category": "تراكيب وتعبير",
+      "question": "لخص: «استيقظ مبكرًا، تناول فطوره، ثم ذهب إلى المدرسة».",
+      "reference_answer": "استيقظ مبكرًا وتناول فطوره ثم توجه إلى المدرسة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 58,
+      "category": "تراكيب وتعبير",
+      "question": "حوّل الكلام المباشر إلى غير مباشر: قال: «سأعود غدًا».",
+      "reference_answer": "قال إنه سيعود في اليوم التالي.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 59,
+      "category": "تراكيب وتعبير",
+      "question": "استخدم «لكن» لإظهار الاستدراك.",
+      "reference_answer": "أردت الخروج، لكن المطر منعني.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 60,
+      "category": "تراكيب وتعبير",
+      "question": "اكتب جملة فيها مقارنة.",
+      "reference_answer": "القراءة أوسع فائدةً من قضاء الوقت بلا هدف.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 61,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "صحح: «هاذا كتاب مفيد».",
+      "reference_answer": "هذا كتاب مفيد.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 62,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "متى نستخدم علامة الاستفهام؟",
+      "reference_answer": "في نهاية السؤال المباشر.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 63,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "صحح: «ذهبت الى المدرسه».",
+      "reference_answer": "ذهبت إلى المدرسة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 64,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "ما الفرق بين التاء المربوطة والهاء في آخر الكلمة؟",
+      "reference_answer": "التاء المربوطة تُنطق هاء عند الوقف وتاء عند الوصل غالبًا، أما الهاء فتبقى هاء.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 65,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "ضع علامة الترقيم المناسبة: «ما أجمل السماء»",
+      "reference_answer": "ما أجمل السماء!",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 66,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "صحح: «هؤلاء الطالبات مجتهدون».",
+      "reference_answer": "هؤلاء الطالبات مجتهدات.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 67,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "كيف تكتب العدد في «ثلاثة ...» مع كلمة «كتب»؟",
+      "reference_answer": "ثلاثة كتب.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 68,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "ما وظيفة الفاصلة؟",
+      "reference_answer": "تفصل بين الجمل القصيرة أو عناصر التعداد لتسهيل القراءة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 69,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "صحح: «مسئول عن العمل».",
+      "reference_answer": "مسؤول عن العمل.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 70,
+      "category": "إملاء وعلامات ترقيم",
+      "question": "ضع نقطتين بعد عبارة تمهّد لتعداد.",
+      "reference_answer": "أحتاج إلى ثلاثة أشياء: قلم، ودفتر، ومسطرة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 71,
+      "category": "حوار وسياق اجتماعي",
+      "question": "قال لك زميل: «أنا قلق من الاختبار». ماذا ترد بتعاطف؟",
+      "reference_answer": "أتفهم قلقك؛ خذ نفسًا وراجع أهم النقاط، وأنا مستعد لمساعدتك.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 72,
+      "category": "حوار وسياق اجتماعي",
+      "question": "في متجر، اكتشفت أن السعر على الفاتورة مختلف عن الملصق. كيف تتحدث؟",
+      "reference_answer": "عذرًا، يبدو أن هناك اختلافًا بين السعر المعروض والفاتورة. هل يمكنكم التحقق؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 73,
+      "category": "حوار وسياق اجتماعي",
+      "question": "شخص لم يوافقك الرأي. كيف تتابع الحوار؟",
+      "reference_answer": "أحترم رأيك. هل يمكن أن تشرح لي السبب حتى أفهم وجهة نظرك؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 74,
+      "category": "حوار وسياق اجتماعي",
+      "question": "تأخرت عن موعد. ما أفضل تصرف لغوي؟",
+      "reference_answer": "أعتذر عن التأخير، وأوضح السبب باختصار دون اختلاق أعذار.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 75,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف تستوضح كلمة لم تفهمها أثناء الحديث؟",
+      "reference_answer": "ما المقصود بهذه الكلمة في هذا السياق؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 76,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف تقدم نفسك في مقابلة قصيرة؟",
+      "reference_answer": "السلام عليكم، أنا ...، لدي اهتمام بـ...، وأسعد بفرصة التعرف إليكم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 77,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف تواسي صديقًا فقد شيئًا مهمًا؟",
+      "reference_answer": "أعرف أن الأمر يزعجك، وآسف لما حدث. هل أستطيع مساعدتك في البحث؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 78,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف تطلب رأي شخص في فكرة؟",
+      "reference_answer": "ما رأيك في هذه الفكرة؟ وهل ترى طريقة لتحسينها؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 79,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف تصحح معلومة خاطئة دون إحراج؟",
+      "reference_answer": "قد تكون هناك معلومة تحتاج إلى مراجعة؛ بحسب ما أعرف، الصحيح هو...",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 80,
+      "category": "حوار وسياق اجتماعي",
+      "question": "كيف ترد على «شكرًا»؟",
+      "reference_answer": "العفو، هذا واجبي، ويسعدني أنني استطعت المساعدة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 81,
+      "category": "قصة وفهم السرد",
+      "question": "في قصة، خرجت نورة بلا مظلة ثم هطل المطر. ما المشكلة التي واجهتها؟",
+      "reference_answer": "واجهت المطر دون أن تكون معها مظلة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 82,
+      "category": "قصة وفهم السرد",
+      "question": "وجد سامي محفظة وأعادها لصاحبها. ما الصفة التي أظهرها؟",
+      "reference_answer": "الأمانة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 83,
+      "category": "قصة وفهم السرد",
+      "question": "تأخر البطل لأنه ساعد جارًا مسنًا. ما الذي يكشفه ذلك؟",
+      "reference_answer": "أنه قدّم مساعدة الآخرين رغم احتمال تأخره.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 84,
+      "category": "قصة وفهم السرد",
+      "question": "إذا انتهت القصة بتصالح صديقين، فما الحدث الذي قد يكون سبق النهاية؟",
+      "reference_answer": "حوار أو اعتذار أو توضيح لسوء فهم بينهما.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 85,
+      "category": "قصة وفهم السرد",
+      "question": "ما الفرق بين الراوي والشخصية؟",
+      "reference_answer": "الراوي هو من يسرد الأحداث، والشخصية تشارك في أحداث القصة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 86,
+      "category": "قصة وفهم السرد",
+      "question": "لماذا نذكر الزمان والمكان في بداية القصة؟",
+      "reference_answer": "لتهيئة القارئ وتوضيح إطار الأحداث.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 87,
+      "category": "قصة وفهم السرد",
+      "question": "كيف يمكن أن تتغير شخصية متسرعة خلال القصة؟",
+      "reference_answer": "قد تتعلم التمهل بعد أن تواجه نتائج قراراتها المتسرعة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 88,
+      "category": "قصة وفهم السرد",
+      "question": "ما الدليل على أن شخصية ما خائفة؟",
+      "reference_answer": "أفعالها أو كلامها أو وصف مشاعرها، مثل التردد أو الارتجاف.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 89,
+      "category": "قصة وفهم السرد",
+      "question": "اقترح نهاية منطقية لقصة ضاع فيها طفل في السوق.",
+      "reference_answer": "يطلب المساعدة من موظف الأمن، ويتواصل الموظف مع أسرته حتى يجتمع بهم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 90,
+      "category": "قصة وفهم السرد",
+      "question": "ما الفكرة الرئيسة لقصة يتعلم فيها طفل الاعتذار بعد إيذاء صديقه؟",
+      "reference_answer": "أهمية الاعتراف بالخطأ والاعتذار وإصلاح العلاقة.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 91,
+      "category": "توليد الكلام والتفكير",
+      "question": "اشرح كيف تقضي يومًا دراسيًا في خمسة أسطر مترابطة.",
+      "reference_answer": "أستيقظ مبكرًا وأستعد للمدرسة. أتناول فطوري ثم أذهب إلى الصف. أتابع الدروس وأسجل الملاحظات. أعود إلى المنزل وأراجع ما تعلمته. وفي المساء أستعد لليوم التالي.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 92,
+      "category": "توليد الكلام والتفكير",
+      "question": "صف مكانًا تحبه مستخدمًا ثلاث صفات.",
+      "reference_answer": "أحب الحديقة الهادئة؛ فهي واسعة ونظيفة ومليئة بالأشجار.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 93,
+      "category": "توليد الكلام والتفكير",
+      "question": "احك موقفًا تعلمت منه درسًا، مع ذكر السبب والنتيجة.",
+      "reference_answer": "تسرعت مرة في الحكم على زميل، ثم اكتشفت أنني لم أفهم موقفه. اعتذرت له وتعلمت أن أستمع قبل أن أحكم.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 94,
+      "category": "توليد الكلام والتفكير",
+      "question": "اشرح رأيك في أهمية القراءة مع سببين.",
+      "reference_answer": "القراءة مهمة لأنها توسع المفردات وتزيد المعرفة، كما تساعد على تنظيم الأفكار والتعبير عنها.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 95,
+      "category": "توليد الكلام والتفكير",
+      "question": "اقترح حلين لمشكلة التأخر عن المواعيد.",
+      "reference_answer": "الاستعداد من الليلة السابقة، وضبط منبه مع ترك وقت احتياطي للطريق.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 96,
+      "category": "توليد الكلام والتفكير",
+      "question": "أعد صياغة «هو زعلان لأنه ما قدر يجي» بالفصحى.",
+      "reference_answer": "هو حزين لأنه لم يتمكن من الحضور.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 97,
+      "category": "توليد الكلام والتفكير",
+      "question": "حوّل «وش تقصد؟» إلى صيغة فصحى مهذبة.",
+      "reference_answer": "ماذا تقصد؟ هل يمكنك توضيح ذلك؟",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 98,
+      "category": "توليد الكلام والتفكير",
+      "question": "اكتب ردًا يوضح أنك فهمت طلبًا معقدًا.",
+      "reference_answer": "فهمت المطلوب: سأبدأ بالخطوة الأولى، ثم أراجع النتيجة قبل الانتقال إلى الخطوة التالية.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 99,
+      "category": "توليد الكلام والتفكير",
+      "question": "قارن بين التعلم بالممارسة والتعلم بالحفظ.",
+      "reference_answer": "الممارسة تساعد على تطبيق المعرفة واكتشاف الأخطاء، أما الحفظ فيثبت المعلومات لكنه لا يضمن القدرة على استخدامها.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    },
+    {
+      "id": 100,
+      "category": "توليد الكلام والتفكير",
+      "question": "أنشئ حوارًا قصيرًا من ثلاثة أدوار بين طالب ومعلمه حول سؤال صعب.",
+      "reference_answer": "الطالب: لم أفهم هذه المسألة. المعلم: أي خطوة تبدو غير واضحة؟ الطالب: طريقة اختيار القانون. المعلم: لنحل مثالًا بسيطًا أولًا.",
+      "grading": "semantic_rubric",
+      "skills": [
+        "arabic_understanding",
+        "arabic_expression"
+      ]
+    }
+  ],
+  "challenge_stage": {
+    "count": 10,
+    "selection": "fixed_seed_random_sample_from_question_bank",
+    "source_question_ids": [
+      3,
+      9,
+      14,
+      24,
+      34,
+      44,
+      54,
+      64,
+      84,
+      94
+    ],
+    "rule": "لا تُعرض الإجابة المرجعية للنموذج. تُستخدم صياغة بديلة تختبر الفكرة نفسها، ويُقيّم المعنى لا التطابق الحرفي.",
+    "paraphrased_prompts": [
+      "في العبارة «قرأ الطالب الكتاب»، حدّد من قام بالفعل وعلّل اختيارك.",
+      "بيّن الصيغة الصحيحة للجملة بعد دخول إنّ، واشرح علامة الاسم بعدها.",
+      "استخرج معنى التمهّل من السياق، واذكره بكلمة عربية أخرى.",
+      "هل تكفي المعطيات لإثبات أن جميع الورود طبية؟ فسّر منطقيًا.",
+      "صغ طلبًا مهذبًا لإعادة شرح معلومة لم تتضح لك.",
+      "أعد بناء جملة شرطية سليمة تربط تنظيم الوقت بإنجاز العمل.",
+      "راجع كتابة الجملة وصحح موضع الهمزة وحرف الجر.",
+      "اكتب استجابة تراعي مشاعر شخص قلق، وتتضمن اقتراحًا عمليًا.",
+      "استنتج الصفة التي تدل عليها إعادة المحفظة إلى صاحبها، مع ذكر الدليل.",
+      "قدّم مقارنة موجزة تشرح كيف تساعد الممارسة على تحويل المعرفة إلى مهارة."
+    ]
+  },
+  "stories": [
+    {
+      "id": "story_01",
+      "title": "الموعد الأول",
+      "text": "في صباح يوم الاثنين، استيقظ مازن متأخرًا عن موعده مع زميله فهد. أراد أن يرسل رسالة سريعة، لكنه كتب: «وينك؟ أنا أنتظرك». قرأ الرسالة مرة أخرى، ثم قرر أن يكون ألطف. كتب: «صباح الخير يا فهد، أعتذر عن التأخير. سأصل خلال عشر دقائق، شكرًا لانتظارك». عندما وصل، اعتذر شفهيًا أيضًا، واستمع إلى فهد حين أخبره أن الانتظار أزعجه. اتفق الاثنان على إبلاغ بعضهما مبكرًا إذا تغير الموعد.",
+      "tasks": [
+        "لخّص المشكلة والحل.",
+        "اكتب ردًا مناسبًا من فهد يعبّر فيه عن انزعاجه دون إساءة.",
+        "ما الفرق بين الرسالة الأولى والثانية في النبرة؟",
+        "مثّل حوارًا قصيرًا بين مازن وفهد بعد وصول مازن."
+      ]
+    },
+    {
+      "id": "story_02",
+      "title": "في المكتبة",
+      "text": "دخلت ريم مكتبة الحي تبحث عن كتاب يساعدها على تحسين لغتها. قالت للموظف: «أبغى كتاب عربي». ابتسم الموظف وسألها عن مستواها واهتماماتها. أجابت: «أفهم النصوص السهلة، لكنني أريد أن أتعلم كيف أتكلم بطلاقة». اقترح عليها قصصًا قصيرة وحوارات يومية. سألت ريم: «هل يمكن أن ترشدني إلى قسم القصص؟» فأشار إلى الرف القريب، ونصحها أن تقرأ قصة كل يوم ثم تعيد حكايتها بصوتها.",
+      "tasks": [
+        "ما الهدف الحقيقي لريم من زيارة المكتبة؟",
+        "أعد صياغة طلب ريم الأول بالفصحى المهذبة.",
+        "اكتب سؤال متابعة تسأله ريم للموظف.",
+        "احك القصة من وجهة نظر ريم بصيغة المتكلم."
+      ]
+    },
+    {
+      "id": "story_03",
+      "title": "سوء الفهم",
+      "text": "اتفق خالد وسليم على إنجاز مشروع معًا. أرسل خالد رسالة مقتضبة: «أرسل الملف الآن». فهم سليم الرسالة على أنها أمر غاضب، فتوقف عن الرد. لاحظ خالد الصمت، فاتصل به وقال: «أعتذر، لم أقصد أن أبدو حادًا. كنت مستعجلًا فقط. هل يناسبك أن ترسل الملف عندما تنتهي من مراجعته؟». شرح سليم أنه انزعج من الأسلوب، ثم اتفقا على استخدام عبارات أوضح وأكثر لطفًا في المرات القادمة.",
+      "tasks": [
+        "ما سبب سوء الفهم؟",
+        "كيف أصلح خالد الموقف؟",
+        "اقترح ثلاث صيغ مهذبة لطلب إرسال الملف.",
+        "اكتب حوارًا بديلًا كان سيمنع المشكلة من البداية."
+      ]
+    },
+    {
+      "id": "story_04",
+      "title": "السؤال الذي غيّر الرحلة",
+      "text": "كان يوسف في محطة الحافلات للمرة الأولى، ولم يعرف أي حافلة توصله إلى الجامعة. كاد أن يستقل أول حافلة، لكنه قرر أن يسأل. قال للسائق: «لو سمحت، هل تتوقف هذه الحافلة قرب الجامعة؟». أجابه السائق بالنفي، ثم شرح له رقم الحافلة الصحيحة ومكان الانتظار. شكر يوسف السائق، وأعاد عليه التعليمات ليتأكد أنه فهمها. وصل إلى الجامعة في الوقت المناسب، وتعلم أن السؤال الواضح يوفر الوقت ويمنع التخمين.",
+      "tasks": [
+        "لماذا لم يستقل يوسف أول حافلة؟",
+        "اكتب سؤالًا آخر مناسبًا للاستفسار عن الطريق.",
+        "كيف تأكد يوسف من فهم التعليمات؟",
+        "اشرح الدرس الذي تعلمه يوسف، ثم أعط مثالًا من حياتك المتخيلة."
+      ]
+    },
+    {
+      "id": "story_05",
+      "title": "اعتذار صادق",
+      "text": "أخذت ليان دفتر أختها دون استئذان، ثم سقط الدفتر وتمزقت إحدى صفحاته. فكرت في إخفاء الأمر، لكنها قررت الصراحة. قالت: «أنا آسفة، أخذت دفترك دون إذنك، وتمزقت هذه الصفحة. هذا خطئي، وسأحاول إصلاحها أو أشتري لك دفترًا بديلًا». حزنت أختها في البداية، لكنها قدّرت صدقها. جلستا معًا وأصلحتا الصفحة، ثم اتفقتا على الاستئذان قبل استخدام أغراض بعضهما.",
+      "tasks": [
+        "اذكر الخطأين اللذين ارتكبتهما ليان.",
+        "ما العناصر التي جعلت اعتذارها صادقًا؟",
+        "اكتب ردًا مناسبًا من أختها.",
+        "اقترح عنوانًا آخر للقصة وعلّل اختيارك."
+      ]
+    }
+  ],
+  "story_training_rules": [
+    "اقرأ القصة كاملة قبل الإجابة.",
+    "أجب عن أسئلة الفهم والاستنتاج والشخصيات والسبب والنتيجة.",
+    "نفّذ مهام إعادة الحكي بصوت المتكلم وبضمير الغائب.",
+    "أنشئ حوارًا طبيعيًا، وراعِ التحية والاستئذان والاعتذار والاستيضاح والشكر وإنهاء الحديث.",
+    "قيّم سلامة اللغة ووضوح المعنى وترابط الكلام وملاءمة النبرة، لا حفظ نص إجابة واحدة."
+  ],
+  "evaluation_warning": "لا تستخدم مطابقة النص الحرفية وحدها لتصحيح الإجابات المفتوحة. يلزم مقيم دلالي مستقل أو rubric واضح مع اختبارات بشرية. لا تُدرّب على مجموعة الاختبار النهائية ولا تعتبر النجاح فيها وحدها دليلًا على إتقان العربية."
+}
