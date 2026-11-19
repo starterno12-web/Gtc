@@ -34,7 +34,7 @@ def load_pairs(root):
             user = item.get("user", "").strip()
             answer = item.get("bot", item.get("answer", "")).strip()
             if user and answer:
-                out.append("س:" + user.replace("\\n", " ¶ ") + "\\nج:" + answer.replace("\\n", "¶") + "\\n")
+                out.append("س:" + user.replace("\n", " ¶ ") + "\nج:" + answer.replace("\n", "¶") + "\n")
     unique = list(dict.fromkeys(out))
     if len(unique) < 100:
         raise SystemExit(f"Curated game-development corpus too small: {len(unique)} unique examples")
