@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 """Conservative clean-corpus fine-tuning plus exactly five memory questions for ten rounds."""
-import argparse, json, math, random, re, time
+import argparse, json, math, random, re, time, sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 import numpy as np
 import torch
 from nuwaa.lm.gru import GRULM
@@ -149,7 +153,7 @@ def memory_test(model):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--base",default="nlm2.bin")
-    ap.add_argument("--out",default="weights/nlm2_clean_memory.bin")
+    ap.add_argument("--out",default="nlm2_clean_memory.bin")
     ap.add_argument("--report",default="memory_test_50.json")
     ap.add_argument("--lr",type=float,default=0.00001)
     ap.add_argument("--max-clean-examples",type=int,default=10000)
@@ -162,11 +166,9 @@ def main():
     print("=== الأسئلة الخمسة ===",flush=True)
     for q,_ in MEMORY:
         print(q,flush=True)
-    clean=load_clean_pairs()
-    # Keep a balanced replay subset so useful old knowledge is reinforced without importing broad chat noise.
-    if len(clean)>args.max_clean_examples:
-        clean=sorted(clean,key=lambda x: (len(x[0])+len(x[1]), x[0]))[:args.max_clean_examples]
-    texts=[fmt(q,a) for q,a in clean]+[fmt(q,a) for q,a in MEMORY]
+    # Train only the five requested facts; don't mix in unrelated replay data.
+    clean=[]
+    texts=[fmt(q,a) for q,a in MEMORY]
     expand_vocab(base,texts)
     params=[torch.nn.Parameter(torch.tensor(x.copy(),dtype=torch.float32)) for x in base.P]
     opt=torch.optim.Adam(params,lr=args.lr)
@@ -205,7 +207,7 @@ def main():
     Path("memory_test_50.txt").write_text("\n".join(
         f"الجولة {r['round']} | {r['question']} | المتوقع: {r['expected']} | الناتج: {r['answer']} | {'نجح' if r['pass'] else 'لم يطابق'}"
         for r in rows)+"\n",encoding="utf-8")
-    np.savez_compressed("weights/nlm2_clean_memory.npz",**{f"p{i}":p for i,p in enumerate(check.P)})
+    np.savez_compressed(str(Path(args.out).with_suffix(".npz")),**{f"p{i}":p for i,p in enumerate(check.P)})
     print(json.dumps({k:v for k,v in report.items() if k!="results"},ensure_ascii=False),flush=True)
 
 if __name__=="__main__": main()
