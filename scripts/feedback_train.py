@@ -131,7 +131,7 @@ def main():
         prompt=f"نص:{source}\nس:{q}\nج:";target=norm(a);attempts=[];n=0
         while True:
             n+=1
-            time.sleep(0.1
+            time.sleep(0.1)
             ans,repeated=generate(model,prompt);normalized=norm(ans)
             ok=bool(target) and normalized==target and not repeated
             attempts.append({"attempt":n,"answer":ans,"correct":ok,"repetition_blocked":repeated})
