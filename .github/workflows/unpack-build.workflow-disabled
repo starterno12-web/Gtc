@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths-ignore:
       - "training/**"
+      - ".github/workflows/train-cumulative-master.yml"
   workflow_dispatch:
 
 permissions:
