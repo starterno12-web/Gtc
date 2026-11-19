@@ -45,7 +45,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          cp nlm2_feedback.bin nlm2.bin\n          cp nlm2_feedback.bin android/app/src/main/assets/nlm2.bin\n          git add nlm2.bin android/app/src/main/assets/nlm2.bin nlm2_feedback.bin nlm2_feedback.feedback_report.json
+          cp nlm2_feedback.bin nlm2.bin
+          cp nlm2_feedback.bin android/app/src/main/assets/nlm2.bin
+          git add nlm2.bin android/app/src/main/assets/nlm2.bin nlm2_feedback.bin nlm2_feedback.feedback_report.json
           if git diff --cached --quiet; then
             echo "No training outputs to commit."
           else
