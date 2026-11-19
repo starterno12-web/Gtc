@@ -4,9 +4,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - "training/checkpoints/**"
-      - "training/master_training_corpus.jsonl"
-      - "training/master_training_manifest.json"
+      - "training/**"
   workflow_dispatch:
 
 permissions:
