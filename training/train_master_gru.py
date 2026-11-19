@@ -33,7 +33,7 @@ def persist_git(paths, epoch):
     # Rebase our checkpoint commit on the newest main before pushing; never force-push.
     for attempt in range(1,6):
         subprocess.run(["git","fetch","origin","main"],check=True)
-        subprocess.run(["git","rebase","origin/main"],check=True)
+        subprocess.run(["git","rebase","--autostash","origin/main"],check=True)
         push=subprocess.run(["git","push"])
         if push.returncode == 0:
             print(f"Checkpoint epoch {epoch} pushed to origin/main.",flush=True)
