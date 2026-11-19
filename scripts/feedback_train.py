@@ -46,7 +46,7 @@ def train_seq(seq,params,opt,h):
     if not torch.isfinite(loss):raise RuntimeError("Invalid loss; checkpoint not saved.")
     loss.backward();torch.nn.utils.clip_grad_norm_(params,.5);opt.step()
 
-def generate(model,prompt,limit=100):
+def generate(model,prompt,limit=120,temperature=0.85):
     p=[torch.tensor(x.copy(),dtype=torch.float32) for x in model.P]
     h=model.h;s1=torch.zeros(h);s2=torch.zeros(h)
     def step(ix,s1,s2):
@@ -62,7 +62,7 @@ def generate(model,prompt,limit=100):
         for ix in ids:logits,s1,s2=step(int(ix),s1,s2)
         out=[]
         for _ in range(limit):
-            ix=int(torch.argmax(logits).item());ch=model.chars[ix]
+            probs=torch.softmax(logits / max(temperature, 0.05), dim=-1)\n            # Block character choices that create a repeated 4-character sequence.\n            candidates=torch.argsort(probs,descending=True).tolist(); ix=None\n            current="".join(out)\n            for candidate in candidates:\n                ch_try=model.chars[int(candidate)]\n                if ch_try=="\\n": ix=int(candidate); break\n                trial=current+ch_try\n                if len(trial)>=4 and trial[-4:] in [trial[j:j+4] for j in range(max(0,len(trial)-4))]: continue\n                ix=int(candidate); break\n            if ix is None: ix=int(torch.multinomial(probs,1).item())\n            ch=model.chars[ix]
             if ch=="\n":break
             out.append(ch);logits,s1,s2=step(ix,s1,s2)
     return "".join(out).strip()
@@ -101,11 +101,11 @@ def main():
     for q,a in qa:
         prompt=f"نص:{source}\nس:{q}\nج:";target=norm(a);attempts=[];n=0;passed=False
         while True:
-            n+=1;ans=generate(model,prompt);ok=bool(target) and target in norm(ans)
-            attempts.append({"attempt":n,"answer":ans,"correct":ok})
+            n+=1;time.sleep(5);ans=generate(model,prompt);normalized=norm(ans);repeated=any(normalized[i:i+5] in normalized[:i] for i in range(2,max(2,len(normalized)-4)));ok=bool(target) and normalized==target and not repeated
+            attempts.append({"attempt":n,"answer":ans,"correct":ok,"repetition_blocked":repeated})
             print(f"سؤال: {q}\nإجابة النموذج: {ans}\n{'صحيح' if ok else 'خطأ - تدريب وإعادة السؤال'}",flush=True)
             if ok:passed=True;break
-            train_seq(model.encode(fmt(source,q,a)),params,opt,model.h);steps+=1
+            train_seq(model.encode(fmt(source,q,a)),params,opt,model.h);steps+=1\n            model.P=[p.detach().numpy().astype(np.float32) for p in params]\n            model.save(out)\n            out.with_suffix(".feedback_report.json").write_text(json.dumps({"source":str(args.text),"read_times":args.read_times,"passes":sum(1 for r in report if r["passed"]),"total_questions":len(qa),"current_question":q,"attempt":n,"last_answer":ans,"steps":steps,"duration_s":round(time.time()-start,1),"details":report},ensure_ascii=False,indent=2),encoding="utf-8")
             model.P=[p.detach().numpy().astype(np.float32) for p in params]
             if args.max_retries and n>=args.max_retries:
                 print(f"Reached retry cap ({args.max_retries}) for this question; moving on.",flush=True);break
