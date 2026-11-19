@@ -84,4 +84,16 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add training/master_training_corpus.jsonl training/master_training_manifest.json training/checkpoints/game_domain_master_initial.pt training/checkpoints/game_domain_master.pt training/checkpoints/game_domain_master_candidate.pt
           git diff --cached --quiet || git commit -m "[cumulative-train] save corpus and master model outputs"
-          git push
+          # Another workflow may have committed while training was running. Rebase safely, never force-push.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase --autostash origin/main
+            if git push; then
+              echo "Final corpus, seed, and model snapshots are committed to main."
+              exit 0
+            fi
+            echo "Concurrent main update detected; retrying final publish ($attempt/5)."
+            sleep $((attempt * 2))
+          done
+          echo "::error::Could not publish final outputs after five safe retries."
+          exit 1
