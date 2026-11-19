@@ -1,0 +1,29 @@
+name: Arabic article curriculum training (10 rounds)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/train_article_curriculum.py'
+      - '.github/workflows/train-article-curriculum.yml'
+      - 'مرجع_الغمر_باللغة_العربية-1.txt'
+permissions:
+  contents: write
+jobs:
+  train-article:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install training dependencies
+        run: python -m pip install --no-cache-dir numpy torch
+      - name: Train from article and run 10 repeated question rounds
+        run: python scripts/train_article_curriculum.py --rounds 10 --seconds 21000
+      - name: Publish new checkpoint without replacing existing weights
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add weights/nlm2_article_curriculum.bin
+          git commit -m "Save Arabic article curriculum checkpoint"
+          git push
