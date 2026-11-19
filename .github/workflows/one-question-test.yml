@@ -1,10 +1,6 @@
-name: One question GRU generation test
+name: PAUSED -  One question GRU generation test
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/one-question-test.yml'
-      - 'scripts/one_question_test.py'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
