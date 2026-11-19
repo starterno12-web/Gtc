@@ -120,8 +120,10 @@ def main():
           "steps":steps,"elapsed_seconds":round(time.time()-start,1),"details":report
         },ensure_ascii=False,indent=2),encoding="utf-8")
     for epoch in range(args.read_times):
-        for seq in training:
-            train_seq(model.encode(seq),params,opt,model.h);steps+=1
+        # Phase 1: manifesto-only training, no generation/questions/tests.
+        train_seq(model.encode(phase1),params,opt,model.h);steps+=1
+        if (epoch+1) % 50 == 0: print('Manifesto pass '+str(epoch+1)+'/'+str(args.read_times),flush=True)
+    print('Phase 1 complete; starting fact/question phase.',flush=True)
     for q,a in qa:
         prompt=f"نص:{source}\nس:{q}\nج:";target=norm(a);attempts=[];n=0
         while True:
