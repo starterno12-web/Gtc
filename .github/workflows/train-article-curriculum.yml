@@ -1,11 +1,6 @@
-name: Comprehensive Arabic browser and 3D curriculum training
+name: PAUSED -  Comprehensive Arabic browser and 3D curriculum training
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/train_article_curriculum.py'
-      - '.github/workflows/train-article-curriculum.yml'
-      - 'مرجع_الغمر_الشامل_المنضبط_الإصدار_الثاني.txt'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
