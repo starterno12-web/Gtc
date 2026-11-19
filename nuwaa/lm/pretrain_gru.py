@@ -8,7 +8,7 @@ from nuwaa.lm.gru import GRULM
 
 def load_pairs(root):
     out=[]
-    files=list(Path(root).rglob("*.jsonl"))
+    files=[]\n    base=Path(root)\n    for folder in (base/"data", base/"training"):\n        if folder.exists(): files.extend(folder.rglob("*.jsonl"))
     for p in files:
         if "eval" in p.parts or "checkpoints" in p.parts: continue
         try:
