@@ -3,6 +3,11 @@ name: Unpack package and build
 on:
   push:
     branches: [main]
+    paths:
+      - "nlm2.bin"
+      - "android/app/src/main/assets/nlm2.bin"
+      - "android/**"
+      - "نواة_الحزمة_الكاملة.zip"
     paths-ignore:
       - "training/**"
       - "nuwaa/**"
