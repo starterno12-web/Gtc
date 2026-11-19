@@ -28,7 +28,7 @@
     {
       "file": "training/curriculum_game_dev.jsonl",
       "records_added": 60,
-      "sha256": "11753736bfd0a92768e01b254cda53eac0be15ef9568d0fdf5e7466e32c92973"
+      "sha256": "647ceedfebeb174ede2029f1afbc5c603c5180ce68aaeb8641ff6c0936387843"
     },
     {
       "file": "training/curriculum_game_engine_testing.jsonl",
@@ -53,7 +53,7 @@
     {
       "file": "training/master_training_corpus.jsonl",
       "records_added": 0,
-      "sha256": "213a3f83ba4c71ee147bceeca1e9c44a9196d304969a4d7a81a26e8cd03cef48"
+      "sha256": "e11b3cbd0382e238eec7b4661725d7acf01f217ccc3726ee315eefe10fd332a4"
     }
   ],
   "checkpoint_file": "training/checkpoints/game_domain_master.pt",
