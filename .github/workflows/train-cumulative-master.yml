@@ -1,0 +1,65 @@
+name: Master cumulative game AI training
+on:
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: Epochs for the cumulative continuation
+        default: "40"
+        type: string
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: cumulative-game-ai-training
+  cancel-in-progress: false
+jobs:
+  train-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU PyTorch and NumPy
+        run: pip install numpy torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Download first completed checkpoint
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: game-domain-gru-checkpoint
+          run-id: 44493771599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: training/checkpoints/seed-first/
+      - name: Download second completed checkpoint (independent prior run)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: game-domain-gru-checkpoint
+          run-id: 44494562902
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: training/checkpoints/seed-second/
+      - name: Build deduplicated master dataset and select best prior checkpoint
+        run: python training/prepare_master_training.py prepare
+      - name: Resume cumulative training using all curriculum files
+        run: python training/train_domain_gru.py --epochs "${{ github.event.inputs.epochs || '40' }}" --checkpoint training/checkpoints/game_domain_master.pt
+      - name: Add source manifest to checkpoint
+        run: python training/prepare_master_training.py finalize
+      - name: Upload master dataset and checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: cumulative-master-training-output
+          path: |
+            training/master_training_corpus.jsonl
+            training/master_training_manifest.json
+            training/checkpoints/game_domain_master.pt
+          retention-days: 90
+      - name: Commit master corpus and checkpoint for future rounds
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add training/master_training_corpus.jsonl training/master_training_manifest.json training/checkpoints/game_domain_master.pt
+          git commit -m "[cumulative-train] consolidate prior curricula and checkpoint" || echo "No changes to commit"
+          git push
