@@ -50,23 +50,26 @@ def prepare():
     tmp.replace(MASTER)
     # Keep the old seed intact; only initialize the canonical checkpoint if absent.
     candidates=list((ROOT/"checkpoints").rglob("*.pt"))
-    if not CKPT.exists():
-        scored=[]
-        for p in candidates:
-            try:
-                ck=torch.load(p,map_location="cpu",weights_only=False)
-                loss=float(ck.get("best_valid_loss",float("inf")))
-                if ck.get("model_state") and ck.get("vocab"): scored.append((loss,p))
-            except Exception as exc: print(f"Skip invalid checkpoint {p}: {exc}")
-        if scored:
-            loss,p=min(scored,key=lambda x:x[0]); CKPT.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,CKPT)
-            print(f"Seeded canonical checkpoint from {p}; prior best validation loss={loss:.5f}")
-    # Snapshot the actual historical seed once; never overwrite this baseline on later runs.
+    scored=[]
+    for candidate in candidates:
+        if candidate.name in ("game_domain_master.pt","game_domain_master_candidate.pt","game_domain_master_initial.pt"): continue
+        try:
+            ck=torch.load(candidate,map_location="cpu",weights_only=False)
+            loss=float(ck.get("best_valid_loss",float("inf")))
+            if ck.get("model_state") and ck.get("vocab"): scored.append((loss,candidate))
+        except Exception as exc: print(f"Skip invalid checkpoint {candidate}: {exc}")
+    if not CKPT.exists() and scored:
+        loss,seed=min(scored,key=lambda x:x[0]); CKPT.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(seed,CKPT)
+        print(f"Seeded canonical checkpoint from {seed}; prior best validation loss={loss:.5f}")
+    # Capture the historical seed artifact, not the already-trained canonical checkpoint.
     initial = ROOT / "checkpoints" / "game_domain_master_initial.pt"
-    if CKPT.exists() and not initial.exists():
-        initial.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(CKPT,initial)
-        print(f"Preserved initial master seed at {initial}")
+    if not initial.exists():
+        if scored:
+            loss,seed=min(scored,key=lambda x:x[0]); shutil.copy2(seed,initial)
+            print(f"Preserved historical seed {seed} as {initial} (validation loss={loss:.5f})")
+        elif CKPT.exists():
+            shutil.copy2(CKPT,initial)
+            print(f"Preserved canonical checkpoint as initial fallback at {initial}")
     manifest={"schema_version":2,"corpus_file":str(MASTER),"records":len(rows),
       "deduplicated":True,"cumulative":True,"source_files":source_manifest,
       "checkpoint_file":str(CKPT),"preserves_previous_master_corpus":True}
