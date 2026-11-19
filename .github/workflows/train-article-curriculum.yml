@@ -1,11 +1,11 @@
-name: Arabic article curriculum training (10 rounds)
+name: Comprehensive Arabic browser and 3D curriculum training
 on:
   push:
     branches: [main]
     paths:
       - 'scripts/train_article_curriculum.py'
       - '.github/workflows/train-article-curriculum.yml'
-      - 'مرجع_الغمر_باللغة_العربية-1.txt'
+      - 'مرجع_الغمر_الشامل_المنضبط_الإصدار_الثاني.txt'
 permissions:
   contents: write
 jobs:
@@ -18,8 +18,8 @@ jobs:
           persist-credentials: true
       - name: Install training dependencies
         run: python -m pip install --no-cache-dir numpy torch
-      - name: Train from article and run 10 repeated question rounds
-        run: python scripts/train_article_curriculum.py --rounds 10 --seconds 21000
+      - name: Train from v2 reference and its generated comprehension questions
+        run: python scripts/train_article_curriculum.py --article 'مرجع_الغمر_الشامل_المنضبط_الإصدار_الثاني.txt' --rounds 10 --seconds 21000
       - name: Verify checkpoint exists and preserve original weights
         run: |
           test -s weights/nlm2_article_curriculum.bin
@@ -30,5 +30,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f weights/nlm2_article_curriculum.bin
-          git commit -m "Save Arabic article curriculum checkpoint"
+          git commit -m "Save comprehensive Arabic browser and 3D checkpoint"
           git push
