@@ -1,0 +1,33 @@
+name: One question GRU generation test
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-question-test.yml'
+      - 'scripts/one_question_test.py'
+permissions:
+  contents: write
+jobs:
+  generate-once:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Guard against reruns after result is committed
+        run: |
+          if [ -f one_question_answer.txt ]; then
+            echo "Persistent result already exists; refusing to generate again."
+            exit 0
+          fi
+      - name: Install runtime
+        run: python -m pip install --no-cache-dir numpy
+      - name: Ask the trained model once
+        run: python scripts/one_question_test.py
+      - name: Save permanent result at repository root
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add one_question_answer.txt
+          git commit -m "Save one-shot GRU question test output"
+          git push
