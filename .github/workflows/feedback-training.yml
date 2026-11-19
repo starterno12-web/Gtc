@@ -6,7 +6,7 @@ on:
       read_times:
         description: Initial training passes
         required: false
-        default: "20"
+        default: "500"
       max_retries:
         description: Retry count (0 means unlimited)
         required: false
@@ -29,7 +29,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy torch
+          python -m pip install numpy
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Run feedback training
         run: |
           python scripts/feedback_train.py --read-times "${{ inputs.read_times }}" --max-retries "${{ inputs.max_retries }}"
