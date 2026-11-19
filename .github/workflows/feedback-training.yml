@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p nuwaa/lm
-          git show 2bbbdde78216be776f2751db3fc81ed6759748ba:nuwaa/lm/gru.py > nuwaa/lm/gru.py
+          git show 3390a7729b2acc7bee1eb94ada2b1fd963a145d9:nuwaa/lm/gru.py > nuwaa/lm/gru.py
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -41,7 +41,7 @@ jobs:
         run: |
           python scripts/feedback_train.py --read-times "${{ inputs.read_times }}" --max-retries "${{ inputs.max_retries }}"
       - name: Commit trained weights and report
-        if: always()
+        if: success()
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
