@@ -41,7 +41,7 @@ def clean_pair(q, a):
     if "\ufffd" in text or text.count("�") > 1:
         return False
     # Reject obvious repeated-character / duplicated-line corruption, not legitimate code.
-    if re.search(r"(.)\\1{14,}", a):
+    if re.search(r"(.)\1{14,}", a):
         return False
     lines = [x.strip() for x in a.splitlines() if x.strip()]
     if len(lines) >= 5 and len(set(lines)) <= max(1, len(lines)//4):
@@ -141,8 +141,8 @@ def memory_test(model):
         for q, expected in MEMORY:
             raw = generate(model, "س:" + q + "\nج:", 100)
             # Normalize light punctuation/spacing while preserving Arabic letters.
-            norm = re.sub(r"[\\s،.!؟]+", "", raw)
-            exp = re.sub(r"[\\s،.!؟]+", "", expected)
+            norm = re.sub(r"[\s،.!؟]+", "", raw)
+            exp = re.sub(r"[\s،.!؟]+", "", expected)
             rows.append({"round":round_no,"question":q,"expected":expected,"answer":raw,"pass":exp in norm})
     return rows
 
