@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Auto-question trainer with in-generation repetition blocking and strict correction."""
-import argparse, re, json, time
+import argparse, re, json, time, sys
 from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 import numpy as np
 import torch
 from nuwaa.lm.gru import GRULM
