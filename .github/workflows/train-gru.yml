@@ -1,25 +1,7 @@
-name: Train Android NLM2 game-development model
+name: PAUSED -  Train Android NLM2 game-development model
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "training/trigger-training.json"
   workflow_dispatch:
-    inputs:
-      epochs:
-        description: Training epochs
-        required: false
-        default: "20"
-      lr:
-        description: Adam learning rate
-        required: false
-        default: "0.0003"
-      seconds:
-        description: Maximum training seconds
-        required: false
-        default: "22000"
-
 permissions:
   contents: write
 
