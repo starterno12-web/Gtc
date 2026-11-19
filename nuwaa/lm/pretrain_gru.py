@@ -19,8 +19,10 @@ def load_pairs(root):
         base / "training" / "curriculum_browser_audio.jsonl",
         base / "training" / "curriculum_game_engine_testing.jsonl",
         base / "training" / "curriculum_game_physics_ai.jsonl",
+        base / "training" / "curriculum_geometry_vision_python_advanced.jsonl",
     ]
     out = []
+    advanced_categories = set()
     for path in files:
         if not path.is_file():
             raise SystemExit(f"Required curated training file is missing: {path}")
