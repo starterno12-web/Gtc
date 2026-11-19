@@ -1,5 +1,9 @@
 name: Train Android NLM2 game-development model
 on:
+  push:
+    branches: [main]
+    paths:
+      - "training/trigger-training.json"
   workflow_dispatch:
     inputs:
       epochs:
