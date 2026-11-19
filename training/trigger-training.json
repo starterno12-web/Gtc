@@ -1,5 +1,5 @@
 {
-  "purpose": "One full accuracy-first NLM2 training run combining the previous curated curriculum with 100 advanced Arabic-English examples. Expanded coverage includes triangles and every common polygon family (2D and star/self-intersecting polygons), circles and conics, quadrilaterals, polyhedra and solids, polygon algorithms and game-engine geometry, advanced Python, browser APIs, pixels/colors/computer-vision foundations, Arabic diacritics/grammar, and strict developer requirement adherence. Train one enlarged model (embedding 96, hidden 512), 20 epochs, then mirror and verify every trained weight on GitHub and Android asset.",
+  "purpose": "One full accuracy-first NLM2 training run combining the previous curated curriculum with 100 advanced Arabic-English examples. Expanded coverage includes triangles and every common polygon family (2D and star/self-intersecting polygons), circles and conics, quadrilaterals, polyhedra and solids, polygon algorithms and game-engine geometry, advanced Python, browser APIs, pixels/colors/computer-vision foundations, Arabic diacritics/grammar, and strict developer requirement adherence. Train one enlarged model (embedding 96, hidden 512), 20 epochs, then mirror and verify every trained weight on GitHub and Android asset. Add ten accuracy/anti-hallucination lesson examples (geometry, logic, Python, identity-vs-equality, RGB/pixels, relativity, refusal to fabricate, and instruction-following).",
   "scope": [
     "Original curated curriculum",
     "Arabic and English",
@@ -11,13 +11,14 @@
     "Image processing and computer-vision fundamentals",
     "Arabic letters vowels shadda tanween and sentence structure",
     "Requirement filtering and no unrequested additions",
-    "Accuracy-first validation"
+    "Accuracy-first validation",
+    "10 curated accuracy and anti-hallucination examples"
   ],
   "created": "2026-11-19",
   "retry": 3,
   "workflow": "train-gru.yml",
   "corpus": "curated-only; exclude personal-memory and unrelated chat JSONL; no offensive-language filtering",
-  "training_mode": "one full training run; combined corpus; 16 epochs; single job; no APK build",
+  "training_mode": "one full training run on combined corpus including 10 new lessons; 20 epochs; no APK build",
   "advanced_corpus": "training/curriculum_geometry_vision_python_advanced.jsonl",
   "advanced_examples": 100,
   "model_dimensions": {
@@ -31,5 +32,6 @@
     "weights/nlm2.npz",
     "android/app/src/main/assets/nlm2.bin"
   ],
-  "no_apk_build": true
+  "no_apk_build": true,
+  "lesson_file": "data/new_knowledge.jsonl (10 newly appended examples)"
 }
