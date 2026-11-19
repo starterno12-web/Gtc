@@ -1090,7 +1090,7 @@ class Brain private constructor(private val ctx: Context) {
                     val qWords = q.trim().split(Regex("\\s+")).filter { it.length > 2 }
                     val echoed = if (qWords.isEmpty()) 0 else qWords.count { cand.contains(it, ignoreCase = true) }
                     val echoRatio = if (qWords.isEmpty()) 0.0 else echoed.toDouble() / qWords.size
-                    val repeated = Regex("(.{5,})\\\\1").containsMatchIn(cand)
+                    val repeated = Regex("(.{5,})\\1").containsMatchIn(cand)
                     cand.length >= 12 && echoRatio <= 0.75 && !repeated
                 }
                 val made = maxOf(20, r.first.length) * plan.tries
