@@ -7,21 +7,38 @@ import torch
 from nuwaa.lm.gru import GRULM
 
 def load_pairs(root):
-    out=[]
-    files=[]
-    base=Path(root)
-    for folder in (base/"data", base/"training"):
-        if folder.exists(): files.extend(folder.rglob("*.jsonl"))
-    for p in files:
-        if "eval" in p.parts or "checkpoints" in p.parts: continue
-        try:
-            for line in p.read_text(encoding="utf-8").splitlines():
-                if not line.strip(): continue
-                j=json.loads(line)
-                u=j.get("user","").strip(); b=j.get("bot",j.get("answer","")).strip()
-                if u and b: out.append("س:"+u.replace("\n"," ¶ ")+"\nج:"+b.replace("\n","¶")+"\n")
-        except (ValueError,UnicodeError): continue
-    return list(dict.fromkeys(out))
+    """Load only the curated game-development/browser/code curriculum.
+    Personal-memory and unrelated conversation JSONL files are deliberately excluded.
+    No profanity/offensive-language filtering is applied to included curriculum text.
+    """
+    base = Path(root)
+    files = [
+        base / "data" / "new_knowledge.jsonl",
+        base / "data" / "اكواد_طويلة.jsonl",
+        base / "training" / "curriculum_game_dev.jsonl",
+        base / "training" / "curriculum_browser_audio.jsonl",
+        base / "training" / "curriculum_game_engine_testing.jsonl",
+        base / "training" / "curriculum_game_physics_ai.jsonl",
+    ]
+    out = []
+    for path in files:
+        if not path.is_file():
+            raise SystemExit(f"Required curated training file is missing: {path}")
+        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except ValueError as exc:
+                raise SystemExit(f"Invalid JSONL at {path}:{line_no}: {exc}")
+            user = item.get("user", "").strip()
+            answer = item.get("bot", item.get("answer", "")).strip()
+            if user and answer:
+                out.append("س:" + user.replace("\\n", " ¶ ") + "\\nج:" + answer.replace("\\n", "¶") + "\\n")
+    unique = list(dict.fromkeys(out))
+    if len(unique) < 100:
+        raise SystemExit(f"Curated game-development corpus too small: {len(unique)} unique examples")
+    return unique
 
 def main():
     ap=argparse.ArgumentParser()
