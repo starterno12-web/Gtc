@@ -50,7 +50,8 @@ jobs:
         run: python training/prepare_master_training.py prepare
       - name: Train the cumulative master model and commit every completed epoch
         run: |
-          python training/train_master_gru.py --epochs "${{ github.event.inputs.epochs || '40' }}" --checkpoint training/checkpoints/game_domain_master.pt --persist-each-epoch
+          EPOCHS="${{ github.event_name == 'push' && '1' || github.event.inputs.epochs || '40' }}"
+          python training/train_master_gru.py --epochs "$EPOCHS" --checkpoint training/checkpoints/game_domain_master.pt --persist-each-epoch
       - name: Verify durable checkpoint and corpus before publishing
         run: |
           python training/prepare_master_training.py finalize
