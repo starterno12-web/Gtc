@@ -78,5 +78,5 @@ def main():
     check=GRULM.from_bytes(Path(a.bin).read_bytes())
     if check.e!=e or check.h!=h or check.chars!=model.chars or any(not np.isfinite(p).all() for p in check.P):
         raise SystemExit("NLM2 round-trip validation failed")
-    print(json.dumps({"examples":len(texts),"epochs_requested":a.epochs,"steps":step,"loss":best,"bytes":Path(a.bin).stat().st_size},ensure_ascii=False),flush=True)
+    print(json.dumps({"examples":len(texts),"epochs_requested":a.epochs,"steps":step,"loss":best,"bytes":Path(a.bin).stat().st_size,"optimizer":"Adam","bptt":"full-character-sequence"},ensure_ascii=False),flush=True)
 if __name__=="__main__": main()
