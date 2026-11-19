@@ -1,0 +1,70 @@
+name: Train Android NLM2 game-development model
+on:
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: Training epochs
+        required: true
+        default: "12"
+      lr:
+        description: Adam learning rate
+        required: true
+        default: "0.0003"
+      seconds:
+        description: Maximum training seconds
+        required: true
+        default: "16000"
+permissions:
+  contents: write
+concurrency:
+  group: nuwaa-nlm2-training
+  cancel-in-progress: false
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install training dependencies
+        run: python -m pip install --upgrade pip numpy torch
+      - name: Train the two-layer NLM2 model
+        run: |
+          python -m nuwaa.lm.pretrain_gru --data . --out weights/nlm2.npz --bin nlm2.bin --epochs "${{ inputs.epochs }}" --lr "${{ inputs.lr }}" --seconds "${{ inputs.seconds }}"
+      - name: Validate NLM2 and stage Android asset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import numpy as np
+          from nuwaa.lm.gru import GRULM
+          p=Path("nlm2.bin")
+          m=GRULM.from_bytes(p.read_bytes())
+          assert p.stat().st_size > 1000
+          assert all(np.isfinite(x).all() for x in m.P)
+          assert len(m.chars) > 100
+          asset=Path("android/app/src/main/assets/nlm2.bin")
+          asset.parent.mkdir(parents=True,exist_ok=True)
+          asset.write_bytes(p.read_bytes())
+          # Verify the packaged copy is byte-identical and loadable.
+          n=GRULM.from_bytes(asset.read_bytes())
+          assert n.to_bytes()==m.to_bytes()
+          print(f"Validated NLM2: {p.stat().st_size} bytes, E={m.e}, H={m.h}, V={m.v}")
+          PY
+      - name: Persist weights and training metadata in repository
+        run: |
+          python - <<'PY'
+          import json,datetime, pathlib
+          p=pathlib.Path("training_history.json")
+          h=json.loads(p.read_text()) if p.exists() else []
+          h.append({"date":datetime.datetime.now(datetime.timezone.utc).isoformat(),"epochs":"${{ inputs.epochs }}","lr":"${{ inputs.lr }}","seconds":"${{ inputs.seconds }}","weights":"nlm2.bin","format":"NLM2","status":"roundtrip-validated"})
+          p.write_text(json.dumps(h,ensure_ascii=False,indent=2)+"\n")
+          PY
+          git config user.name "nuwaa-trainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add nlm2.bin weights/nlm2.npz android/app/src/main/assets/nlm2.bin training_history.json
+          git diff --cached --quiet || git commit -m "Train and persist Android NLM2 weights"
+          git push
