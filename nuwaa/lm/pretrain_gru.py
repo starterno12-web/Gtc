@@ -29,9 +29,12 @@ def main():
     ap.add_argument("--bin",default="nlm2.bin"); ap.add_argument("--init",default="")
     ap.add_argument("--epochs",type=int,default=12); ap.add_argument("--lr",type=float,default=.0003)
     ap.add_argument("--seconds",type=int,default=16000); ap.add_argument("--embed",type=int,default=64); ap.add_argument("--hidden",type=int,default=384)
-    a=ap.parse_args(); torch.manual_seed(73); np.random.seed(73)
+    a=ap.parse_args()
+    if a.epochs < 1 or a.lr <= 0 or a.seconds < 1:
+        raise SystemExit("epochs, learning rate, and seconds must all be positive")
+    torch.manual_seed(73); np.random.seed(73)
     texts=load_pairs(a.data)
-    if not texts: raise SystemExit("No JSONL training examples found")
+    if len(texts) < 20: raise SystemExit(f"Insufficient training corpus: only {len(texts)} unique examples; refusing to train")
     # Keep complete Arabic/English/Python/HTML/CSS/JS character coverage.
     chars=["\n","�"]+sorted(set("".join(texts)) - {"\n","�"})
     if a.init and Path(a.init).exists():
@@ -71,6 +74,8 @@ def main():
         avg=total/max(count,1); print(f"epoch={epoch+1} loss={avg:.5f} sequences={count}",flush=True)
         if avg<best: best=avg
         if time.time()-start>a.seconds: break
+    if step < 1:
+        raise SystemExit("Training performed zero optimizer steps; refusing to save")
     model.P=[p.detach().cpu().numpy().astype(np.float32) for p in params]
     Path(a.out).parent.mkdir(parents=True,exist_ok=True); np.savez_compressed(a.out,**{f"p{i}":p for i,p in enumerate(model.P)})
     Path(a.bin).parent.mkdir(parents=True,exist_ok=True); model.save(a.bin)
