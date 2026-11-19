@@ -8,9 +8,9 @@ on:
         required: false
         default: "500"
       max_retries:
-        description: Retry count (0 means unlimited)
+        description: Retry count (finite default for safe training)
         required: false
-        default: "0"
+        default: "25"
 
 permissions:
   contents: write
