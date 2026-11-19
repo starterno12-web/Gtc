@@ -93,7 +93,7 @@ def extend_vocab(model,texts):
 
 def main():
     ap=argparse.ArgumentParser(description="Train from text facts and retry each generated question until correct.")
-    ap.add_argument("--text",default="training/feedback_text.txt")
+    ap.add_argument("--text",default="training/feedback_text.txt")\n    ap.add_argument("--behavior",default="training_behavior.txt")
     ap.add_argument("--base",default="nlm2.bin");ap.add_argument("--out",default="nlm2_feedback.bin")
     ap.add_argument("--read-times",type=int,default=20)
     ap.add_argument("--max-retries",type=int,default=0,help="0 means unlimited retries; nonzero aborts, never skips.")
@@ -105,7 +105,7 @@ def main():
     print(f"Generated {len(qa)} questions:",flush=True)
     for q,a in qa:print(f"Q: {q} | target: {a}",flush=True)
     model=GRULM.from_bytes(Path(args.base).read_bytes())
-    training=[fmt(source,q,a) for q,a in qa];extend_vocab(model,training)
+    behavior=Path(args.behavior).read_text(encoding="utf-8").strip()\n    phase1=[behavior+"\\n" for _ in range(1)]\n    training=[fmt(source,q,a) for q,a in qa];extend_vocab(model,phase1+training)
     params=[torch.nn.Parameter(torch.tensor(x.copy(),dtype=torch.float32)) for x in model.P]
     opt=torch.optim.Adam(params,lr=args.lr);steps=0;report=[];start=time.time();out=Path(args.out)
     def save_progress():
