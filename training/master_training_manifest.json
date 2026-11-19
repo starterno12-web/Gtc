@@ -1,11 +1,61 @@
 {
+  "schema_version": 2,
   "corpus_file": "training/master_training_corpus.jsonl",
-  "records": 122,
+  "records": 194,
+  "deduplicated": true,
+  "cumulative": true,
   "source_files": [
-    "training/curriculum_browser_audio.jsonl",
-    "training/curriculum_game_dev.jsonl",
-    "training/curriculum_game_physics_ai.jsonl",
-    "training/curriculum_game_engine_testing.jsonl"
+    {
+      "file": "data/new_knowledge.jsonl",
+      "records_added": 46,
+      "sha256": "fbd5370aa97bd5661993e82b2df19384ab7d3ea2d622c92f944e74a4e0430a6d"
+    },
+    {
+      "file": "data/اكواد_طويلة.jsonl",
+      "records_added": 6,
+      "sha256": "0fcab8d0b6026843a2c16e7b564ae2add2eb07aadc414203d7eae92ef1f433ae"
+    },
+    {
+      "file": "data/ذاكرة_المحادثة.jsonl",
+      "records_added": 20,
+      "sha256": "b2660165dad1a05143cb27c3c35eac83e39edbf16d1513c7945943bd0de77815"
+    },
+    {
+      "file": "training/curriculum_browser_audio.jsonl",
+      "records_added": 32,
+      "sha256": "39607e634265ad8be0daeb073c27d74d3521b81a81d70afcb12ed834088575a4"
+    },
+    {
+      "file": "training/curriculum_game_dev.jsonl",
+      "records_added": 60,
+      "sha256": "11753736bfd0a92768e01b254cda53eac0be15ef9568d0fdf5e7466e32c92973"
+    },
+    {
+      "file": "training/curriculum_game_engine_testing.jsonl",
+      "records_added": 15,
+      "sha256": "5ddbd57a057ff0f40cfd62f2a0663106ba949c873c011759c008337e759a728e"
+    },
+    {
+      "file": "training/curriculum_game_physics_ai.jsonl",
+      "records_added": 15,
+      "sha256": "e72214807f49ecc00e5e407cd7caf28a51dfbe48b7e4682b7c02c715ffafb9cf"
+    },
+    {
+      "file": "training/new_knowledge.jsonl",
+      "records_added": 0,
+      "sha256": "fbd5370aa97bd5661993e82b2df19384ab7d3ea2d622c92f944e74a4e0430a6d"
+    },
+    {
+      "file": "training/ذاكرة_المحادثة.jsonl",
+      "records_added": 0,
+      "sha256": "b2660165dad1a05143cb27c3c35eac83e39edbf16d1513c7945943bd0de77815"
+    },
+    {
+      "file": "training/master_training_corpus.jsonl",
+      "records_added": 0,
+      "sha256": "213a3f83ba4c71ee147bceeca1e9c44a9196d304969a4d7a81a26e8cd03cef48"
+    }
   ],
-  "deduplicated": true
+  "checkpoint_file": "training/checkpoints/game_domain_master.pt",
+  "preserves_previous_master_corpus": true
 }
