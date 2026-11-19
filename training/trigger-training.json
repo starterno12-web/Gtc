@@ -1,0 +1,17 @@
+{
+  "purpose": "Start first NLM2 training run",
+  "scope": [
+    "Arabic",
+    "English",
+    "Python",
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "game logic",
+    "geometry",
+    "mathematics",
+    "game physics",
+    "testing"
+  ],
+  "created": "2026-11-19"
+}
