@@ -1,0 +1,43 @@
+name: Train clean memory model (5 questions x 10 rounds)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore only historical training sources (no Android app)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p nuwaa/lm data training weights
+          git show 2bbbdde78216be776f2751db3fc81ed6759748ba:nuwaa/lm/gru.py > nuwaa/lm/gru.py
+          for f in data/new_knowledge.jsonl data/اكواد_طويلة.jsonl training/curriculum_game_dev.jsonl training/curriculum_browser_audio.jsonl training/curriculum_game_engine_testing.jsonl training/curriculum_game_physics_ai.jsonl training/curriculum_geometry_vision_python_advanced.jsonl; do
+            mkdir -p "$(dirname "$f")"
+            git show "2bbbdde78216be776f2751db3fc81ed6759748ba:$f" > "$f"
+          done
+      - name: Install model training dependencies
+        run: python -m pip install --no-cache-dir numpy torch
+      - name: Fine-tune from existing weights and run 50 memory checks
+        run: python scripts/clean_memory_train.py --base nlm2.bin --out weights/nlm2_clean_memory.bin --report memory_test_50.json --lr 0.00001
+      - name: Preserve original weights and publish candidate plus raw test outputs
+        run: |
+          set -euo pipefail
+          test -s weights/nlm2_clean_memory.bin
+          test -s weights/nlm2_clean_memory.npz
+          test -s memory_test_50.json
+          test -s memory_test_50.txt
+          git config user.name "nuwaa-trainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add scripts/clean_memory_train.py .github/workflows/train-clean-memory.yml
+          git add -f weights/nlm2_clean_memory.bin weights/nlm2_clean_memory.npz memory_test_50.json memory_test_50.txt
+          git commit -m "Train clean memory model with 5 questions across 10 rounds"
+          git push
