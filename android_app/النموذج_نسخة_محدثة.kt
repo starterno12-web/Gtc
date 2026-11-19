@@ -1369,8 +1369,8 @@ object Effort {
         // battery/RAM safety check above (lvl already reflects that): "mandatory deepest thinking" means
         // deepest among what's currently safe, not literally unconditional regardless of battery state.
         return when {
-            looksLikeCode && lvl >= 1 -> Plan(Level.THINK, chars(6000, 180000.0), 0.15f, 8, "🧠 كود مكتشف: أعمق وضع تفكير، 8 محاولات")
-            looksLikeCode -> Plan(Level.FAST, chars(1500, 12000.0), 0.15f, 1, "🧠 كود، لكن " + dev.second + " — أعمق وضع ممكن الآن بس")
+            looksLikeCode && lvl >= 1 -> Plan(Level.THINK, 200000, 0.15f, 8, "🧠 كود مكتشف: أعمق وضع تفكير، 8 محاولات، بلا حد طول")
+            looksLikeCode -> Plan(Level.FAST, 50000, 0.15f, 1, "🧠 كود، لكن " + dev.second + " — أعمق وضع ممكن الآن بس")
             lvl == 0 -> Plan(Level.FAST, chars(300, 12000.0), 0.25f, 1, note)
             lvl == 1 -> Plan(Level.NORMAL, chars(900, 40000.0), 0.3f, 1, note)
             // non-code THINK still always gets 4 tries no matter how long that takes — speed is never a

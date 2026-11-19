@@ -37,7 +37,7 @@ def all_pairs(data="data", max_bot=1200):
     """All (user, bot) pairs: dialogue files, the python basics, self-development talk, word meanings and the verified knowledge base (code included)."""
     d = Path(data); out = []
     for f in ("arabic_chat.jsonl", "instructions_ar.jsonl", "python_chat.jsonl", "python_basics_ar.jsonl", "self_dev_ar.jsonl", "generated_python.jsonl", "v16_arabic.jsonl", "v16_code.jsonl", "v16_fix.jsonl", "v16_tasks.jsonl", "v17_files.jsonl", "v17_chat.jsonl", "v18_seed.jsonl", "v19_seed2.jsonl", "v20_think.jsonl", "v21_english.jsonl", "v22_arabic_full.jsonl", "v23_advanced.jsonl", "train_only/lexicon_chat.jsonl", "user_feedback.jsonl",
-              "new_knowledge.jsonl", "ذاكرة_المحادثة.jsonl"):   # new: HTML/CSS/JS + word meanings + fact-then-recall examples (the memory test showed 0-3% recall — this directly targets that)
+              "new_knowledge.jsonl", "ذاكرة_المحادثة.jsonl", "اكواد_طويلة.jsonl"):   # new: HTML/CSS/JS + word meanings + fact-recall examples + long complete code examples (avg 836 chars, vs the 281-char max the model currently reaches)
         for j in _jsonl(d / f):
             u, b = j.get("user", "").strip(), j.get("bot", "").strip()
             if u and b and len(b) <= max_bot and not any(w in b for w in _OLD): out.append((u, b))
