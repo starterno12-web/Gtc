@@ -1,0 +1,185 @@
+مرجع الغمر الشامل والمنضبط: العربية وأكواد المتصفح وبنية الثلاثي الأبعاد (الإصدار الثاني)
+
+الهدف الأساسي من هذا الملف التدريبي
+هذا الملف مصمم ليكون مرجعاً تدريبياً طويلاً وواضحاً ومنظماً ترتيباً دقيقاً من الأساس إلى التطبيق. يهدف إلى تدريب النموذج على أربعة محاور مترابطة بدقة عالية:
+أولاً: صياغة اللغة العربية الواضحة والمباشرة الخالية من الحشو أو الكلمات العشوائية أو اختلاق المعلومات.
+ثانياً: كتابة وفهم أكواد المتصفح الحقيقية (HTML وCSS وJavaScript وDOM وFetch وCanvas وSVG) وفق المعايير القياسية المؤكدة.
+ثالثاً: فهم الهياكل والرسوم والنماذج ثلاثية الأبعاد (الإحداثيات X, Y, Z، الرؤوس Vertices، المثلثات/المضلعات، التحويلات المكانية، الكاميرا، الإضاءة، والمواد) التي يعتمد عليها النموذج أو يولّدها برمجياً، دون شرح كيفية الرسم اليدوي بالقلم أو الورق.
+رابعاً: الالتزام الصارم بالترتيب المنطقي، والتمييز بين المعلومة المؤكدة والمعلومة غير المؤكدة، والاعتراف بعدم المعرفة عند غياب الدليل أو المعطى.
+
+الترتيب التدريبي الموصى به لنموذجك
+الخطوة 1: قواعد الفهم والدقة ومنع الهلوسة.
+الخطوة 2: أساسيات اللغة العربية في الشرح الدقيق.
+الخطوة 3: بنية المتصفح HTML5 وتنسيقه CSS.
+الخطوة 4: برمجة التفاعل في المتصفح JavaScript والأحداث والتخزين والشبكة.
+الخطوة 5: الرسوم البرمجية في المتصفح Canvas وSVG.
+الخطوة 6: بنية الثلاثي الأبعاد 3D والهندسة المكانية والمشاهد.
+الخطوة 7: أمثلة عملية متكاملة وتصحيح الأخطاء والاختبار الذاتي.
+
+القسم الأول: قواعد الانضباط المعرفي ومنع الهلوسة
+1. لا تخترع معلومة غير موجودة. إذا غابت قيمة أو دالة أو نتيجة، فصرّح بأنها غير متوفرة أو غير مؤكدة.
+2. فرّق بين الحقيقة المؤكدة والافتراض، وسمِّ الافتراض بوضوح.
+3. أجب عن المطلوب مباشرة، ولا تكرر الفكرة ولا تنتقل إلى موضوع جانبي.
+4. تحقق من صحة الأسماء البرمجية. استخدم واجهات قياسية مثل document.querySelector وaddEventListener وlocalStorage وfetch وJSON.parse وJSON.stringify وMath، ولا تخترع دوال مثل autoFixAll() أو superRender() أو hackDom().
+مثال غير منضبط: «الكود يحفظ البيانات في السحابة للأبد».
+مثال منضبط: «يحدّث الكود نص العنصر في الصفحة الحالية، ولا يرسل البيانات إلى خادم خارجي».
+
+القسم الثاني: اللغة العربية الدقيقة
+ابدأ بتعريف مباشر، ثم الوظيفة، ثم الخطوات أو الحالات، ثم اربط السبب بالنتيجة، واختم بخلاصة قصيرة.
+مثال: «تُستخدم الشروط البرمجية لاتخاذ قرار بناءً على حالة البيانات. نتحقق من أن القيمة رقم صالح وغير صفرية قبل القسمة؛ وإذا كانت غير صالحة نعرض رسالة تمنع العملية».
+تصحيحات:
+- «الزر لما يضغط المستخدم...» تصبح «عندما ينقر المستخدم على الزر، يقرأ الكود القيمة المدخلة ويحدّث محتوى العنصر المستهدف».
+- «الخاصية ترتب كل شيء» تصبح «تضبط الخاصية اتجاه العناصر وتباعدها داخل الحاوية».
+- عند جمع النصين "12" و"8" ينتج "128"، وللجمع الحسابي نحولهما إلى أرقام ونتحقق باستخدام Number.isFinite.
+
+القسم الثالث: HTML5 وCSS
+HTML تحدد بنية المستند، وقد يحتوي العنصر على سمات مثل id وclass وtype وhref.
+هيكل HTML5:
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أداة التحكم والبيانات</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><h1>عنوان الصفحة</h1></header>
+  <main>
+    <section aria-label="منطقة الإدخال">
+      <label for="value-input">القيمة</label>
+      <input id="value-input" type="number" step="any">
+      <button id="run-btn" type="button">تنفيذ</button>
+    </section>
+    <section aria-label="منطقة النتيجة"><p id="result-output">لا توجد نتيجة بعد.</p></section>
+  </main>
+  <script src="main.js" defer></script>
+</body>
+</html>
+<!DOCTYPE html> يحدد وضع المعايير. lang وdir يحددان اللغة والاتجاه. charset يضبط الترميز. viewport يحسن العرض على الشاشات. defer يؤجل تنفيذ السكربت حتى اكتمال تحليل المستند.
+CSS تتحكم بالمظهر. افهم Selector ثم Box Model ثم Flexbox أو Grid ثم @media.
+مثال:
+:root { --bg:#eef2f6; --panel:#fff; --ink:#102a43; --primary:#1d4ed8; --line:#cbd5e1; }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; padding:16px; font-family:Tahoma,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+.panel { max-width:720px; margin:0 auto; padding:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
+.controls { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.primary-btn { padding:8px 14px; border:0; border-radius:6px; background:var(--primary); color:#fff; cursor:pointer; }
+box-sizing:border-box يجعل العرض شاملاً padding وborder.
+
+القسم الرابع: JavaScript وDOM والأحداث والتخزين والشبكة
+رتب السكربت: حدد العناصر وتحقق منها، عرّف الحالة، اكتب دوال التحقق والحساب، اربط الأحداث، ثم حدّث العرض.
+مثال:
+const inputEl = document.querySelector("#value-input");
+const runBtn = document.querySelector("#run-btn");
+const outputEl = document.querySelector("#result-output");
+const STORAGE_KEY = "browser_calc_history_v1";
+function readHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) { return []; }
+}
+function writeHistory(items) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (err) {}
+}
+function handleCalculation() {
+  if (!inputEl || !outputEl) return;
+  const raw = inputEl.value.trim();
+  if (raw === "") { outputEl.textContent = "يرجى إدخال قيمة رقمية أولاً."; return; }
+  const num = Number(raw);
+  if (!Number.isFinite(num)) { outputEl.textContent = "القيمة ليست رقماً صالحاً."; return; }
+  const doubled = num * 2;
+  outputEl.textContent = "القيمة: " + num + " | ضعف القيمة: " + doubled;
+  const history = readHistory();
+  history.push({ input:num, doubled, at:Date.now() });
+  writeHistory(history.slice(-20));
+}
+if (runBtn) runBtn.addEventListener("click", handleCalculation);
+عند استخدام fetch، استعمل async/await وtry/catch، وافحص response.ok، وتحقق من وجود الحقول وأنواعها قبل استعمالها.
+
+القسم الخامس: Canvas وSVG
+Canvas سطح نقطي يرسم عبر سياق 2D. الأصل أعلى اليسار، x إلى اليمين وy إلى الأسفل. الخطوات: الحصول على ctx، ضبط الأبعاد وdevicePixelRatio، مسح الإطار، تحديد اللون والخط، ثم رسم المسارات.
+مثال:
+const canvas = document.querySelector("#board");
+const ctx = canvas ? canvas.getContext("2d") : null;
+function renderScene(width,height,x,y,size) {
+  if (!ctx) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width*dpr);
+  canvas.height = Math.round(height*dpr);
+  canvas.style.width = width+"px";
+  canvas.style.height = height+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,width,height);
+  ctx.fillStyle = "#f8fafc"; ctx.fillRect(0,0,width,height);
+  ctx.fillStyle = "#0f766e"; ctx.fillRect(x,y,size,size);
+  ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2; ctx.strokeRect(x,y,size,size);
+}
+SVG عناصر متجهية ضمن DOM مثل svg وrect وcircle وline وpath، وتظل حادة عند التكبير.
+مثال:
+<svg viewBox="0 0 200 100" width="200" height="100" role="img" aria-label="مستطيل ودائرة">
+  <rect x="15" y="20" width="70" height="60" fill="#2563eb" rx="6"/>
+  <circle cx="140" cy="50" r="28" fill="#d97706"/>
+</svg>
+Canvas مناسب للرسم النقطي المتغير وكثرة العناصر، وSVG مناسب للأيقونات والمخططات والعناصر التي تحتاج تحكماً مباشراً.
+
+القسم السادس: بنية 3D
+1. الإحداثيات X وY وZ تحدد موضعاً أو متجهاً في الفضاء. معنى الأعلى والأمام واتجاه المحاور يعتمد على اصطلاح المحرك أو المشهد.
+2. Vertex نقطة ثلاثية وقد تحمل Normal وUV. المثلث يربط ثلاثة رؤوس ويحدد سطحاً مستوياً. Mesh مجموعة الرؤوس والأوجه.
+3. Translation يغير الموقع، Rotation يغير الاتجاه حول المحاور، Scaling يغير الأبعاد. ترتيب التحويلات يؤثر في النتيجة.
+4. Material يحدد استجابة السطح للضوء، وTexture صورة تُسقط على السطح باستخدام UV.
+5. Ambient إضاءة عامة، Directional ضوء باتجاه محدد، Point ضوء صادر من نقطة. الظلال تنتج من حجب الضوء.
+6. Scene تجمع المجسمات والأضواء. Camera تحدد الموضع والاتجاه ومجال الرؤية والمديين القريب والبعيد. Perspective يجعل البعيد أصغر ظاهرياً، وOrthographic لا يغير الحجم الظاهري مع المسافة بالطريقة نفسها.
+7. Render Loop تحدث الحالة ثم تعيد العرض إطاراً بعد إطار.
+مثال توصيفي:
+const sceneSpec = {
+  coordinateSystem: "right-handed or engine-defined (X, Y, Z)",
+  camera: { position:[0,2,6], target:[0,0,0], fovDegrees:45 },
+  lights: [
+    { type:"ambient", intensity:0.4 },
+    { type:"directional", position:[5,10,7], intensity:1.0 }
+  ],
+  objects: [{
+    id:"base-block", geometry:"box", position:[0,0,0],
+    rotation:[0,0.5,0], scale:[2,1,2],
+    material:{ color:"#3b82f6", roughness:0.5 }
+  }]
+};
+لا تخلط إحداثيات الشاشة بالبكسل مع إحداثيات الفضاء. إذا لم يحدد نظام المحاور أو وحدة الزاوية، اذكر الافتراض أو اطلب التحديد.
+
+القسم السابع: أسئلة الفهم والاختبار
+س1: ما أول خطوة عند استلام طلب؟
+ج: تحديد نوع الناتج، وفصل المعطيات المؤكدة عن الناقصة قبل الإجابة.
+س2: لماذا نستخدم defer؟
+ج: يحمل السكربت بالتوازي ويؤخر تنفيذه حتى يكتمل تحليل المستند.
+س3: ما الفرق بين == و===؟
+ج: == قد يحول الأنواع ضمنياً، و=== يقارن النوع والقيمة دون تحويل ضمني.
+س4: ما ناتج "12" + "8"؟
+ج: "128" لأن + يدمج النصوص؛ للتحويل الحسابي استخدم Number وتحقق من Number.isFinite.
+س5: ما وظيفة Vertices وTriangles؟
+ج: الرؤوس تحدد نقاط الفضاء، والمثلثات تربطها لتكوين أسطح الشبكة Mesh.
+س6: ما الفرق بين Translation وRotation وScaling؟
+ج: الإزاحة تغير الموقع، والدوران يغير الاتجاه، والمقياس يغير الأبعاد.
+س7: كيف تتصرف إذا سئلت عن ميزة غير موجودة في الكود؟
+ج: أصرح بأنها غير موجودة في المثال، ولا أدعي أنها تعمل.
+س8: أعد صياغة «المستخدم يدخل الرقم والزر يضغط ويطلع الناتج بسرعة».
+ج: «يدخل المستخدم رقماً، وعند النقر على الزر تُعرض النتيجة».
+س9: لماذا نفضل textContent على innerHTML مع نص المستخدم؟
+ج: لأنه يعرض النص كنص عادي ولا يفسره كوسوم HTML، مما يقلل مخاطر حقن الشيفرات.
+س10: ما الفرق بين Perspective وOrthographic؟
+ج: المنظوري يصغر الأجسام ظاهرياً مع البعد، والمتوازي يحافظ على الحجم الظاهري دون تناقص منظورّي.
+
+السؤال الأخير — اختبار برمجي نهائي (الأصعب)
+اكتب مشروع واجهة متصفح كاملاً باستخدام HTML وCSS وJavaScript فقط، في ملف HTML واحد قابل للتشغيل مباشرة. يجب أن تعرض الواجهة كلمة «شغال» بوضوح، وتحتوي على لوحة ألوان تعرض عشرة ألوان مختلفة على الأقل، مع اسم كل لون وقيمة HEX، وأزرار تفاعلية لتغيير لون الخلفية أو نسخ قيمة اللون، ورسالة حالة واضحة عند نجاح التفاعل أو فشله. اجعل التصميم متجاوباً مع الهاتف والحاسوب، واستخدم HTML دلالياً، وCSS منظمًا، وJavaScript حقيقياً مربوطاً بعناصر DOM عبر addEventListener. لا تستخدم صوراً خارجية أو مكتبات أو شيفرات وهمية. أخرج الكود كاملاً داخل كتلة كود واحدة، ثم اشرح باختصار طريقة تشغيله.
+
+معيار التقييم الآلي للسؤال الأخير:
+- يجب أن يحتوي الناتج على مستند HTML فعلي، وليس وصفاً أو خطة.
+- يجب وجود عناصر HTML وCSS وJavaScript قابلة للتعرف عليها.
+- يجب وجود كلمة «شغال» في النص أو الواجهة.
+- يجب وجود عشرة ألوان HEX على الأقل.
+- يجب وجود تفاعل JavaScript حقيقي، مثل addEventListener وتغيير style أو textContent أو استعمال Clipboard API مع معالجة الفشل.
+- إذا غاب مستند HTML أو CSS أو JavaScript أو لم تتحقق المتطلبات الأساسية، فالنتيجة ليست واجهة مكتملة.
+- عند الفشل، أخرج حرفياً: «هذا غير واجهة. اكتب صفحة فعلية باستخدام HTML وCSS وJavaScript، ثم أعد الاختبار.» ولا تعتبر الشرح النصي أو شبه الكود نجاحاً.
