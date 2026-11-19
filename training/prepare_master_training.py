@@ -16,7 +16,7 @@ def prepare():
             key = (row.get("user", ""), row.get("bot", ""))
             if not all(key) or key in seen: continue
             seen.add(key); rows.append(row)
-    MASTER.write_text("".join(json.dumps(r, ensure_ascii=False) + "\\n" for r in rows), encoding="utf-8")
+    MASTER.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
     candidates = list(pathlib.Path("training/checkpoints").glob("*/game_domain_gru.pt")) + list(pathlib.Path("training/checkpoints").glob("*/game_domain_master.pt"))
     # Bootstrap folders may contain a direct file; also scan all checkpoints recursively.
     candidates += list(pathlib.Path("training/checkpoints").rglob("*.pt"))
