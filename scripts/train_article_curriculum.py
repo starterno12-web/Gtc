@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """Ten-pass Arabic article curriculum: self-supervised reading plus 68 extractive checks."""
-import argparse, random, re, urllib.request
+import argparse, random, re, urllib.request, sys, time
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 import numpy as np
 import torch
 from nuwaa.lm.gru import GRULM
@@ -67,11 +69,29 @@ def main():
     weights_path = Path("nlm2_base_for_article.bin")
     urllib.request.urlretrieve(args.init_url, weights_path)
     model = GRULM.from_bytes(weights_path.read_bytes())
+    # Expand vocabulary while preserving every original embedding/output weight.
+    missing = sorted(set(text) - set(model.chars))
+    if missing:
+        rng = np.random.default_rng(20261119)
+        old_v = model.v
+        new_v = old_v + len(missing)
+        p0 = np.zeros((new_v, model.e), dtype=np.float32)
+        p0[:old_v] = model.P[0]
+        p0[old_v:] = rng.normal(0, 0.025, (new_v-old_v, model.e))
+        p7 = np.zeros((model.h, new_v), dtype=np.float32)
+        p7[:, :old_v] = model.P[7]
+        p7[:, old_v:] = rng.normal(0, 0.035, (model.h, new_v-old_v))
+        p8 = np.zeros((new_v,), dtype=np.float32)
+        p8[:old_v] = model.P[8]
+        model.P[0], model.P[7], model.P[8] = p0, p7, p8
+        model.chars += missing
+        model.v = new_v
+        print(f"Expanded vocabulary by {len(missing)} characters; original weights preserved.", flush=True)
     torch.manual_seed(20261119)
     random.seed(20261119)
     params = [torch.nn.Parameter(torch.tensor(p.copy(), dtype=torch.float32)) for p in model.P]
     optimizer = torch.optim.Adam(params, lr=args.lr)
-    start_time = __import__("time").time()
+    start_time = time.time()
     steps = 0
     def train_sequence(seq):
         nonlocal steps
@@ -109,7 +129,7 @@ def main():
         random.Random(7000 + round_no).shuffle(article_chunks)
         for part in article_chunks:
             train_sequence(part)
-            if __import__("time").time() - start_time > args.seconds:
+            if time.time() - start_time > args.seconds:
                 raise RuntimeError("Time budget reached before all 10 rounds completed; refusing partial checkpoint.")
         print(f"ROUND {round_no}/10: 68 comprehension checks", flush=True)
         for item in checks:
@@ -119,9 +139,15 @@ def main():
                 raise RuntimeError("Time budget reached before all 10 rounds completed; refusing partial checkpoint.")
     model.P = [p.detach().cpu().numpy().astype(np.float32) for p in params]
     out = Path(args.out); out.parent.mkdir(parents=True, exist_ok=True)
-    model.save(out)
+    temp_out = out.with_suffix(out.suffix + ".tmp")
+    model.save(temp_out)
+    verify_temp = GRULM.from_bytes(temp_out.read_bytes())
+    if verify_temp.v != model.v or verify_temp.chars != model.chars or any(not np.isfinite(p).all() for p in verify_temp.P):
+        temp_out.unlink(missing_ok=True)
+        raise RuntimeError("Temporary checkpoint validation failed.")
+    temp_out.replace(out)
     verify = GRULM.from_bytes(out.read_bytes())
-    if verify.e != model.e or verify.h != model.h or verify.chars != model.chars or any(not np.isfinite(p).all() for p in verify.P):
+    if verify.e != model.e or verify.h != model.h or verify.v != model.v or verify.chars != model.chars or any(not np.isfinite(p).all() for p in verify.P):
         raise RuntimeError("Saved checkpoint failed NLM2 round-trip validation.")
     print(f"SUCCESS: rounds=10 questions_per_round=68 total_question_passes=680 optimizer_steps={steps} output={out} bytes={out.stat().st_size}", flush=True)
 
