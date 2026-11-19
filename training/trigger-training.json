@@ -1,5 +1,5 @@
 {
-  "purpose": "Start first NLM2 training run",
+  "purpose": "Retry NLM2 training with corrected workflow defaults and remote persistence verification",
   "scope": [
     "Arabic",
     "English",
@@ -13,5 +13,7 @@
     "game physics",
     "testing"
   ],
-  "created": "2026-11-19"
+  "created": "2026-11-19",
+  "retry": 2,
+  "workflow": "train-gru.yml"
 }
