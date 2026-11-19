@@ -1,0 +1,93 @@
+name: Unpack package and build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "training/**"
+      - ".github/workflows/train-cumulative-master.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Unpack ZIP, compare, and merge into repository root
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_FILE="نواة_الحزمة_الكاملة.zip"
+          test -f "$ZIP_FILE" || { echo "::error::ZIP file not found: $ZIP_FILE"; exit 1; }
+          rm -rf /tmp/package-unpacked
+          mkdir -p /tmp/package-unpacked
+          unzip -q "$ZIP_FILE" -d /tmp/package-unpacked
+          echo "=== Extracted files ==="
+          find /tmp/package-unpacked -type f -print
+          # If archive contains one enclosing folder, merge its contents rather than nesting that folder.
+          SRC="/tmp/package-unpacked"
+          shopt -s dotglob nullglob
+          entries=("$SRC"/*)
+          if [ "${#entries[@]}" -eq 1 ] && [ -d "${entries[0]}" ]; then SRC="${entries[0]}"; fi
+          conflicts=0
+          while IFS= read -r -d '' file; do
+            rel="${file#"$SRC"/}"
+            # Prevent path traversal and absolute paths.
+            case "$rel" in ../*|*/../*|*/..|/*) echo "::error::Unsafe path in archive: $rel"; exit 1;; esac
+            dest="$GITHUB_WORKSPACE/$rel"
+            mkdir -p "$(dirname "$dest")"
+            if [ -e "$dest" ]; then
+              if cmp -s "$file" "$dest"; then
+                echo "IDENTICAL (skipped): $rel"
+              else
+                echo "::warning::DIFFERENT FILE ALREADY EXISTS (kept existing; not overwritten): $rel"
+                conflicts=$((conflicts+1))
+              fi
+            else
+              cp -p "$file" "$dest"
+              echo "ADDED: $rel"
+            fi
+          done < <(find "$SRC" -type f -print0)
+          echo "Conflicting existing files (not overwritten): $conflicts"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No repository changes to commit."
+          else
+            git commit -m "Extract package archive into repository"
+            git push
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Gradle 8.2.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.2.1"
+      - name: Build Android application
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f android/settings.gradle.kts
+          test -f android/build.gradle.kts
+          test -f android/app/build.gradle.kts
+          gradle --no-daemon -p android :app:assembleDebug
+
+      - name: Publish debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtc-android-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 90
