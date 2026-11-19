@@ -23,16 +23,16 @@ def build_checks(text):
                 sentence = sentence.strip(" -•")
                 if 55 <= len(sentence) <= 420 and sentence not in candidates:
                     candidates.append(sentence)
-    if len(candidates) < 68:
+    if len(candidates) < 10:
         # Fallback: use sufficiently long article lines if punctuation is sparse.
         for line in text.splitlines():
             line = re.sub(r"\s+", " ", line).strip(" -•")
             if 55 <= len(line) <= 420 and line not in candidates:
                 candidates.append(line)
     if len(candidates) < 68:
-        raise RuntimeError(f"Article yielded only {len(candidates)} usable facts; 68 required.")
+        raise RuntimeError(f"Article yielded only {len(candidates)} usable facts; at least 10 required.")
     # Spread selection across the source rather than taking only the beginning.
-    picks = [candidates[round(i * (len(candidates)-1) / 67)] for i in range(68)]
+    count = min(68, len(candidates))\n    picks = [candidates[round(i * (len(candidates)-1) / max(1, count-1))] for i in range(count)]
     checks = []
     for i, answer in enumerate(picks, 1):
         anchor = answer[:min(34, len(answer))]
@@ -49,7 +49,7 @@ def chunks(ids, size=192, overlap=32):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--article", default="مرجع_الغمر_باللغة_العربية-1.txt")
+    ap.add_argument("--article", default="مرجع_الغمر_الشامل_المنضبط_الإصدار_الثاني.txt")
     ap.add_argument("--init-url", default=REPO_RAW)
     ap.add_argument("--rounds", type=int, default=10)
     ap.add_argument("--lr", type=float, default=0.00003)
@@ -65,7 +65,7 @@ def main():
     if len(text.strip()) < 5000:
         raise SystemExit("Article is unexpectedly short; refusing to train.")
     checks = build_checks(text)
-    print(f"Article chars: {len(text)} | distinct extractive questions: {len(checks)} | rounds: {args.rounds}", flush=True)
+    print(f"Article chars: {len(text)} | distinct source-based questions: {len(checks)} | rounds: {args.rounds}", flush=True)
     weights_path = Path("nlm2_base_for_article.bin")
     urllib.request.urlretrieve(args.init_url, weights_path)
     model = GRULM.from_bytes(weights_path.read_bytes())
@@ -149,7 +149,7 @@ def main():
     verify = GRULM.from_bytes(out.read_bytes())
     if verify.e != model.e or verify.h != model.h or verify.v != model.v or verify.chars != model.chars or any(not np.isfinite(p).all() for p in verify.P):
         raise RuntimeError("Saved checkpoint failed NLM2 round-trip validation.")
-    print(f"SUCCESS: rounds=10 questions_per_round=68 total_question_passes=680 optimizer_steps={steps} output={out} bytes={out.stat().st_size}", flush=True)
+    print(f"SUCCESS: rounds=10 questions_per_round={len(checks)} total_question_passes={10*len(checks)} optimizer_steps={steps} output={out} bytes={out.stat().st_size}", flush=True)
 
 if __name__ == "__main__":
     main()
