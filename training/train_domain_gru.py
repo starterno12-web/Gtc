@@ -1,77 +1,58 @@
 #!/usr/bin/env python3
-"""Train a small domain language model from the curated game-dev curriculum.
-This is a research checkpoint; it is NOT compatible with Android's nlm2.bin format.
-"""
-import argparse, json, random, pathlib, re, sys
-try:
-    import torch
-    from torch import nn
-except ImportError:
-    print("PyTorch is required: pip install torch", file=sys.stderr); sys.exit(2)
-
-def load_lines(path):
-    rows=[]
-    for line in pathlib.Path(path).read_text(encoding="utf-8").splitlines():
-        if not line.strip(): continue
-        x=json.loads(line)
-        if x.get("user") and x.get("bot"): rows.append(f"س: {x['user']}\nج: {x['bot']}\n")
-    return rows
-
+"""Cumulative domain GRU trainer. Resume compatible weights and expand vocabulary safely."""
+import argparse, json, pathlib, random
+import torch
+from torch import nn
+def load_data(root):
+    records=[]
+    for path in sorted(pathlib.Path(root).glob("curriculum_*.jsonl")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip(): continue
+            row=json.loads(line)
+            if row.get("user") and row.get("bot"): records.append("س: "+row["user"]+"\nج: "+row["bot"]+"\n")
+    if not records: raise RuntimeError("No curriculum_*.jsonl data found")
+    return records
 class CharGRU(nn.Module):
-    def __init__(self, vocab_size, emb=96, hidden=256):
-        super().__init__()
-        self.emb=nn.Embedding(vocab_size,emb)
-        self.gru=nn.GRU(emb,hidden,batch_first=True)
-        self.head=nn.Linear(hidden,vocab_size)
+    def __init__(self,vocab_size,emb=96,hidden=256):
+        super().__init__(); self.emb=nn.Embedding(vocab_size,emb); self.gru=nn.GRU(emb,hidden,batch_first=True); self.head=nn.Linear(hidden,vocab_size)
     def forward(self,x):
-        z,_=self.gru(self.emb(x))
-        return self.head(z)
-
+        z,_=self.gru(self.emb(x)); return self.head(z)
 def main():
-    p=argparse.ArgumentParser()
-    p.add_argument("--data",default="training/curriculum_game_dev.jsonl")
-    p.add_argument("--epochs",type=int,default=30)
-    p.add_argument("--batch-size",type=int,default=32)
-    p.add_argument("--seq-len",type=int,default=160)
-    p.add_argument("--out",default="training/checkpoints/game_domain_gru.pt")
-    p.add_argument("--seed",type=int,default=42)
-    args=p.parse_args()
-    random.seed(args.seed); torch.manual_seed(args.seed)
-    rows=load_lines(args.data)
-    if len(rows)<10: raise SystemExit("Dataset too small; expected at least 10 records.")
-    # Character-level tokenization preserves Arabic, English, punctuation, and code syntax.
-    text="".join(rows); chars=sorted(set(text)); stoi={c:i for i,c in enumerate(chars)}
-    ids=torch.tensor([stoi[c] for c in text],dtype=torch.long)
-    split=max(args.seq_len+1,int(len(ids)*0.95)); train=ids[:split]; valid=ids[split:]
-    if len(valid)<args.seq_len+1: valid=ids[-max(args.seq_len+1, len(ids)//10):]
-    model=CharGRU(len(chars)); opt=torch.optim.AdamW(model.parameters(),lr=3e-4)
-    loss_fn=nn.CrossEntropyLoss()
-    def batches(src):
-        n=max(1,(len(src)-1)//args.seq_len)
-        for _ in range(args.batch_size):
-            starts=torch.randint(0,n,(args.batch_size,))
-            ix=starts*args.seq_len
-            x=torch.stack([src[i:i+args.seq_len] for i in ix])
-            y=torch.stack([src[i+1:i+args.seq_len+1] for i in ix])
-            yield x,y
+    ap=argparse.ArgumentParser(); ap.add_argument("--epochs",type=int,default=40); ap.add_argument("--seq-len",type=int,default=160); ap.add_argument("--batch-size",type=int,default=32); ap.add_argument("--checkpoint",default="training/checkpoints/game_domain_master.pt"); args=ap.parse_args()
+    random.seed(42); torch.manual_seed(42)
+    records=load_data("training"); corpus="".join(records); chars=sorted(set(corpus)); stoi={c:i for i,c in enumerate(chars)}; ids=torch.tensor([stoi[c] for c in corpus],dtype=torch.long)
+    split=max(args.seq_len+1,int(len(ids)*0.92)); train=ids[:split]; valid=ids[split:]
+    if len(valid)<args.seq_len+1: valid=ids[-(args.seq_len+1):]
+    model=CharGRU(len(chars)); previous_records=0; old_rounds=0
+    cp=pathlib.Path(args.checkpoint)
+    if cp.exists():
+        ck=torch.load(cp,map_location="cpu",weights_only=False); old_chars=ck.get("vocab",[]); old_state=ck.get("model_state",{})
+        with torch.no_grad():
+            for oi,c in enumerate(old_chars):
+                if c not in stoi: continue
+                ni=stoi[c]
+                if old_state.get("emb.weight") is not None: model.emb.weight[ni].copy_(old_state["emb.weight"][oi])
+                if old_state.get("head.weight") is not None:
+                    model.head.weight[ni].copy_(old_state["head.weight"][oi]); model.head.bias[ni].copy_(old_state["head.bias"][oi])
+            for key in ("gru.weight_ih_l0","gru.weight_hh_l0","gru.bias_ih_l0","gru.bias_hh_l0"):
+                if key in old_state: model.state_dict()[key].copy_(old_state[key])
+        previous_records=ck.get("records",0); old_rounds=ck.get("training_rounds",0); print(f"Resumed prior checkpoint (records={previous_records}, rounds={old_rounds})")
+    opt=torch.optim.AdamW(model.parameters(),lr=2e-4); loss_fn=nn.CrossEntropyLoss()
+    def batches(src,steps=80):
+        n=max(1,len(src)-args.seq_len-1)
+        for _ in range(steps):
+            ix=torch.randint(0,n,(args.batch_size,)); x=torch.stack([src[i:i+args.seq_len] for i in ix]); y=torch.stack([src[i+1:i+args.seq_len+1] for i in ix]); yield x,y
     best=float("inf")
-    for epoch in range(1,args.epochs+1):
+    for ep in range(1,args.epochs+1):
         model.train(); losses=[]
         for x,y in batches(train):
-            opt.zero_grad(); logits=model(x)
-            loss=loss_fn(logits.reshape(-1,len(chars)),y.reshape(-1))
-            loss.backward(); nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step()
-            losses.append(loss.item())
+            opt.zero_grad(); logits=model(x); loss=loss_fn(logits.reshape(-1,len(chars)),y.reshape(-1)); loss.backward(); nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step(); losses.append(loss.item())
         model.eval()
         with torch.no_grad():
-            x=valid[:-1].unsqueeze(0); y=valid[1:].unsqueeze(0)
-            val=loss_fn(model(x).reshape(-1,len(chars)),y.reshape(-1)).item()
-        print(f"epoch {epoch:03d} train_loss={sum(losses)/len(losses):.4f} valid_loss={val:.4f}")
+            x=valid[:-1].unsqueeze(0); y=valid[1:].unsqueeze(0); val=loss_fn(model(x).reshape(-1,len(chars)),y.reshape(-1)).item()
+        print(f"epoch {ep:03d} train_loss={sum(losses)/len(losses):.4f} valid_loss={val:.4f}")
         if val<best:
-            best=val
-            out=pathlib.Path(args.out); out.parent.mkdir(parents=True,exist_ok=True)
-            torch.save({"model_state":model.state_dict(),"vocab":chars,"config":{"embedding":96,"hidden":256,"char_level":True},"best_valid_loss":best,"records":len(rows)},out)
-    print(f"Saved best checkpoint: {args.out} (validation loss {best:.4f})")
-    print("Note: checkpoint is NOT a replacement for Android nlm2.bin; conversion/integration needs the mobile model implementation.")
-
+            best=val; cp.parent.mkdir(parents=True,exist_ok=True)
+            torch.save({"model_state":model.state_dict(),"vocab":chars,"config":{"embedding":96,"hidden":256,"char_level":True},"best_valid_loss":best,"records":previous_records+len(records),"training_rounds":old_rounds+1,"data_files":[p.name for p in sorted(pathlib.Path("training").glob("curriculum_*.jsonl"))]},cp)
+    print(f"Saved cumulative checkpoint: {cp}; validation loss={best:.4f}; records total={previous_records+len(records)}")
 if __name__=="__main__": main()
