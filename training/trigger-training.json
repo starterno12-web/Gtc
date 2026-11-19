@@ -1,5 +1,5 @@
 {
-  "purpose": "Retry NLM2 training with corrected workflow defaults and remote persistence verification",
+  "purpose": "Single complete NLM2 training run on the curated Arabic/English game-development, Python, HTML, CSS, JavaScript, math, geometry, physics, and testing corpus; persist and verify every weight file in GitHub root.",
   "scope": [
     "Arabic",
     "English",
@@ -14,6 +14,7 @@
     "testing"
   ],
   "created": "2026-11-19",
-  "retry": 2,
-  "workflow": "train-gru.yml"
+  "retry": 3,
+  "workflow": "train-gru.yml",
+  "corpus": "curated-only; exclude personal-memory and unrelated chat JSONL; no offensive-language filtering"
 }
