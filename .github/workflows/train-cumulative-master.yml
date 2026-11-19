@@ -25,6 +25,22 @@ jobs:
           python-version: "3.11"
       - name: Install training dependencies
         run: pip install numpy torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Restore first completed historical training checkpoint
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: game-domain-gru-checkpoint
+          run-id: 44493771599
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: training/checkpoints/seed-first/
+      - name: Restore second completed historical training checkpoint
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: game-domain-gru-checkpoint
+          run-id: 44494562902
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: training/checkpoints/seed-second/
       - name: Preserve existing corpus and seed checkpoints
         run: python training/prepare_master_training.py prepare
       - name: Train the cumulative master model and commit every completed epoch
