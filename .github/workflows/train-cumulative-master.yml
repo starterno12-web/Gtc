@@ -1,5 +1,13 @@
 name: Single cumulative master training (durable checkpoints)
 on:
+  push:
+    branches: [main]
+    paths:
+      - "data/**/*.jsonl"
+      - "training/**/*.jsonl"
+      - "training/train_master_gru.py"
+      - "training/prepare_master_training.py"
+      - ".github/workflows/train-cumulative-master.yml"
   workflow_dispatch:
     inputs:
       epochs:
@@ -46,8 +54,21 @@ jobs:
       - name: Train the cumulative master model and commit every completed epoch
         run: |
           python training/train_master_gru.py --epochs "${{ github.event.inputs.epochs || '40' }}" --checkpoint training/checkpoints/game_domain_master.pt --persist-each-epoch
-      - name: Finalize provenance without replacing prior data
-        run: python training/prepare_master_training.py finalize
+      - name: Verify durable checkpoint and corpus before publishing
+        run: |
+          python training/prepare_master_training.py finalize
+          python - <<'PY'
+          import json, pathlib, torch
+          corpus=pathlib.Path("training/master_training_corpus.jsonl")
+          manifest=json.loads(pathlib.Path("training/master_training_manifest.json").read_text(encoding="utf-8"))
+          ck=torch.load("training/checkpoints/game_domain_master.pt",map_location="cpu",weights_only=False)
+          assert corpus.exists() and corpus.stat().st_size > 0
+          assert manifest["records"] > 0
+          assert ck.get("optimizer_state") is not None
+          assert ck.get("completed_epochs",0) > 0
+          assert pathlib.Path("training/checkpoints/game_domain_master_candidate.pt").exists()
+          print("PUBLISH CHECK PASSED:", manifest["records"], "records;", ck["completed_epochs"], "epochs")
+          PY
       - name: Save complete outputs as a downloadable build artifact
         uses: actions/upload-artifact@v4
         with:
