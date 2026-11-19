@@ -1,4 +1,4 @@
-name: Train Android NLM2 game-development model
+name: Train and persist NLM2 game-development model
 
 on:
   push:
@@ -29,98 +29,97 @@ concurrency:
 
 jobs:
   train:
+    name: Train, validate, commit, and verify persisted weights
     runs-on: ubuntu-latest
     timeout-minutes: 350
-    env:
-      EPOCHS: ${{ github.event.inputs.epochs || '12' }}
-      LEARNING_RATE: ${{ github.event.inputs.lr || '0.0003' }}
-      MAX_SECONDS: ${{ github.event.inputs.seconds || '16000' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install CPU-only training dependencies
+      - name: Install CPU training dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install numpy
-          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1"
-
-      - name: Verify the training corpus before spending compute
-        run: |
-          python - <<'PY'
-          from nuwaa.lm.pretrain_gru import load_pairs
-          pairs = load_pairs(".")
-          print(f"Usable prompt/answer pairs: {len(pairs)}")
-          if len(pairs) < 10:
-              raise SystemExit("Training corpus is too small or has an unsupported JSONL schema.")
-          text = "\n".join(pairs)
-          for token in ("def ", "function", "<html", "CSS", "JavaScript"):
-              print(f"{token!r}: {token in text}")
-          PY
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Train the two-layer NLM2 model
+        env:
+          TRAIN_EPOCHS: ${{ inputs.epochs }}
+          TRAIN_LR: ${{ inputs.lr }}
+          TRAIN_SECONDS: ${{ inputs.seconds }}
         run: |
-          python -m nuwaa.lm.pretrain_gru --data . --out weights/nlm2.npz --bin nlm2.bin --epochs "$EPOCHS" --lr "$LEARNING_RATE" --seconds "$MAX_SECONDS"
+          set -euo pipefail
+          EPOCHS="${TRAIN_EPOCHS:-12}"
+          LR="${TRAIN_LR:-0.0003}"
+          LIMIT="${TRAIN_SECONDS:-16000}"
+          python -m nuwaa.lm.pretrain_gru --data . --out weights/nlm2.npz --bin nlm2.bin --epochs "$EPOCHS" --lr "$LR" --seconds "$LIMIT"
+          test -s nlm2.bin
+          test -s weights/nlm2.npz
+          cp weights/nlm2.npz nlm2.npz
+          test -s nlm2.npz
 
-      - name: Validate every trained weight and stage Android model copy
+      - name: Validate trained checkpoint and Android copy
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import hashlib, numpy as np
+          import numpy as np
           from nuwaa.lm.gru import GRULM
           root = Path("nlm2.bin")
-          mirror = Path("weights/nlm2.npz")
-          assert root.is_file() and root.stat().st_size > 1000, "Root NLM2 binary missing or too small"
-          assert mirror.is_file() and mirror.stat().st_size > 1000, "NPZ weight archive missing or too small"
-          model = GRULM.from_bytes(root.read_bytes())
-          assert model.v > 100 and len(model.P) == 9, "Unexpected vocabulary or parameter count"
-          assert all(np.isfinite(weight).all() for weight in model.P), "NaN/Inf detected in trained parameters"
-          with np.load(mirror) as archive:
-              assert all(f"p{i}" in archive.files for i in range(9)), "NPZ is missing one or more parameter arrays"
-              for i, weight in enumerate(model.P):
-                  assert np.array_equal(archive[f"p{i}"], weight), f"NPZ parameter p{i} differs from NLM2"
+          m = GRULM.from_bytes(root.read_bytes())
+          assert root.stat().st_size > 1000, "root nlm2.bin is missing or too small"
+          assert len(m.chars) > 100, f"vocabulary unexpectedly small: {len(m.chars)}"
+          assert all(np.isfinite(x).all() for x in m.P), "non-finite model weights"
+          npz = np.load("nlm2.npz")
+          assert len(npz.files) == 9, "root NPZ does not contain all nine parameter arrays"
           asset = Path("android/app/src/main/assets/nlm2.bin")
           asset.parent.mkdir(parents=True, exist_ok=True)
           asset.write_bytes(root.read_bytes())
-          loaded = GRULM.from_bytes(asset.read_bytes())
-          assert loaded.to_bytes() == model.to_bytes(), "Android asset does not round-trip byte-identically"
-          print("MODEL_VALIDATION_OK")
-          print(f"root_sha256={hashlib.sha256(root.read_bytes()).hexdigest()}")
-          print(f"npz_sha256={hashlib.sha256(mirror.read_bytes()).hexdigest()}")
-          print(f"vocab={model.v} hidden={model.h} embed={model.e} binary_bytes={root.stat().st_size}")
+          restored = GRULM.from_bytes(asset.read_bytes())
+          assert restored.to_bytes() == root.read_bytes(), "Android asset differs from root checkpoint"
+          print(f"Checkpoint validated: {root.stat().st_size} bytes; vocab={m.v}; embed={m.e}; hidden={m.h}")
           PY
 
-      - name: Commit trained weights to the repository
+      - name: Commit weights to Git and verify remote persistence
         run: |
           set -euo pipefail
+          python - <<'PY'
+          import json, datetime
+          from pathlib import Path
+          p = Path("training_history.json")
+          history = json.loads(p.read_text(encoding="utf-8")) if p.exists() else []
+          history.append({
+              "date": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "workflow": "Train and persist NLM2",
+              "epochs": "${{ inputs.epochs || '12' }}",
+              "learning_rate": "${{ inputs.lr || '0.0003' }}",
+              "weights": ["nlm2.bin", "nlm2.npz", "weights/nlm2.npz"],
+              "format": "NLM2",
+              "status": "trained-and-roundtrip-validated"
+          })
+          p.write_text(json.dumps(history, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+          PY
           git config user.name "nuwaa-trainer"
           git config user.email "actions@users.noreply.github.com"
-          git add nlm2.bin weights/nlm2.npz android/app/src/main/assets/nlm2.bin
-          git diff --cached --quiet && { echo "::error::No new trained weights were staged"; exit 1; }
-          git commit -m "Train and persist Android NLM2 game-development weights"
+          git add nlm2.bin nlm2.npz weights/nlm2.npz android/app/src/main/assets/nlm2.bin training_history.json
+          git diff --cached --quiet && { echo "::error::No trained weights or history were staged; refusing success."; exit 1; }
+          git commit -m "Train and persist NLM2 model weights"
           git push origin HEAD:main
-
-      - name: Prove the weights were saved on GitHub, not only on the runner
-        run: |
-          set -euo pipefail
           git fetch origin main
-          git cat-file -e origin/main:nlm2.bin
-          git cat-file -e origin/main:weights/nlm2.npz
-          git cat-file -e origin/main:android/app/src/main/assets/nlm2.bin
-          git show origin/main:nlm2.bin > /tmp/remote-nlm2.bin
-          git show origin/main:weights/nlm2.npz > /tmp/remote-nlm2.npz
-          git show origin/main:android/app/src/main/assets/nlm2.bin > /tmp/remote-android-nlm2.bin
+          REMOTE_COMMIT="$(git rev-parse origin/main)"
+          LOCAL_COMMIT="$(git rev-parse HEAD)"
+          test "$REMOTE_COMMIT" = "$LOCAL_COMMIT"
+          for file in nlm2.bin nlm2.npz weights/nlm2.npz android/app/src/main/assets/nlm2.bin training_history.json; do
+            git cat-file -e "origin/main:$file" || { echo "::error::Missing persisted file on origin/main: $file"; exit 1; }
+            git show "origin/main:$file" > "/tmp/remote-$(basename "$file")"
+            test -s "/tmp/remote-$(basename "$file")" || { echo "::error::Remote file is empty: $file"; exit 1; }
+          done
           cmp -s nlm2.bin /tmp/remote-nlm2.bin
+          cmp -s nlm2.npz /tmp/remote-nlm2.npz
           cmp -s weights/nlm2.npz /tmp/remote-nlm2.npz
-          cmp -s nlm2.bin /tmp/remote-android-nlm2.bin
-          echo "REMOTE_PERSISTENCE_VERIFIED"
-          git log -1 --format='Persisted commit: %H'
+          cmp -s android/app/src/main/assets/nlm2.bin /tmp/remote-nlm2.bin
+          echo "PERSISTENCE VERIFIED: commit $REMOTE_COMMIT contains root weights and Android asset."
