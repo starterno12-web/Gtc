@@ -1,0 +1,134 @@
+name: PAUSED -  Train Android NLM2 game-development model
+
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+concurrency:
+  group: nuwaa-nlm2-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      EPOCHS: ${{ github.event.inputs.epochs || '20' }}
+      LEARNING_RATE: ${{ github.event.inputs.lr || '0.0003' }}
+      MAX_SECONDS: ${{ github.event.inputs.seconds || '22000' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU-only training dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'numpy<2'
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1"
+
+      - name: Verify the training corpus before spending compute
+        run: |
+          python - <<'PY'
+          from nuwaa.lm.pretrain_gru import load_pairs
+          pairs = load_pairs(".")
+          print(f"Usable prompt/answer pairs: {len(pairs)}")
+          if len(pairs) < 10:
+              raise SystemExit("Training corpus is too small or has an unsupported JSONL schema.")
+          text = "\n".join(pairs)
+          for token in ("def ", "function", "<html", "CSS", "JavaScript", "pixel", "RGBA", "triangle", "المثلث", "الضمة"):
+              print(f"{token!r}: {token in text}")
+          from pathlib import Path
+          advanced = Path("training/curriculum_geometry_vision_python_advanced.jsonl").read_text(encoding="utf-8").splitlines()
+          print(f"Advanced examples: {len(advanced)}")
+          if len(advanced) < 95:
+              raise SystemExit("Advanced geometry/vision/Python curriculum is too small; refusing to spend compute")
+          import json
+          categories = {json.loads(line).get("category") for line in advanced if line.strip()}
+          required = {"geometry", "python", "browser", "vision", "arabic", "english", "requirements"}
+          if not required.issubset(categories):
+              raise SystemExit("Missing advanced categories: " + str(sorted(required - categories)))
+          PY
+
+      - name: Train the two-layer NLM2 model
+        run: |
+          python -m nuwaa.lm.pretrain_gru --data . --out weights/nlm2.npz --bin nlm2.bin --epochs "$EPOCHS" --lr "$LEARNING_RATE" --seconds "$MAX_SECONDS"
+
+      - name: Mirror every trained weight into repository root and stage Android model
+        run: |
+          set -euo pipefail
+          cp weights/nlm2.npz nlm2.npz
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, numpy as np
+          from nuwaa.lm.gru import GRULM
+          root = Path("nlm2.bin")
+          mirror = Path("weights/nlm2.npz")
+          root_mirror = Path("nlm2.npz")
+          assert root.is_file() and root.stat().st_size > 1000, "Root NLM2 binary missing or too small"
+          assert mirror.is_file() and mirror.stat().st_size > 1000, "NPZ weight archive missing or too small"
+          assert root_mirror.read_bytes() == mirror.read_bytes(), "Root NPZ mirror differs from weights archive"
+          model = GRULM.from_bytes(root.read_bytes())
+          assert model.v > 100 and len(model.P) == 9, "Unexpected vocabulary or parameter count"
+          assert all(np.isfinite(weight).all() for weight in model.P), "NaN/Inf detected in trained parameters"
+          with np.load(mirror) as archive:
+              assert all(f"p{i}" in archive.files for i in range(9)), "NPZ is missing parameters"
+              for i, weight in enumerate(model.P):
+                  assert np.array_equal(archive[f"p{i}"], weight), f"NPZ parameter p{i} differs from NLM2"
+          asset = Path("android/app/src/main/assets/nlm2.bin")
+          asset.parent.mkdir(parents=True, exist_ok=True)
+          asset.write_bytes(root.read_bytes())
+          assert GRULM.from_bytes(asset.read_bytes()).to_bytes() == model.to_bytes(), "Android model copy mismatch"
+          print("MODEL_VALIDATION_OK")
+          print(f"root_sha256={hashlib.sha256(root.read_bytes()).hexdigest()}")
+          print(f"npz_sha256={hashlib.sha256(mirror.read_bytes()).hexdigest()}")
+          parameter_count = sum(int(weight.size) for weight in model.P)
+          assert model.e >= 96 and model.h >= 512, "Model dimensions were not enlarged"
+          assert parameter_count > 2500000, f"Parameter count unexpectedly small: {parameter_count}"
+          print(f"vocab={model.v} hidden={model.h} embed={model.e} parameters={parameter_count} binary_bytes={root.stat().st_size}")
+          PY
+
+      - name: Commit trained weights to the repository
+        run: |
+          set -euo pipefail
+          git config user.name "nuwaa-trainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add nlm2.bin nlm2.npz weights/nlm2.npz android/app/src/main/assets/nlm2.bin
+          git diff --cached --quiet && { echo "::error::No new trained weights were staged"; exit 1; }
+          git commit -m "Train and persist Android NLM2 game-development weights"
+          # Rebase the completed model commit on the latest main before pushing.
+          # This prevents a concurrent metadata/workflow commit from discarding a full training run.
+          pushed=0
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              pushed=1
+              break
+            fi
+            echo "Push race on attempt $attempt; retrying after fetching main."
+            sleep 3
+          done
+          test "$pushed" -eq 1 || { echo "::error::Could not persist trained weights to origin/main after five attempts"; exit 1; }
+
+      - name: Prove the weights were saved on GitHub, not only on the runner
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          for f in nlm2.bin nlm2.npz weights/nlm2.npz android/app/src/main/assets/nlm2.bin; do
+            git cat-file -e "origin/main:$f"
+            git show "origin/main:$f" > "/tmp/$(echo "$f" | tr '/' '_')"
+            cmp -s "$f" "/tmp/$(echo "$f" | tr '/' '_')"
+          done
+          cmp -s /tmp/nlm2.bin /tmp/android_app_src_main_assets_nlm2.bin
+          cmp -s /tmp/nlm2.npz /tmp/weights_nlm2.npz
+          echo "REMOTE_PERSISTENCE_VERIFIED"
+          git log -1 --format='Persisted commit: %H'
