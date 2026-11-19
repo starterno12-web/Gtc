@@ -61,6 +61,12 @@ def prepare():
         if scored:
             loss,p=min(scored,key=lambda x:x[0]); CKPT.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,CKPT)
             print(f"Seeded canonical checkpoint from {p}; prior best validation loss={loss:.5f}")
+    # Snapshot the actual historical seed once; never overwrite this baseline on later runs.
+    initial = ROOT / "checkpoints" / "game_domain_master_initial.pt"
+    if CKPT.exists() and not initial.exists():
+        initial.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(CKPT,initial)
+        print(f"Preserved initial master seed at {initial}")
     manifest={"schema_version":2,"corpus_file":str(MASTER),"records":len(rows),
       "deduplicated":True,"cumulative":True,"source_files":source_manifest,
       "checkpoint_file":str(CKPT),"preserves_previous_master_corpus":True}
