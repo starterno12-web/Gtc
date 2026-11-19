@@ -62,10 +62,23 @@ def generate(model,prompt,limit=120,temperature=0.85):
         for ix in ids:logits,s1,s2=step(int(ix),s1,s2)
         out=[]
         for _ in range(limit):
-            probs=torch.softmax(logits / max(temperature, 0.05), dim=-1)\n            # Block character choices that create a repeated 4-character sequence.\n            candidates=torch.argsort(probs,descending=True).tolist(); ix=None\n            current="".join(out)\n            for candidate in candidates:\n                ch_try=model.chars[int(candidate)]\n                if ch_try=="\\n": ix=int(candidate); break\n                trial=current+ch_try\n                if len(trial)>=4 and trial[-4:] in [trial[j:j+4] for j in range(max(0,len(trial)-4))]: continue\n                ix=int(candidate); break\n            if ix is None: ix=int(torch.multinomial(probs,1).item())\n            ch=model.chars[ix]
-            if ch=="\n":break
-            out.append(ch);logits,s1,s2=step(ix,s1,s2)
-    return "".join(out).strip()
+            probs=torch.softmax(logits/max(temperature,0.05),dim=-1)
+            candidates=torch.argsort(probs,descending=True).tolist()
+            current="".join(out);chosen=None
+            for candidate in candidates:
+                ch_try=model.chars[int(candidate)]
+                if ch_try=="\\n":chosen=int(candidate);break
+                trial=current+ch_try
+                if len(trial)>=4 and trial[-4:] in [trial[j:j+4] for j in range(max(0,len(trial)-4))]:continue
+                chosen=int(candidate);break
+            if chosen is None:chosen=int(torch.multinomial(probs,1).item())
+            ch=model.chars[chosen]
+            if ch=="\\n":break
+            out.append(ch);logits,s1,s2=step(chosen,s1,s2)
+    answer="".join(out).strip()
+    compact=norm(answer)
+    repeated=any(compact[i:i+5] in compact[:i] for i in range(2,max(2,len(compact)-4)))
+    return answer,repeated
 
 def extend_vocab(model,texts):
     extra=sorted(set("".join(texts))-set(model.chars))
@@ -92,7 +105,7 @@ def main():
     model=GRULM.from_bytes(Path(args.base).read_bytes())
     training=[fmt(source,q,a) for q,a in qa];extend_vocab(model,training)
     params=[torch.nn.Parameter(torch.tensor(x.copy(),dtype=torch.float32)) for x in model.P]
-    opt=torch.optim.Adam(params,lr=args.lr);steps=0;report=[];start=time.time()
+    opt=torch.optim.Adam(params,lr=args.lr);steps=0;report=[];start=time.time();out=Path(args.out)
     for epoch in range(args.read_times):
         for seq in training:
             train_seq(model.encode(seq),params,opt,model.h);steps+=1
@@ -101,7 +114,7 @@ def main():
     for q,a in qa:
         prompt=f"نص:{source}\nس:{q}\nج:";target=norm(a);attempts=[];n=0;passed=False
         while True:
-            n+=1;time.sleep(5);ans=generate(model,prompt);normalized=norm(ans);repeated=any(normalized[i:i+5] in normalized[:i] for i in range(2,max(2,len(normalized)-4)));ok=bool(target) and normalized==target and not repeated
+            n+=1;time.sleep(5);ans,repeated=generate(model,prompt);normalized=norm(ans);ok=bool(target) and normalized==target and not repeated
             attempts.append({"attempt":n,"answer":ans,"correct":ok,"repetition_blocked":repeated})
             print(f"سؤال: {q}\nإجابة النموذج: {ans}\n{'صحيح' if ok else 'خطأ - تدريب وإعادة السؤال'}",flush=True)
             if ok:passed=True;break
