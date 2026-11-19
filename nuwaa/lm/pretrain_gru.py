@@ -35,12 +35,26 @@ def load_pairs(root):
                 raise SystemExit(f"Invalid JSONL at {path}:{line_no}: {exc}")
             user = item.get("user", "").strip()
             answer = item.get("bot", item.get("answer", "")).strip()
+            if path.name == "curriculum_geometry_vision_python_advanced.jsonl":
+                category = item.get("category", "").strip()
+                allowed = {"geometry", "python", "browser", "vision", "arabic", "english", "requirements"}
+                if category not in allowed:
+                    raise SystemExit(f"Advanced curriculum has unsupported category at {path}:{line_no}: {category!r}")
+                if len(user) < 12 or len(answer) < 45 or len(answer) > 8000:
+                    raise SystemExit(f"Advanced curriculum failed quality-length filter at {path}:{line_no}")
+                advanced_categories.add(category)
             if user and answer:
-                out.append("س:" + user.replace("\n", " ¶ ") + "\nج:" + answer.replace("\n", "¶") + "\n")
+                out.append("س:" + user.replace("\\n", " ¶ ") + "\\nج:" + answer.replace("\\n", "¶") + "\\n")
+    required = {"geometry", "python", "browser", "vision", "arabic", "english", "requirements"}
+    missing = required - advanced_categories
+    if missing:
+        raise SystemExit(f"Advanced curriculum is missing required categories: {sorted(missing)}")
     unique = list(dict.fromkeys(out))
-    if len(unique) < 100:
-        raise SystemExit(f"Curated game-development corpus too small: {len(unique)} unique examples")
-    return unique
+    if len(unique) < 150:
+        raise SystemExit(f"Curated game-development corpus too small after filtering: {len(unique)} unique examples")
+    print(f"Advanced curriculum categories verified: {', '.join(sorted(advanced_categories))}")
+    print(f"Unique examples retained after deduplication: {len(unique)}")
+
 
 def main():
     ap=argparse.ArgumentParser()
