@@ -58,3 +58,4 @@
 {"category":"visual","user":"Describe a traffic light for a game asset.","bot":"A traffic light has a vertical or horizontal housing, three circular lenses commonly red, amber, and green, a mounting pole or bracket, and a hood around each lens to reduce glare."}
 {"category":"visual","user":"كيف نصنع إشارة مرور ثلاثية الأبعاد؟","bot":"استخدم عمودًا، صندوقًا مستطيلًا، وثلاث دوائر مرتبة عموديًا، مع حواف أو أغطية صغيرة. اجعل عدسة واحدة مضيئة بحسب حالة الإشارة، وأضف مادة emissive."}
 {"category":"game_dev","user":"What belongs in a game-only knowledge curriculum?","bot":"Prioritize gameplay systems, programming, debugging, game art, 3D assets, materials, lighting, animation, physics, cameras, audio, UI, optimization, level design, testing, and practical workflows. Exclude unrelated encyclopedic subjects unless they directly support a game feature."}
+
