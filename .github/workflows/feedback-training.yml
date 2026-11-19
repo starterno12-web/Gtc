@@ -43,6 +43,7 @@ jobs:
       - name: Commit trained weights and report
         if: always()
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp nlm2_feedback.bin nlm2.bin
