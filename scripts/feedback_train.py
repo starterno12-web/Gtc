@@ -91,7 +91,7 @@ def main():
         for qa in item["questions"]:
             if not qa.get("q") or not qa.get("a"): raise SystemExit("Every question needs q and a fields.")
     base=GRULM.from_bytes(Path(args.base).read_bytes())
-    all_text=[item["text"]+ "".join(q["q"]+q["a"] for q in item["questions"]) for item in items]
+    all_text=[fmt(item["text"],q["q"],q["a"]) for item in items for q in item["questions"]]
     expand_vocab(base,all_text)
     params=[torch.nn.Parameter(torch.tensor(x.copy(),dtype=torch.float32)) for x in base.P]
     opt=torch.optim.Adam(params,lr=args.lr)
