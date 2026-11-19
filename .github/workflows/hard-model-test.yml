@@ -1,13 +1,5 @@
-name: Final browser interface challenge and validation
+name: PAUSED -  Final browser interface challenge and validation
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/run_hard_model_test.py'
-      - 'scripts/validate_browser_interface.py'
-      - 'tests/hard_coding_prompt.txt'
-      - 'weights/nlm2_article_curriculum.bin'
-      - '.github/workflows/hard-model-test.yml'
   workflow_dispatch:
 permissions:
   contents: write
