@@ -44,7 +44,7 @@ jobs:
       - name: Build deduplicated master dataset and select best prior checkpoint
         run: python training/prepare_master_training.py prepare
       - name: Resume cumulative training using all curriculum files
-        run: python training/train_domain_gru.py --epochs "${{ github.event.inputs.epochs || '40' }}" --checkpoint training/checkpoints/game_domain_master.pt
+        run: python training/train_master_gru.py --epochs "${{ github.event.inputs.epochs || '40' }}" --checkpoint training/checkpoints/game_domain_master.pt
       - name: Add source manifest to checkpoint
         run: python training/prepare_master_training.py finalize
       - name: Upload master dataset and checkpoint
