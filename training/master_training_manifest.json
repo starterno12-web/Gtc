@@ -1,0 +1,11 @@
+{
+  "corpus_file": "training/master_training_corpus.jsonl",
+  "records": 122,
+  "source_files": [
+    "training/curriculum_browser_audio.jsonl",
+    "training/curriculum_game_dev.jsonl",
+    "training/curriculum_game_physics_ai.jsonl",
+    "training/curriculum_game_engine_testing.jsonl"
+  ],
+  "deduplicated": true
+}
