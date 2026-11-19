@@ -1,10 +1,12 @@
-name: Hard held-out model test
+name: Final browser interface challenge and validation
 on:
   push:
     branches: [main]
     paths:
       - 'scripts/run_hard_model_test.py'
+      - 'scripts/validate_browser_interface.py'
       - 'tests/hard_coding_prompt.txt'
+      - 'weights/nlm2_article_curriculum.bin'
       - '.github/workflows/hard-model-test.yml'
   workflow_dispatch:
 permissions:
@@ -21,16 +23,19 @@ jobs:
         run: python -m pip install --no-cache-dir numpy torch
       - name: Verify trained checkpoint
         run: test -s weights/nlm2_article_curriculum.bin
-      - name: Generate answer to hard unseen coding task
+      - name: Ask the final, hardest browser coding question
         run: python scripts/run_hard_model_test.py --weights weights/nlm2_article_curriculum.bin --prompt tests/hard_coding_prompt.txt --out hard_test_answer.txt --tokens 1800 --temperature 0.85 --top-k 12
-      - name: Verify output and preserve trained weights
+      - name: Detect whether the answer is a real browser interface
+        run: python scripts/validate_browser_interface.py
+      - name: Verify outputs and preserve trained weights
         run: |
           test -s hard_test_answer.txt
+          test -s hard_test_validation.txt
           git diff --exit-code HEAD -- weights/nlm2_article_curriculum.bin nlm2.bin weights/nlm2.npz
-      - name: Commit raw model answer
+      - name: Commit raw answer and validation report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add hard_test_answer.txt
-          git commit -m "Add raw output from hard held-out model test"
+          git add hard_test_answer.txt hard_test_validation.txt
+          git commit -m "Save final browser interface test and validation"
           git push
