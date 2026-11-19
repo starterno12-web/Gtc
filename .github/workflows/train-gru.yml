@@ -10,7 +10,7 @@ on:
       epochs:
         description: Training epochs
         required: false
-        default: "16"
+        default: "20"
       lr:
         description: Adam learning rate
         required: false
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350
     env:
-      EPOCHS: ${{ github.event.inputs.epochs || '16' }}
+      EPOCHS: ${{ github.event.inputs.epochs || '20' }}
       LEARNING_RATE: ${{ github.event.inputs.lr || '0.0003' }}
       MAX_SECONDS: ${{ github.event.inputs.seconds || '22000' }}
     steps:
@@ -67,8 +67,13 @@ jobs:
           from pathlib import Path
           advanced = Path("training/curriculum_geometry_vision_python_advanced.jsonl").read_text(encoding="utf-8").splitlines()
           print(f"Advanced examples: {len(advanced)}")
-          if len(advanced) < 45:
-              raise SystemExit("Advanced curriculum is too small; refusing to spend compute")
+          if len(advanced) < 95:
+              raise SystemExit("Advanced geometry/vision/Python curriculum is too small; refusing to spend compute")
+          import json
+          categories = {json.loads(line).get("category") for line in advanced if line.strip()}
+          required = {"geometry", "python", "browser", "vision", "arabic", "english", "requirements"}
+          if not required.issubset(categories):
+              raise SystemExit("Missing advanced categories: " + str(sorted(required - categories)))
           PY
 
       - name: Train the two-layer NLM2 model
@@ -103,7 +108,10 @@ jobs:
           print("MODEL_VALIDATION_OK")
           print(f"root_sha256={hashlib.sha256(root.read_bytes()).hexdigest()}")
           print(f"npz_sha256={hashlib.sha256(mirror.read_bytes()).hexdigest()}")
-          print(f"vocab={model.v} hidden={model.h} embed={model.e} binary_bytes={root.stat().st_size}")
+          parameter_count = sum(int(weight.size) for weight in model.P)
+          assert model.e >= 96 and model.h >= 512, "Model dimensions were not enlarged"
+          assert parameter_count > 2500000, f"Parameter count unexpectedly small: {parameter_count}"
+          print(f"vocab={model.v} hidden={model.h} embed={model.e} parameters={parameter_count} binary_bytes={root.stat().st_size}")
           PY
 
       - name: Commit trained weights to the repository
