@@ -1,20 +1,22 @@
 {
-  "purpose": "Single complete NLM2 training run on the curated Arabic/English game-development, Python, HTML, CSS, JavaScript, math, geometry, physics, and testing corpus; persist and verify every weight file in GitHub root.",
+  "purpose": "Single complete high-accuracy NLM2 training run on the combined original curriculum plus 53 filtered advanced examples covering Arabic/English geometry, Python, browser APIs, pixel/color processing, image-analysis limits, language marks, and strict developer requirements. Persist and verify every model weight file in GitHub.",
   "scope": [
-    "Arabic",
-    "English",
-    "Python",
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "game logic",
-    "geometry",
-    "mathematics",
-    "game physics",
-    "testing"
+    "Original curated curriculum",
+    "Arabic and English",
+    "All common 2D and 3D geometry",
+    "Vehicle geometry and modeling",
+    "Python intermediate and advanced concepts",
+    "HTML CSS JavaScript browser APIs",
+    "Pixels RGB RGBA HSV HSL",
+    "Image processing and computer-vision fundamentals",
+    "Arabic letters vowels shadda tanween and sentence structure",
+    "Requirement filtering and no unrequested additions",
+    "Accuracy-first validation"
   ],
   "created": "2026-11-19",
   "retry": 3,
   "workflow": "train-gru.yml",
-  "corpus": "curated-only; exclude personal-memory and unrelated chat JSONL; no offensive-language filtering"
+  "corpus": "curated-only; exclude personal-memory and unrelated chat JSONL; no offensive-language filtering",
+  "training_mode": "one full training run; combined corpus; 16 epochs; single job; no APK build",
+  "advanced_corpus": "training/curriculum_geometry_vision_python_advanced.jsonl"
 }
