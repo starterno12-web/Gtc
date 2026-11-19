@@ -7,11 +7,11 @@ import torch
 from nuwaa.lm.gru import GRULM
 
 MEMORY = [
-    ("وين المفتاح؟", "فوق الدرج."),
-    ("وين الحليب؟", "داخل الثلاجة."),
-    ("وين الايس كريم؟", "مع أخوك."),
-    ("وين راح الحمام؟", "هرب للسطح."),
-    ("وين مفاتيح السيارة؟", "بالدرج الصغير."),
+    ("وين المفتاح؟", "جوة الدرج."),
+    ("وين الحليب؟", "جوة الثلاجة."),
+    ("وين الآيس كريم؟", "مع أخوي."),
+    ("وين الحمام (الطيور)؟", "راح للسطح."),
+    ("وين مفاتيح السيارة؟", "فوق الدرج."),
 ]
 FILES = [
     "data/new_knowledge.jsonl",
@@ -156,6 +156,12 @@ def main():
     args=ap.parse_args()
     torch.set_num_threads(2); torch.manual_seed(20261119); np.random.seed(20261119)
     base=GRULM.from_bytes(Path(args.base).read_bytes())
+    print("=== عرض المعلومات قبل الاختبار ===",flush=True)
+    for q,a in MEMORY:
+        print(f"{a}",flush=True)
+    print("=== الأسئلة الخمسة ===",flush=True)
+    for q,_ in MEMORY:
+        print(q,flush=True)
     clean=load_clean_pairs()
     # Keep a balanced replay subset so useful old knowledge is reinforced without importing broad chat noise.
     if len(clean)>args.max_clean_examples:
@@ -179,18 +185,22 @@ def main():
             if loss is not None: losses.append(loss); steps+=1
         print(f"memory_round={round_no}/10 questions=5",flush=True)
     base.P=[p.detach().cpu().numpy().astype(np.float32) for p in params]
+    rows=memory_test(base)
+    report={"rounds":10,"questions_per_round":5,"training_question_passes":50,
+            "clean_replay_examples":len(clean),"optimizer_steps":steps,
+            "mean_training_loss":round(float(np.mean(losses)),6) if losses else None,
+            "memory_test_passes":sum(x["pass"] for x in rows),"memory_test_total":len(rows),
+            "elapsed_seconds":round(time.time()-start,1),"candidate":str(args.out),"results":rows}
+    print("=== نتيجة الاختبار ===",flush=True)
+    for row in rows:
+        print(f"الجولة {row['round']} | {row['question']} | المتوقع: {row['expected']} | الناتج: {row['answer']} | {'نجح' if row['pass'] else 'لم يطابق'}",flush=True)
+    print(f"النتيجة النهائية: {report['memory_test_passes']}/{report['memory_test_total']}",flush=True)
     out=Path(args.out); out.parent.mkdir(parents=True,exist_ok=True)
     tmp=out.with_suffix(out.suffix+".tmp"); base.save(tmp)
     check=GRULM.from_bytes(tmp.read_bytes())
     if check.chars!=base.chars or check.e!=base.e or check.h!=base.h or any(not np.isfinite(p).all() for p in check.P):
         raise RuntimeError("NLM2 round-trip validation failed; candidate not published.")
     tmp.replace(out)
-    rows=memory_test(check)
-    report={"rounds":10,"questions_per_round":5,"training_question_passes":50,
-            "clean_replay_examples":len(clean),"optimizer_steps":steps,
-            "mean_training_loss":round(float(np.mean(losses)),6) if losses else None,
-            "memory_test_passes":sum(x["pass"] for x in rows),"memory_test_total":len(rows),
-            "elapsed_seconds":round(time.time()-start,1),"candidate":str(out),"results":rows}
     Path(args.report).write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
     Path("memory_test_50.txt").write_text("\n".join(
         f"الجولة {r['round']} | {r['question']} | المتوقع: {r['expected']} | الناتج: {r['answer']} | {'نجح' if r['pass'] else 'لم يطابق'}"
