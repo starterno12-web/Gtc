@@ -20,10 +20,15 @@ jobs:
         run: python -m pip install --no-cache-dir numpy torch
       - name: Train from article and run 10 repeated question rounds
         run: python scripts/train_article_curriculum.py --rounds 10 --seconds 21000
-      - name: Publish new checkpoint without replacing existing weights
+      - name: Verify checkpoint exists and preserve original weights
+        run: |
+          test -s weights/nlm2_article_curriculum.bin
+          git diff --exit-code HEAD -- nlm2.bin weights/nlm2.npz
+          ls -lh weights/nlm2_article_curriculum.bin
+      - name: Commit trained checkpoint permanently to repository
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add weights/nlm2_article_curriculum.bin
+          git add -f weights/nlm2_article_curriculum.bin
           git commit -m "Save Arabic article curriculum checkpoint"
           git push
