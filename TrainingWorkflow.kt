@@ -6,10 +6,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Standalone source-grounded training workflow. Uses Brain's existing public hooks;
- * no edits to the engine are required.
- * Read corpus -> train 20 passes -> exact-recall quiz (up to 10 source sentences).
- * Missed questions are repeated unchanged after retraining on the entire corpus,
- * with no retry limit. Weight persistence is invoked after every full pass/retry.
+ * no edits to engine internals.
+ * Reads the corpus, trains 20 full passes, asks up to 10 exact-recall questions.
+ * Missed questions repeat unchanged indefinitely after a full-source retraining.
+ * Saves the learned weights through Brain's existing persistent-save hook.
  */
 class TrainingWorkflow(private val context: Context, private val brain: Brain) {
     @Volatile var running = false
@@ -56,36 +56,37 @@ class TrainingWorkflow(private val context: Context, private val brain: Brain) {
                 val fullText = source()
                 val sentences = segments(fullText)
                 if (sentences.isEmpty()) { status("ملف التدريب لا يحتوي مقاطع قابلة للتدريب."); return@thread }
-                val chunks = sentences.map { it + "\\n" }
+                val chunks = sentences.map { it + "\n" }
                 status("قرأت ملف التدريب كاملًا (${fullText.length} حرفًا، ${chunks.size} مقطع). أبدأ 20 دورة.")
                 for (round in 1..20) {
                     if (stopRequested.get()) break
                     trainWholeSource(model, chunks)
-                    status("الدورة ${round}/20 — حُفظت الأوزان الدائمة.")
+                    status("الدورة ${round}/20 — تم استدعاء الحفظ الدائم للأوزان.")
                 }
                 if (stopRequested.get()) {
                     persist()
-                    status("أوقف المستخدم سير workflow؛ حُفظت آخر الأوزان.")
+                    status("أوقف المستخدم سير العمل؛ حُفظت آخر الأوزان.")
                     return@thread
                 }
 
                 val quiz = sentences.take(10)
                 status("اختبار ${quiz.size} أسئلة من النص الأصلي. ستتكرر الأسئلة الخاطئة بلا حد.")
                 quiz.forEachIndexed { index, target ->
-                    val question = "أعد كتابة الجملة التالية حرفيًا كما وردت في ملف التدريب، دون شرح أو إضافة:\\n«$target»"
+                    val question = "أعد كتابة الجملة التالية حرفيًا كما وردت في ملف التدريب، دون شرح أو إضافة:" + "\n«" + target + "»"
                     var attempt = 0
                     while (!stopRequested.get()) {
                         attempt++
                         val answer = brain.selfAttempt(question).trim()
                         val isCorrect = normalize(answer).contains(normalize(target))
-                        status("السؤال ${index + 1}/${quiz.size} — محاولة $attempt\\n$question\\nإجابة النموذج: $answer\\n" + if (isCorrect) "صحيح" else "خطأ — سأعيد السؤال نفسه بعد تدريب النص كاملًا")
+                        val display = "السؤال ${index + 1}/${quiz.size} — محاولة $attempt" + "\n" + question + "\nإجابة النموذج: " + answer + "\n" + if (isCorrect) "صحيح" else "خطأ — إعادة السؤال نفسه بعد تدريب النص كاملًا"
+                        status(display)
                         if (isCorrect) break
                         trainWholeSource(model, chunks)
                     }
                     if (stopRequested.get()) return@forEachIndexed
                 }
                 persist()
-                status(if (stopRequested.get()) "توقف الاختبار؛ حُفظت الأوزان." else "اكتمل الاختبار؛ حُفظت الأوزان الدائمة.")
+                status(if (stopRequested.get()) "توقف الاختبار؛ حُفظت الأوزان." else "اكتمل الاختبار؛ تم استدعاء حفظ الأوزان الدائمة.")
             } catch (e: Throwable) {
                 try { persist() } catch (_: Throwable) {}
                 status("تعذر إكمال سير التدريب: ${e.message ?: e.javaClass.simpleName}. تمت محاولة حفظ الأوزان.")
