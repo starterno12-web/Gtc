@@ -1,88 +1,27 @@
-name: Arabic Corpus Training (3 Passes)
+name: Arabic Language Model Training
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'training/arabic_language_training.txt'
-      - '.github/workflows/arabic-training-build.yml'
 
 permissions:
   contents: write
 
 jobs:
-  corpus-train:
+  train-existing-model:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Read Arabic corpus completely three times
-        id: corpus
+      - name: Verify actual model engine and permanent starting weights exist
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib, json
-          p=Path('training/arabic_language_training.txt')
-          text=p.read_text(encoding='utf-8')
-          if not text.strip(): raise SystemExit('Corpus is empty')
-          for n in range(1,4):
-              readback=p.read_text(encoding='utf-8')
-              if readback != text: raise SystemExit(f'Pass {n}: corpus mismatch')
-              print(f'PASS {n}/3 COMPLETE: chars={len(readback)} sha256={hashlib.sha256(readback.encode()).hexdigest()}')
-          Path('arabic_training_read_proof.json').write_text(json.dumps({
-            'source':str(p),'passes':3,'characters':len(text),
-            'sha256':hashlib.sha256(text.encode()).hexdigest(),
-            'verified_full_read_each_pass':True
-          },ensure_ascii=False,indent=2),encoding='utf-8')
-          PY
-
-      - name: Train corpus-derived statistical weights and generate 10 hidden-answer checks
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import json, re, random, math, hashlib
-          random.seed(42)
-          corpus=Path('training/arabic_language_training.txt').read_text(encoding='utf-8')
-          # Statistical baseline trained directly from all corpus tokens (not the app's original engine).
-          tokens=re.findall(r'[\u0600-\u06FF]+',corpus)
-          freq={}
-          for w in tokens: freq[w]=freq.get(w,0)+1
-          weights={'method':'corpus unigram frequency baseline','token_count':len(tokens),
-                   'vocabulary_size':len(freq),'token_frequencies':freq,
-                   'source_sha256':hashlib.sha256(corpus.encode()).hexdigest()}
-          Path('arabic_corpus_weights.json').write_text(json.dumps(weights,ensure_ascii=False,indent=2),encoding='utf-8')
-          # Build ten questions by sampling corpus sentences; reference answers are hidden
-          # from the model-side candidate selection and retained only in evaluation records.
-          sentences=[s.strip() for s in re.split(r'[.!؟\n]+',corpus) if len(s.strip())>35]
-          if len(sentences)<10: raise SystemExit('Not enough substantive sentences to create 10 questions')
-          chosen=random.sample(sentences,10)
-          report=[]
-          for i,s in enumerate(chosen,1):
-              words=re.findall(r'[\u0600-\u06FF]{3,}',s)
-              focus=max(words,key=lambda w:freq.get(w,0)) if words else 'موضوع النص'
-              q=f'ما الفكرة أو المعلومة التي يوضحها النص حول «{focus}»؟'
-              # Candidate response derived from retrieved passage; benchmark answer is withheld until scoring.
-              answer=s
-              # Exact passage retrieval check: response is grounded in corpus sentence.
-              correct=answer in corpus
-              report.append({'question_number':i,'question':q,'model_answer':answer,
-                            'reference_answer_hidden_until_evaluation':s,
-                            'grounded_in_source':correct,'score':1 if correct else 0})
-          summary={'training_type':'frequency-statistical baseline, not original app model',
-                  'passes':3,'questions':report,'correct':sum(x['score'] for x in report),
-                  'total':10,'accuracy':sum(x['score'] for x in report)/10}
-          Path('arabic_training_report.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
-          print('10-question evaluation:',summary['correct'],'/',10)
-          PY
-
-      - name: Commit permanent training outputs to repository root
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add arabic_corpus_weights.json arabic_training_report.json arabic_training_read_proof.json
-          git commit -m 'Save Arabic corpus training weights and evaluation report' || echo 'No changes to commit'
-          git push
+          test -f "النموذج_نسخة_محدثة__1_ (1).kt" || { echo "::error::Original Kotlin engine file missing."; exit 1; }
+          if [ ! -f "nlm2.bin" ] && [ ! -f "nlm2_user.bin" ]; then
+            echo "::error::Real NLM2 model weights are missing from repository root. Refusing to run pseudo-training or create fake weights."
+            exit 1
+          fi
+          echo "Engine file exists. Real NLM2 starting weights found."
+          echo "::error::Training runner for the Android-coupled NLM engine is not yet wired. No training was performed; this workflow intentionally stops instead of producing fake results."
+          exit 1
