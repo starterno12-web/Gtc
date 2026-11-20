@@ -21,8 +21,10 @@ jobs:
         run: test -s training/model/nlm2_user.bin
       - name: Generate question-only harness
         run: python training/run_nawa_phase2_questions.py
-      - name: Ask without training or modifying weights
+      - name: Ask the model 10 questions and print every answer clearly
         run: cd runner && gradle --no-daemon run
+      - name: Display question-and-answer report in job logs
+        run: cat training/model/results_phase2_questions.txt
       - name: Save question answers as evaluation artifact
         uses: actions/upload-artifact@v4
         with:
