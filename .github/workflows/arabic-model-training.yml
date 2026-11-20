@@ -1,6 +1,13 @@
 name: Arabic NLM Weight Training
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'training/run_arabic_model.py'
+      - 'النموذج_نسخة_محدثة__1_ (1).kt'
+      - 'src/main/assets/arabic_language_training.txt'
+      - 'runner/**'
+      - '.github/workflows/arabic-model-training.yml'
 permissions:
   contents: write
 jobs:
