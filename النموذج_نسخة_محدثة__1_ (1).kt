@@ -994,17 +994,40 @@ class Brain private constructor(private val ctx: Context) {
     /** assets/nlm2.bin = the pretrained start; filesDir/nlm2_user.bin = what it learned on this phone (the long-term memory of the weights). */
     private fun loadNlm() {
         try {
-            val base = ctx.assets.open("nlm2.bin").use { s -> s.readBytes() }
-            val heapMb = Runtime.getRuntime().maxMemory() / 1e6      // no budget of mine: the only limit is what this phone really gives the app
-            if (base.size * 3.0 / 1e6 > heapMb * 0.85) { modelStatus = "النموذج: تخطيته لأن ذاكرة هذا الجهاز للتطبيق ${heapMb.toInt()} MB فقط"; return }
-            val m = try { if (nlmUserFile.exists()) Nlm.load(nlmUserFile.readBytes()) else Nlm.load(base) } catch (e: Exception) { Nlm.load(base) }     // a damaged user file never blocks the start
+            val base = try {
+                ctx.assets.open("nlm2.bin").use { it.readBytes() }
+            } catch (_: java.io.FileNotFoundException) {
+                null
+            }
+            val heapMb = Runtime.getRuntime().maxMemory() / 1e6
+            val m = if (nlmUserFile.exists()) {
+                try { Nlm.load(nlmUserFile.readBytes()) }
+                catch (_: Exception) {
+                    if (base != null) Nlm.load(base) else Nlm.fresh(readAsset("arabic_language_training.txt"))
+                }
+            } else if (base != null) {
+                Nlm.load(base)
+            } else {
+                // Bootstrap one valid, untrained NLM2 weight file from the supplied Arabic corpus.
+                val fresh = Nlm.fresh(readAsset("arabic_language_training.txt"))
+                val bytes = fresh.toBytes()
+                if (bytes.size * 3.0 / 1e6 > heapMb * 0.85) {
+                    modelStatus = "النموذج: الأوزان الأولية تحتاج ذاكرة أكبر من المتاح على هذا الجهاز"
+                    return
+                }
+                nlmUserFile.parentFile?.mkdirs()
+                nlmUserFile.outputStream().use { it.write(bytes) }
+                fresh
+            }
+            if (base != null && !nlmUserFile.exists() && base.size * 3.0 / 1e6 > heapMb * 0.85) {
+                modelStatus = "النموذج: تخطيته لأن ذاكرة هذا الجهاز للتطبيق ${heapMb.toInt()} MB فقط"
+                return
+            }
             if (memFile.exists()) for (line in memFile.readLines(Charsets.UTF_8)) if (line.isNotBlank()) { memory.add(line); m.long.add(line) }
             nlm = m
-            modelStatus = "نموذج نواة (GRU، سياق غير محدود): " + m.paramCount() + " معامل · سمعت منك " + memory.size + " رسالة"
-        } catch (e: java.io.FileNotFoundException) {
-            modelStatus = "النموذج غير موجود في التطبيق (nlm2.bin)"
+            modelStatus = "نموذج نواة GRU: " + m.paramCount() + " معامل · أوزان ${if (base == null) "أولية غير مدرّبة" else "أساسية"} · سمعت منك " + memory.size + " رسالة"
         } catch (e: Throwable) {
-            modelStatus = "تعذر تحميل النموذج: " + (e.message ?: e.javaClass.simpleName)
+            modelStatus = "تعذر تحميل/إنشاء أوزان النموذج: " + (e.message ?: e.javaClass.simpleName)
         }
     }
 
@@ -2202,6 +2225,36 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             for (col in 0 until v) n.P[8][col] = old.P[8][col]                                                 // bo: unchanged size, copy fully
             return n
         }
+        /**
+         * Creates an untrained, correctly-shaped NLM2 model from the real training corpus.
+         * The weights are randomly initialized (not pretrained); training must update them.
+         */
+        fun fresh(corpus: String, e: Int = 32, h: Int = 64): Nlm {
+            require(e > 0 && h > 0) { "invalid model dimensions" }
+            val chars = ArrayList<String>()
+            chars.add("\u0000") // unknown-character slot; cid() falls back to index 1, retained for compatibility
+            chars.add("\u0001")
+            corpus.forEach { ch ->
+                val token = ch.toString()
+                if (!chars.contains(token)) chars.add(token)
+            }
+            if (chars.size < 3) throw IllegalArgumentException("training corpus has no usable characters")
+            val model = Nlm(e, h, chars)
+            val rng = java.util.Random(20261120L)
+            fun init(a: FloatArray, fanIn: Int, fanOut: Int) {
+                val scale = kotlin.math.sqrt(2.0 / (fanIn + fanOut).coerceAtLeast(1)).toFloat()
+                for (i in a.indices) a[i] = ((rng.nextDouble() * 2.0 - 1.0) * scale).toFloat()
+            }
+            init(model.P[0], e, e)
+            init(model.P[1], e, 3 * h)
+            init(model.P[2], h, 3 * h)
+            // Gate biases start at zero; recurrent/output matrices use small Xavier values.
+            init(model.P[4], h, 3 * h)
+            init(model.P[5], h, 3 * h)
+            init(model.P[7], h, model.v)
+            return model
+        }
+
         fun load(b: ByteArray): Nlm {
             require(b.size > 20 && b[0] == 0x4E.toByte() && b[1] == 0x4C.toByte() && b[2] == 0x4D.toByte() && b[3] == 0x32.toByte()) { "not an NLM2 file" }
             val bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN)
