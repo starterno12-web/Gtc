@@ -2487,3 +2487,94 @@ class NlmSession(private val m: Nlm, seed: Long) {
         return fin.r
     }
 }
+
+
+// ============== Real-weight training loop wired to the "رفع الفهم" button ==============
+class Trainer(private val context: Context, private val brain: Brain) {
+    @Volatile var running: Boolean = false
+        private set
+    @Volatile var percent: Int = 40
+    @Volatile var selfReview: Boolean = true
+
+    private val stopFlag = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    fun stop() { stopFlag.set(true); running = false }
+
+    private fun avgLoss(model: Nlm, samples: List<String>): Float {
+        val usable = samples.filter { it.length >= 8 }.take(160)
+        if (usable.isEmpty()) return Float.POSITIVE_INFINITY
+        var total = 0.0
+        var count = 0
+        for (text in usable) {
+            val ids = model.encode(text)
+            if (ids.size >= 3) {
+                total += model.bpc(ids).toDouble()
+                count++
+            }
+        }
+        return if (count == 0) Float.POSITIVE_INFINITY else (total / count).toFloat()
+    }
+
+    fun start(onStatus: (String) -> Unit) {
+        if (running) return
+        stopFlag.set(false)
+        running = true
+        thread(name = "understanding-training") {
+            try {
+                val model = brain.trainModel() ?: run {
+                    onStatus("النموذج غير محمّل؛ أوقف التدريب.")
+                    return@thread
+                }
+                val source = brain.trainPairs().filter { it.length >= 8 }
+                if (source.isEmpty()) {
+                    onStatus("ملف التدريب train.txt فارغ أو غير متاح.")
+                    return@thread
+                }
+                val validation = source.take(minOf(source.size, 160))
+                var bestLoss = synchronized(brain.modelLock) { avgLoss(model, validation) }
+                var acceptedRounds = 0
+                var round = 0
+                onStatus("اتصل بملف التدريب: ${source.size} مثال. قياس البداية: ${"%.4f".format(java.util.Locale.US, bestLoss)}")
+                while (!stopFlag.get()) {
+                    round++
+                    val batch = source.shuffled().take(minOf(source.size, 80))
+                    val snapshot = synchronized(brain.modelLock) { model.snapshot() }
+                    val startNs = System.nanoTime()
+                    synchronized(brain.modelLock) {
+                        for (sample in batch) {
+                            if (stopFlag.get()) break
+                            model.trainWindow(sample, 0.00012f)
+                        }
+                    }
+                    val newLoss = synchronized(brain.modelLock) { avgLoss(model, validation) }
+                    val improved = newLoss.isFinite() && newLoss < bestLoss
+                    if (improved) {
+                        bestLoss = newLoss
+                        acceptedRounds++
+                        brain.saveTrained() // persist the actual Nlm weights, not just the training text
+                        onStatus("✓ الجولة $round تحسّنت؛ القياس ${"%.4f".format(java.util.Locale.US, bestLoss)}. حُفظت الأوزان الجديدة.")
+                    } else {
+                        synchronized(brain.modelLock) { model.restoreSnapshot(snapshot) }
+                        onStatus("الجولة $round لم تحسّن القياس؛ رجعت للأوزان الأفضل (${"%.4f".format(java.util.Locale.US, bestLoss)}).")
+                    }
+                    // CPU percentage is an approximate duty-cycle limiter: train for a slice, then idle proportionally.
+                    val workMs = ((System.nanoTime() - startNs) / 1_000_000L).coerceAtLeast(1L)
+                    val target = percent.coerceIn(5, 100)
+                    val rest = (workMs * (100 - target) / target).coerceAtMost(30_000L)
+                    if (rest > 0 && !stopFlag.get()) Thread.sleep(rest)
+                    if (round % 5 == 0 && !stopFlag.get()) {
+                        onStatus("رفع الفهم يعمل — الجولة $round، أمثلة ${source.size}، تحسينات مقبولة $acceptedRounds، أفضل قياس ${"%.4f".format(java.util.Locale.US, bestLoss)}. الأوزان محفوظة عند كل تحسن.")
+                    }
+                }
+                onStatus("أوقف التدريب. أفضل قياس: ${"%.4f".format(java.util.Locale.US, bestLoss)}. الأوزان المحسّنة محفوظة.")
+            } catch (e: InterruptedException) {
+                onStatus("توقف التدريب؛ آخر أوزان محسّنة محفوظة.")
+            } catch (e: Throwable) {
+                onStatus("تعذر التدريب: ${e.message ?: e.javaClass.simpleName}")
+            } finally {
+                running = false
+                stopFlag.set(false)
+            }
+        }
+    }
+}
