@@ -1,27 +1,31 @@
-name: Arabic Language Model Training
+name: Arabic Training Workflow Checks
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "النموذج_نسخة_محدثة__1_ (1).kt"
+      - "src/main/assets/arabic_language_training.txt"
+      - "src/main/assets/train.txt"
+      - "assets/**"
+      - "training/**"
+      - ".github/workflows/arabic-training-build.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  train-existing-model:
+  validate-training-inputs:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Verify actual model engine and permanent starting weights exist
-        run: |
-          test -f "النموذج_نسخة_محدثة__1_ (1).kt" || { echo "::error::Original Kotlin engine file missing."; exit 1; }
-          if [ ! -f "nlm2.bin" ] && [ ! -f "nlm2_user.bin" ]; then
-            echo "::error::Real NLM2 model weights are missing from repository root. Refusing to run pseudo-training or create fake weights."
-            exit 1
-          fi
-          echo "Engine file exists. Real NLM2 starting weights found."
-          echo "::error::Training runner for the Android-coupled NLM engine is not yet wired. No training was performed; this workflow intentionally stops instead of producing fake results."
-          exit 1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Arabic corpus, ten QA pairs, and NLM training wiring
+        run: python training/validate_training_assets.py
