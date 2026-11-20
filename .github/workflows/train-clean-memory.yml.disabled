@@ -1,0 +1,52 @@
+name: Train five memory facts (10 rounds)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore model source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p nuwaa/lm
+          git show 2bbbdde78216be776f2751db3fc81ed6759748ba:nuwaa/lm/gru.py > nuwaa/lm/gru.py
+      - name: Install CPU training dependencies
+        run: python -m pip install --no-cache-dir numpy torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Train only five facts and test 50 answers
+        run: python scripts/clean_memory_train.py --base nlm2.bin --out nlm2_clean_memory.bin --report memory_test_50.json --lr 0.00001
+      - name: Validate candidate weights and report
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s nlm2_clean_memory.bin
+          test -s nlm2_clean_memory.npz
+          test -s memory_test_50.json
+          test -s memory_test_50.txt
+          python - <<'PY'
+          import json, numpy as np
+          r=json.load(open("memory_test_50.json",encoding="utf-8"))
+          assert r["memory_test_total"] == 50 and len(r["results"]) == 50
+          w=np.load("nlm2_clean_memory.npz")
+          assert all(np.isfinite(w[k]).all() for k in w.files)
+          print("Candidate weights and test report validated.")
+          PY
+      - name: Publish candidate weights and reports at repository root (final step)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "nuwaa-trainer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f nlm2_clean_memory.bin nlm2_clean_memory.npz memory_test_50.json memory_test_50.txt
+          git add scripts/clean_memory_train.py .github/workflows/train-clean-memory.yml
+          git commit -m "Train five memory facts and publish candidate weights at root"
+          git push
