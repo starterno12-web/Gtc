@@ -6,8 +6,6 @@ on:
     paths:
       - "النموذج_نسخة_محدثة__1_ (1).kt"
       - "src/main/assets/arabic_language_training.txt"
-      - "src/main/assets/train.txt"
-      - "assets/**"
       - "training/**"
       - ".github/workflows/arabic-training-build.yml"
 
@@ -27,5 +25,5 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate Arabic corpus, ten QA pairs, and NLM training wiring
+      - name: Validate Arabic corpus, source QA pairs, and NLM training wiring
         run: python training/validate_training_assets.py
