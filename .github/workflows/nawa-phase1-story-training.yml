@@ -1,0 +1,45 @@
+name: Phase 1 - Nawa Story Repetition Training
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'training/nawa_phase1_story.txt'
+      - 'training/run_nawa_phase1.py'
+      - 'النموذج_نسخة_محدثة__1_ (1).kt'
+      - 'runner/**'
+      - '.github/workflows/nawa-phase1-story-training.yml'
+permissions:
+  contents: write
+concurrency:
+  group: nawa-phase1-story
+  cancel-in-progress: false
+jobs:
+  train-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate Kotlin harness
+        run: python training/run_nawa_phase1.py
+      - name: Read and train on story 50 times
+        run: cd runner && gradle --no-daemon run
+      - name: Commit weights after successful training
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add training/model/nlm2_user.bin training/model/results_phase1.txt
+          git commit -m 'Persist Phase 1 story-trained NLM weights'
+          git push
+      - name: Upload training results
+        uses: actions/upload-artifact@v4
+        with:
+          name: nawa-phase1-story-training
+          path: training/model/nlm2_user.bin
