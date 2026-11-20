@@ -2489,92 +2489,88 @@ class NlmSession(private val m: Nlm, seed: Long) {
 }
 
 
-// ============== Real-weight training loop wired to the "رفع الفهم" button ==============
+// ============== 20-round Arabic training + post-training self-test workflow ==============
 class Trainer(private val context: Context, private val brain: Brain) {
     @Volatile var running: Boolean = false
         private set
     @Volatile var percent: Int = 40
-    @Volatile var selfReview: Boolean = true
-
+        @Volatile var selfReview: Boolean = true
     private val stopFlag = java.util.concurrent.atomic.AtomicBoolean(false)
+    fun stop() { stopFlag.set(true) }
 
-    fun stop() { stopFlag.set(true); running = false }
+    private val practicePairs = listOf(
+        "س: ما وظيفة اللغة؟\nج: اللغة وسيلة للتواصل وأداة للتفكير ونقل المعرفة.\n",
+        "س: ما الفرق بين الفصحى واللهجات؟\nج: الفصحى لغة مشتركة للكتابة والتعليم، واللهجات أشكال طبيعية للتواصل اليومي تختلف حسب المناطق.\n",
+        "س: لماذا نختار الكلمات بعناية؟\nج: اختيار الكلمات وترتيبها يساعد على إيصال المعنى بوضوح.\n",
+        "س: ما المقصود بالسياق؟\nج: السياق هو الظروف والكلام المحيط الذي يساعد على فهم المقصود.\n",
+        "س: كيف أتعامل مع معلومة غير مؤكدة؟\nج: أميز بين المعلومة والاستنتاج وأصرح بعدم التأكد بدل اختراع جواب.\n",
+        "س: ما فائدة السؤال؟\nج: السؤال يحدد الحاجة إلى المعرفة ويساعد على توضيح المعنى.\n",
+        "س: ما الذي يجعل الإجابة واضحة؟\nج: أن تكون مرتبطة بالسؤال، دقيقة، مرتبة، وبألفاظ مناسبة.\n",
+        "س: ما هي العربية الفصحى المعاصرة؟\nج: هي العربية المشتركة المستخدمة في التعليم والكتب والإعلام والكتابة الرسمية.\n",
+        "س: هل اختلاف اللهجة يعني ضعف اللغة؟\nج: لا، اللهجة مرتبطة بالمجتمع والبيئة ولا تعني ضعف القدرة اللغوية.\n",
+        "س: كيف ينبغي أن يجيب النموذج؟\nج: يجيب بوضوح ودقة، ولا يختلق حقائق عندما لا يعرف.\n"
+    )
+    private val testQuestions = listOf(
+        "ما وظيفة اللغة؟", "ما الفرق بين الفصحى واللهجات؟", "لماذا نختار الكلمات بعناية؟",
+        "ما المقصود بالسياق؟", "كيف أتعامل مع معلومة غير مؤكدة؟", "ما فائدة السؤال؟",
+        "ما الذي يجعل الإجابة واضحة؟", "ما هي العربية الفصحى المعاصرة؟",
+        "هل اختلاف اللهجة يعني ضعف اللغة؟", "كيف ينبغي أن يجيب النموذج؟"
+    )
 
     private fun avgLoss(model: Nlm, samples: List<String>): Float {
-        val usable = samples.filter { it.length >= 8 }.take(160)
-        if (usable.isEmpty()) return Float.POSITIVE_INFINITY
-        var total = 0.0
-        var count = 0
-        for (text in usable) {
+        var total = 0.0; var count = 0
+        for (text in samples) {
             val ids = model.encode(text)
-            if (ids.size >= 3) {
-                total += model.bpc(ids).toDouble()
-                count++
-            }
+            if (ids.size >= 3) { total += model.bpc(ids).toDouble(); count++ }
         }
         return if (count == 0) Float.POSITIVE_INFINITY else (total / count).toFloat()
     }
 
     fun start(onStatus: (String) -> Unit) {
         if (running) return
-        stopFlag.set(false)
-        running = true
-        thread(name = "understanding-training") {
+        stopFlag.set(false); running = true
+        thread(name = "arabic-training-and-review") {
             try {
-                val model = brain.trainModel() ?: run {
-                    onStatus("النموذج غير محمّل؛ أوقف التدريب.")
-                    return@thread
-                }
-                val source = brain.trainPairs().filter { it.length >= 8 }
-                if (source.isEmpty()) {
-                    onStatus("ملف التدريب train.txt فارغ أو غير متاح.")
-                    return@thread
-                }
-                val validation = source.take(minOf(source.size, 160))
-                var bestLoss = synchronized(brain.modelLock) { avgLoss(model, validation) }
-                var acceptedRounds = 0
-                var round = 0
-                onStatus("اتصل بملف التدريب: ${source.size} مثال. قياس البداية: ${"%.4f".format(java.util.Locale.US, bestLoss)}")
-                while (!stopFlag.get()) {
-                    round++
-                    val batch = source.shuffled().take(minOf(source.size, 80))
-                    val snapshot = synchronized(brain.modelLock) { model.snapshot() }
-                    val startNs = System.nanoTime()
-                    synchronized(brain.modelLock) {
-                        for (sample in batch) {
-                            if (stopFlag.get()) break
-                            model.trainWindow(sample, 0.00012f)
-                        }
-                    }
-                    val newLoss = synchronized(brain.modelLock) { avgLoss(model, validation) }
-                    val improved = newLoss.isFinite() && newLoss < bestLoss
-                    if (improved) {
-                        bestLoss = newLoss
-                        acceptedRounds++
-                        brain.saveTrained() // persist the actual Nlm weights, not just the training text
-                        onStatus("✓ الجولة $round تحسّنت؛ القياس ${"%.4f".format(java.util.Locale.US, bestLoss)}. حُفظت الأوزان الجديدة.")
+                val model = brain.trainModel() ?: run { onStatus("النموذج غير محمّل."); return@thread }
+                var bestLoss = synchronized(brain.modelLock) { avgLoss(model, practicePairs) }
+                var savedRounds = 0
+                onStatus("بدأ التدريب على 10 أمثلة عربية. عدد الدورات المحدد: 20.")
+                for (round in 1..20) {
+                    if (stopFlag.get()) break
+                    val batch = practicePairs.shuffled()
+                    val snap = synchronized(brain.modelLock) { model.snapshot() }
+                    synchronized(brain.modelLock) { batch.forEach { if (!stopFlag.get()) model.trainWindow(it, 0.00012f) } }
+                    val after = synchronized(brain.modelLock) { avgLoss(model, practicePairs) }
+                    if (after.isFinite() && after < bestLoss) {
+                        bestLoss = after
+                        brain.saveTrained()
+                        savedRounds++
                     } else {
-                        synchronized(brain.modelLock) { model.restoreSnapshot(snapshot) }
-                        onStatus("الجولة $round لم تحسّن القياس؛ رجعت للأوزان الأفضل (${"%.4f".format(java.util.Locale.US, bestLoss)}).")
+                        synchronized(brain.modelLock) { model.restoreSnapshot(snap) }
                     }
-                    // CPU percentage is an approximate duty-cycle limiter: train for a slice, then idle proportionally.
-                    val workMs = ((System.nanoTime() - startNs) / 1_000_000L).coerceAtLeast(1L)
-                    val target = percent.coerceIn(5, 100)
-                    val rest = (workMs * (100 - target) / target).coerceAtMost(30_000L)
-                    if (rest > 0 && !stopFlag.get()) Thread.sleep(rest)
-                    if (round % 5 == 0 && !stopFlag.get()) {
-                        onStatus("رفع الفهم يعمل — الجولة $round، أمثلة ${source.size}، تحسينات مقبولة $acceptedRounds، أفضل قياس ${"%.4f".format(java.util.Locale.US, bestLoss)}. الأوزان محفوظة عند كل تحسن.")
-                    }
+                    onStatus("التدريب: الجولة ${round}/20 — أفضل خسارة ${"%.4f".format(java.util.Locale.US,bestLoss)} — checkpoints محفوظة: ${savedRounds}")
+                    val target = percent.coerceIn(5,100)
+                    if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
-                onStatus("أوقف التدريب. أفضل قياس: ${"%.4f".format(java.util.Locale.US, bestLoss)}. الأوزان المحسّنة محفوظة.")
+                if (stopFlag.get()) onStatus("أُوقف التدريب؛ أبدأ مراجعة الحالة المحفوظة.")
+                else onStatus("اكتمل التدريب 20/20. أبدأ اختبار النموذج الآن...")
+                brain.saveTrained()
+                if (selfReview) {
+                    val out = StringBuilder("\n\n=== اختبار بعد التدريب (10 أسئلة كحد أقصى) ===\n")
+                    testQuestions.take(10).forEachIndexed { i, q ->
+                        if (stopFlag.get()) return@forEachIndexed
+                        val response = brain.selfAttempt(q).ifBlank { "(لم ينتج رد)" }
+                        out.append("\n").append(i+1).append(") السؤال: ").append(q)
+                            .append("\nرد النموذج: ").append(response).append("\n")
+                        onStatus(out.toString())
+                    }
+                    onStatus("اكتمل التدريب والمراجعة. الأوزان محفوظة.\n" + out.toString())
+                } else onStatus("انتهى التدريب وتم حفظ الأوزان. المراجعة الذاتية معطلة.")
             } catch (e: InterruptedException) {
-                onStatus("توقف التدريب؛ آخر أوزان محسّنة محفوظة.")
+                onStatus("توقفت العملية. آخر checkpoint محفوظ.")
             } catch (e: Throwable) {
-                onStatus("تعذر التدريب: ${e.message ?: e.javaClass.simpleName}")
-            } finally {
-                running = false
-                stopFlag.set(false)
-            }
+                onStatus("حدث خطأ في التدريب/الاختبار: ${e.message ?: e.javaClass.simpleName}")
+            } finally { running = false; stopFlag.set(false) }
         }
     }
 }
