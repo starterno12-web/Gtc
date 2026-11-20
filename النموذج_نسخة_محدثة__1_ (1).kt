@@ -1000,24 +1000,26 @@ class Brain private constructor(private val ctx: Context) {
                 null
             }
             val heapMb = Runtime.getRuntime().maxMemory() / 1e6
+            fun freshAndPersist(): Nlm {
+                val fresh = Nlm.fresh(readAsset("arabic_language_training.txt"))
+                val bytes = fresh.toBytes()
+                if (bytes.size * 3.0 / 1e6 > heapMb * 0.85) {
+                    throw IllegalStateException("الأوزان الأولية تحتاج ذاكرة أكبر من المتاح على هذا الجهاز")
+                }
+                nlmUserFile.parentFile?.mkdirs()
+                nlmUserFile.outputStream().use { it.write(bytes) }
+                return fresh
+            }
             val m = if (nlmUserFile.exists()) {
                 try { Nlm.load(nlmUserFile.readBytes()) }
                 catch (_: Exception) {
-                    if (base != null) Nlm.load(base) else Nlm.fresh(readAsset("arabic_language_training.txt"))
+                    if (base != null) Nlm.load(base) else freshAndPersist()
                 }
             } else if (base != null) {
                 Nlm.load(base)
             } else {
                 // Bootstrap one valid, untrained NLM2 weight file from the supplied Arabic corpus.
-                val fresh = Nlm.fresh(readAsset("arabic_language_training.txt"))
-                val bytes = fresh.toBytes()
-                if (bytes.size * 3.0 / 1e6 > heapMb * 0.85) {
-                    modelStatus = "النموذج: الأوزان الأولية تحتاج ذاكرة أكبر من المتاح على هذا الجهاز"
-                    return
-                }
-                nlmUserFile.parentFile?.mkdirs()
-                nlmUserFile.outputStream().use { it.write(bytes) }
-                fresh
+                freshAndPersist()
             }
             if (base != null && !nlmUserFile.exists() && base.size * 3.0 / 1e6 > heapMb * 0.85) {
                 modelStatus = "النموذج: تخطيته لأن ذاكرة هذا الجهاز للتطبيق ${heapMb.toInt()} MB فقط"
