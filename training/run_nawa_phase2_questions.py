@@ -13,8 +13,8 @@ class NMem { fun add(text: String) {} }
 '''
 tail='''
 fun main() {
- val file=File('../training/model/nlm2_user.bin')
- require(file.exists()) { 'Run Phase 1 before Phase 2' }
+ val file=File("../training/model/nlm2_user.bin")
+ require(file.exists()) { "Run Phase 1 before Phase 2" }
  val m=Nlm.load(file.readBytes())
  val questions=listOf(
  "من هو نواة في القصة؟",
@@ -31,20 +31,20 @@ fun main() {
  fun answer(q:String):String {
   val a=FloatArray(m.h); val b=FloatArray(m.h)
   var p=m.stepChar(m.cid(10.toChar()),a,b)
-  val prompt='س:'+q+'\\nج:'
+  val prompt="س:"+q+"\\nج:"
   for(ch in prompt) p=m.stepChar(m.cid(ch),a,b)
   val out=StringBuilder()
   repeat(400) {
    var best=1; var score=Float.NEGATIVE_INFINITY
    for(i in p.indices) if(p[i]>score){score=p[i];best=i}
    val ch=m.chars[best]
-   if(ch=='\\n') return out.toString().trim()
+   if(ch=="\\n") return out.toString().trim()
    out.append(ch); p=m.stepChar(best,a,b)
   }
   return out.toString().trim()
  }
- val report=questions.mapIndexed { i,q -> 'Q'+(i+1)+': '+q+'\\nAnswer: '+answer(q) }.joinToString('\\n\\n')
- File('../training/model/results_phase2_questions.txt').writeText(report,Charsets.UTF_8)
+ val report=questions.mapIndexed { i,q -> "Q"+(i+1)+": "+q+"\\nAnswer: "+answer(q) }.joinToString("\\n\\n")
+ File("../training/model/results_phase2_questions.txt").writeText(report,Charsets.UTF_8)
  println(report)
 }
 '''
