@@ -1,0 +1,1 @@
+rootProject.name = "nuwaa-arabic-training"\n
