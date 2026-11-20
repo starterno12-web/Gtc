@@ -2582,9 +2582,16 @@ class Trainer(private val context: Context, private val brain: Brain) {
         .filter { it.length >= 30 && it.any { ch -> ch.isLetter() } }
         .distinct()
 
-    // Evaluation prompts are derived from actual source sentences: quote the sentence and ask for its meaning.
-    private fun groundedQuestions(sentences: List<String>): List<String> =
-        sentences.take(10).map { "اشرح معنى العبارة التالية من نص التدريب دون إضافة معلومات خارجها:\n«$it»" }
+    // Extract only question/answer pairs already authored inside the original Arabic corpus.
+    private fun extractSourceQa(text: String): List<String> {
+        val lines = text.lineSequence().map { it.trim() }.toList()
+        return lines.mapIndexedNotNull { index, line ->
+            if (line.startsWith("س:")) {
+                val answer = lines.getOrNull(index + 1).orEmpty()
+                if (answer.startsWith("ج:")) "$line\n$answer\n" else null
+            } else null
+        }
+    }
 
     private fun avgLoss(model: Nlm, samples: List<String>): Float {
         var total = 0.0; var count = 0
@@ -2606,14 +2613,15 @@ class Trainer(private val context: Context, private val brain: Brain) {
                 }
                 val sentences = extractSentences(fullText)
                 if (sentences.isEmpty()) { onStatus("ملف النص موجود لكنه لا يحتوي مقاطع تدريب مناسبة."); return@thread }
-                val qaPairs = brain.trainPairs()
-                if (qaPairs.size != 10) {
-                    onStatus("ملف train.txt يجب أن يحتوي بالضبط على 10 أزواج سؤال/جواب مفصولة بعلامة تبويب. الموجود: ${qaPairs.size}.")
+                val qaPairs = extractSourceQa(fullText)
+                if (qaPairs.size < 10) {
+                    onStatus("ملف اللغة العربية يجب أن يحتوي على الأقل 10 أزواج أصلية متتابعة من نوع س:/ج:. الموجود: ${qaPairs.size}.")
                     return@thread
                 }
-                val samples = sentences.map { it + "\n" } + qaPairs
-                val questions = qaPairs.map { pair -> pair.substringAfter("س:").substringBefore("\n").trim() }
-                val referenceAnswers = qaPairs.map { pair -> pair.substringAfter("ج:").trim() }
+                val selectedPairs = qaPairs.take(10)
+                val samples = sentences.map { it + "\n" } + selectedPairs
+                val questions = selectedPairs.map { pair -> pair.substringAfter("س:").substringBefore("\n").trim() }
+                val referenceAnswers = selectedPairs.map { pair -> pair.substringAfter("ج:").trim() }
                 if (questions.any { it.isBlank() } || referenceAnswers.any { it.isBlank() }) {
                     onStatus("ملف train.txt يحتوي سؤالًا أو إجابة فارغة؛ أوقفت التدريب قبل تعديل الأوزان.")
                     return@thread
@@ -2636,9 +2644,9 @@ class Trainer(private val context: Context, private val brain: Brain) {
                     if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
                 brain.saveTrained()
-                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبار الأسئلة العشرة الموجودة في train.txt.")
+                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبار الأسئلة العشرة الموجودة داخل ملف اللغة العربية نفسه.")
                 if (selfReview && !stopFlag.get()) {
-                    val report = StringBuilder("\n\n=== مراجعة نص التدريب الأصلية ===\n")
+                    val report = StringBuilder("\n\n=== مراجعة أسئلة ملف اللغة العربية الأصلي ===\n")
                     questions.take(10).forEachIndexed { index, question ->
                         if (stopFlag.get()) return@forEachIndexed
                         val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(question)) }
@@ -2649,7 +2657,7 @@ class Trainer(private val context: Context, private val brain: Brain) {
                             .append("\nقياس السؤال (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\n")
                         onStatus(report.toString())
                     }
-                    onStatus("انتهى الاختبار: 10 أسئلة، مع عرض الإجابة المرجعية وإجابة المحرك لكل سؤال.\n" + report.toString())
+                    onStatus("انتهى الاختبار: 10 أسئلة مستخرجة من ملف اللغة العربية، مع عرض الإجابة المرجعية وإجابة المحرك لكل سؤال.\n" + report.toString())
                 } else onStatus("انتهى التدريب وحُفظت الأوزان. اختبار الأسئلة متوقف.")
             } catch (e: InterruptedException) {
                 onStatus("توقف التدريب. آخر حالة محفوظة.")
