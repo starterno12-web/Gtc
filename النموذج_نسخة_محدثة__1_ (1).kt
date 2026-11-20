@@ -2607,13 +2607,13 @@ class Trainer(private val context: Context, private val brain: Brain) {
                     if (stopFlag.get()) break
                     val snap = synchronized(brain.modelLock) { model.snapshot() }
                     synchronized(brain.modelLock) {
-                        sentences.shuffled().forEach { sentence -> if (!stopFlag.get()) model.trainWindow(sentence, 0.00012f) }
+                        samples.shuffled().forEach { sample -> if (!stopFlag.get()) model.trainWindow(sample, 0.00012f) }
                     }
                     val current = synchronized(brain.modelLock) { avgLoss(model, samples) }
                     if (current.isFinite() && current < bestLoss) {
                         bestLoss = current; brain.saveTrained(); saves++
                     } else synchronized(brain.modelLock) { model.restoreSnapshot(snap) }
-                    onStatus("تدريب النص الأصلي — دورة ${round}/20 — المقاطع ${sentences.size} — أفضل قياس ${"%.4f".format(java.util.Locale.US,bestLoss)} — حفظ تحسينات: ${saves}")
+                    onStatus("تدريب النص الأصلي — دورة ${round}/20 — عينات النص والأسئلة ${samples.size} — أفضل قياس ${"%.4f".format(java.util.Locale.US,bestLoss)} — حفظ تحسينات: ${saves}")
                     val target = percent.coerceIn(5,100)
                     if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
