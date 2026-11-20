@@ -60,9 +60,9 @@ required = (
     'context.assets.open("arabic_language_training.txt")',
     'readAsset("train.txt")',
     "brain.trainPairs()",
-    "model.trainWindow(sentence, 0.00012f)",
+    "samples.shuffled().forEach { sample -> if (!stopFlag.get()) model.trainWindow(sample, 0.00012f) }",
     "for (round in 1..20)",
-    "brain.selfAttempt(question)",
+    "brain.selfAttempt(question)",\n    "if (qaPairs.size != 10)",\n    "referenceAnswers[index]",
 )
 for marker in required:
     if marker not in engine:
