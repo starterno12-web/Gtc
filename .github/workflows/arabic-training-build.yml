@@ -1,82 +1,58 @@
-name: Arabic Training and Android Build
+name: Arabic Training (Server Only)
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'training/**'
-      - 'assets/**'
-      - 'src/**'
-      - '.github/workflows/**'
+      - 'training/arabic_language_training.txt'
+      - 'assets/arabic_language_training.txt'
+      - 'src/main/assets/arabic_language_training.txt'
+      - '.github/workflows/arabic-training-build.yml'
 
 permissions:
   contents: read
 
 jobs:
-  validate-training-corpus-and-build:
+  verify-corpus:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate Arabic training corpus
+      - name: Locate and validate the full Arabic corpus
         run: |
           set -euo pipefail
           CORPUS=""
-          if [ -f "training/arabic_language_training.txt" ]; then
-            CORPUS="training/arabic_language_training.txt"
-          elif [ -f "assets/arabic_language_training.txt" ]; then
-            CORPUS="assets/arabic_language_training.txt"
-          elif [ -f "src/main/assets/arabic_language_training.txt" ]; then
-            CORPUS="src/main/assets/arabic_language_training.txt"
-          else
-            echo "::error::Arabic training corpus file not found."
+          for candidate in training/arabic_language_training.txt assets/arabic_language_training.txt src/main/assets/arabic_language_training.txt; do
+            if [ -s "$candidate" ]; then CORPUS="$candidate"; break; fi
+          done
+          if [ -z "$CORPUS" ]; then
+            echo "::error::Arabic training corpus missing or empty."
             exit 1
           fi
-          test -s "$CORPUS"
-          echo "Corpus found: $CORPUS"
+          echo "Corpus source: $CORPUS"
           wc -l -c "$CORPUS"
           python3 - "$CORPUS" <<'PY'
           import sys
           from pathlib import Path
           p = Path(sys.argv[1])
-          text = p.read_text(encoding="utf-8").strip()
-          if not text:
-              raise SystemExit("::error::Training corpus is empty.")
-          print(f"UTF-8 corpus validation passed; characters={len(text)}")
+          text = p.read_text(encoding="utf-8")
+          if not text.strip():
+              raise SystemExit("::error::Corpus is empty")
+          print(f"Full UTF-8 source read successfully: {len(text)} characters.")
+          print("Preview (first 500 chars):")
+          print(text[:500])
           PY
 
-      - name: Check Android project files
-        id: android
+      - name: Confirm training runtime and model weights are present
         run: |
-          if [ -f gradlew ] && [ -f settings.gradle -o -f settings.gradle.kts ]; then
-            echo "project_present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "project_present=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Android Gradle project files (gradlew/settings.gradle) are absent in this repository snapshot; APK/AAB build and model-training integration cannot run here."
+          set -euo pipefail
+          echo "Checking repository for model/runtime assets..."
+          find . -type f \( -name 'nlm2.bin' -o -name '*.bin' -o -name 'gradlew' -o -name 'settings.gradle' -o -name 'settings.gradle.kts' \) -print
+          if ! find . -type f -name 'nlm2.bin' -print -quit | grep -q .; then
+            echo "::warning::The engine references nlm2.bin, but no pretrained nlm2.bin weight file is currently present in the repository tree. Actual model training cannot start until that asset and an executable runner are available."
           fi
-
-      - name: Set up Java
-        if: steps.android.outputs.project_present == 'true'
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
-      - name: Build APK and AAB
-        if: steps.android.outputs.project_present == 'true'
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug bundleDebug
-
-      - name: Upload APK/AAB artifacts
-        if: steps.android.outputs.project_present == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-debug-build
-          path: |
-            **/build/outputs/apk/**/*.apk
-            **/build/outputs/bundle/**/*.aab
-          if-no-files-found: error
+          if [ ! -f gradlew ] || { [ ! -f settings.gradle ] && [ ! -f settings.gradle.kts ]; }; then
+            echo "::warning::No Android Gradle project runner is present. This workflow does not build APK/AAB."
+          fi
