@@ -2588,11 +2588,21 @@ class Trainer(private val context: Context, private val brain: Brain) {
                 }
                 val sentences = extractSentences(fullText)
                 if (sentences.isEmpty()) { onStatus("ملف النص موجود لكنه لا يحتوي مقاطع تدريب مناسبة."); return@thread }
-                val samples = sentences.map { it + "\n" }
-                val questions = groundedQuestions(sentences)
+                val qaPairs = brain.trainPairs()
+                if (qaPairs.size != 10) {
+                    onStatus("ملف train.txt يجب أن يحتوي بالضبط على 10 أزواج سؤال/جواب مفصولة بعلامة تبويب. الموجود: ${qaPairs.size}.")
+                    return@thread
+                }
+                val samples = sentences.map { it + "\n" } + qaPairs
+                val questions = qaPairs.map { pair -> pair.substringAfter("س:").substringBefore("\n").trim() }
+                val referenceAnswers = qaPairs.map { pair -> pair.substringAfter("ج:").trim() }
+                if (questions.any { it.isBlank() } || referenceAnswers.any { it.isBlank() }) {
+                    onStatus("ملف train.txt يحتوي سؤالًا أو إجابة فارغة؛ أوقفت التدريب قبل تعديل الأوزان.")
+                    return@thread
+                }
                 var bestLoss = synchronized(brain.modelLock) { avgLoss(model, samples) }
                 var saves = 0
-                onStatus("تم تحميل نصك الحقيقي: ${sentences.size} مقطع. بدء 20 دورة تدريب.")
+                onStatus("تم تحميل النص العربي: ${sentences.size} مقطعًا، و10 أزواج سؤال/جواب موثقة من النص. بدء 20 دورة تدريب.")
                 for (round in 1..20) {
                     if (stopFlag.get()) break
                     val snap = synchronized(brain.modelLock) { model.snapshot() }
@@ -2608,20 +2618,20 @@ class Trainer(private val context: Context, private val brain: Brain) {
                     if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
                 brain.saveTrained()
-                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبارًا مشتقًا من نصك (حتى 10 أسئلة).")
+                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبار الأسئلة العشرة الموجودة في train.txt.")
                 if (selfReview && !stopFlag.get()) {
                     val report = StringBuilder("\n\n=== مراجعة نص التدريب الأصلية ===\n")
                     questions.take(10).forEachIndexed { index, question ->
                         if (stopFlag.get()) return@forEachIndexed
-                        val quotedSource = question.substringAfter("«").substringBefore("»")
-                        val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(quotedSource)) }
+                        val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(question)) }
                         val answer = brain.selfAttempt(question).ifBlank { "(لم ينتج رد)" }
-                        report.append("\n").append(index+1).append(") السؤال المبني على النص: ").append(question)
-                            .append("\nرد النموذج: ").append(answer)
-                            .append("\nقياس المقطع (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\n")
+                        report.append("\n").append(index+1).append(") السؤال: ").append(question)
+                            .append("\nالإجابة المرجعية من ملف التدريب: ").append(referenceAnswers[index])
+                            .append("\nإجابة المحرك: ").append(answer)
+                            .append("\nقياس السؤال (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\n")
                         onStatus(report.toString())
                     }
-                    onStatus("انتهى الاختبار. الأسئلة مأخوذة من جمل النص المرفق، ولم أضف مادة تدريبية من عندي.\n" + report.toString())
+                    onStatus("انتهى الاختبار: 10 أسئلة، مع عرض الإجابة المرجعية وإجابة المحرك لكل سؤال.\n" + report.toString())
                 } else onStatus("انتهى التدريب وحُفظت الأوزان. اختبار الأسئلة متوقف.")
             } catch (e: InterruptedException) {
                 onStatus("توقف التدريب. آخر حالة محفوظة.")
