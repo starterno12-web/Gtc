@@ -79,7 +79,7 @@ class TrainingWorkflow(private val context: Context, private val brain: Brain) {
                 status("اختبار ${quiz.size} أسئلة إكمال مأخوذة من المصدر. ستتكرر الأسئلة الخاطئة بلا حد.")
                 quiz.forEachIndexed { index, item ->
                     val (prefix, target) = item
-                    val question = "أكمل النص التالي من مادة التدريب، واكتب تتمته فقط:" + "\\n" + prefix"
+                    val question = "أكمل النص التالي من مادة التدريب، واكتب تتمته فقط:" + "\n" + prefix
                     var attempt = 0
                     while (!stopRequested.get()) {
                         attempt++
