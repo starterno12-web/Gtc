@@ -1,0 +1,82 @@
+name: Arabic Training and Android Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'training/**'
+      - 'assets/**'
+      - 'src/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-training-corpus-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Arabic training corpus
+        run: |
+          set -euo pipefail
+          CORPUS=""
+          if [ -f "training/arabic_language_training.txt" ]; then
+            CORPUS="training/arabic_language_training.txt"
+          elif [ -f "assets/arabic_language_training.txt" ]; then
+            CORPUS="assets/arabic_language_training.txt"
+          elif [ -f "src/main/assets/arabic_language_training.txt" ]; then
+            CORPUS="src/main/assets/arabic_language_training.txt"
+          else
+            echo "::error::Arabic training corpus file not found."
+            exit 1
+          fi
+          test -s "$CORPUS"
+          echo "Corpus found: $CORPUS"
+          wc -l -c "$CORPUS"
+          python3 - "$CORPUS" <<'PY'
+          import sys
+          from pathlib import Path
+          p = Path(sys.argv[1])
+          text = p.read_text(encoding="utf-8").strip()
+          if not text:
+              raise SystemExit("::error::Training corpus is empty.")
+          print(f"UTF-8 corpus validation passed; characters={len(text)}")
+          PY
+
+      - name: Check Android project files
+        id: android
+        run: |
+          if [ -f gradlew ] && [ -f settings.gradle -o -f settings.gradle.kts ]; then
+            echo "project_present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "project_present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Android Gradle project files (gradlew/settings.gradle) are absent in this repository snapshot; APK/AAB build and model-training integration cannot run here."
+          fi
+
+      - name: Set up Java
+        if: steps.android.outputs.project_present == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Build APK and AAB
+        if: steps.android.outputs.project_present == 'true'
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug bundleDebug
+
+      - name: Upload APK/AAB artifacts
+        if: steps.android.outputs.project_present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-build
+          path: |
+            **/build/outputs/apk/**/*.apk
+            **/build/outputs/bundle/**/*.aab
+          if-no-files-found: error
