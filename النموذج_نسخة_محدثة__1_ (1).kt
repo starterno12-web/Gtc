@@ -2504,14 +2504,14 @@ class Trainer(private val context: Context, private val brain: Brain) {
 
     private fun extractSentences(text: String): List<String> = text
         .replace(Regex("(?m)^[-=]{3,}\\s*$"), " ")
-        .split(Regex("[\\n\\r]+|(?<=[.!؟])\\s+"))
+        .split(Regex("[\n\\r]+|(?<=[.!؟])\\s+"))
         .map { it.trim() }
         .filter { it.length >= 30 && it.any { ch -> ch.isLetter() } }
         .distinct()
 
     // Evaluation prompts are derived from actual source sentences: quote the sentence and ask for its meaning.
     private fun groundedQuestions(sentences: List<String>): List<String> =
-        sentences.take(10).map { "اشرح معنى العبارة التالية من نص التدريب دون إضافة معلومات خارجها:\\n«$it»" }
+        sentences.take(10).map { "اشرح معنى العبارة التالية من نص التدريب دون إضافة معلومات خارجها:\n«$it»" }
 
     private fun avgLoss(model: Nlm, samples: List<String>): Float {
         var total = 0.0; var count = 0
@@ -2533,7 +2533,7 @@ class Trainer(private val context: Context, private val brain: Brain) {
                 }
                 val sentences = extractSentences(fullText)
                 if (sentences.isEmpty()) { onStatus("ملف النص موجود لكنه لا يحتوي مقاطع تدريب مناسبة."); return@thread }
-                val samples = sentences.map { it + "\\n" }
+                val samples = sentences.map { it + "\n" }
                 val questions = groundedQuestions(sentences)
                 var bestLoss = synchronized(brain.modelLock) { avgLoss(model, samples) }
                 var saves = 0
@@ -2555,18 +2555,18 @@ class Trainer(private val context: Context, private val brain: Brain) {
                 brain.saveTrained()
                 if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبارًا مشتقًا من نصك (حتى 10 أسئلة).")
                 if (selfReview && !stopFlag.get()) {
-                    val report = StringBuilder("\\n\\n=== مراجعة نص التدريب الأصلية ===\\n")
+                    val report = StringBuilder("\n\n=== مراجعة نص التدريب الأصلية ===\n")
                     questions.take(10).forEachIndexed { index, question ->
                         if (stopFlag.get()) return@forEachIndexed
                         val quotedSource = question.substringAfter("«").substringBefore("»")
                         val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(quotedSource)) }
                         val answer = brain.selfAttempt(question).ifBlank { "(لم ينتج رد)" }
-                        report.append("\\n").append(index+1).append(") السؤال المبني على النص: ").append(question)
-                            .append("\\nرد النموذج: ").append(answer)
-                            .append("\\nقياس المقطع (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\\n")
+                        report.append("\n").append(index+1).append(") السؤال المبني على النص: ").append(question)
+                            .append("\nرد النموذج: ").append(answer)
+                            .append("\nقياس المقطع (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\n")
                         onStatus(report.toString())
                     }
-                    onStatus("انتهى الاختبار. الأسئلة مأخوذة من جمل النص المرفق، ولم أضف مادة تدريبية من عندي.\\n" + report.toString())
+                    onStatus("انتهى الاختبار. الأسئلة مأخوذة من جمل النص المرفق، ولم أضف مادة تدريبية من عندي.\n" + report.toString())
                 } else onStatus("انتهى التدريب وحُفظت الأوزان. اختبار الأسئلة متوقف.")
             } catch (e: InterruptedException) {
                 onStatus("توقف التدريب. آخر حالة محفوظة.")
