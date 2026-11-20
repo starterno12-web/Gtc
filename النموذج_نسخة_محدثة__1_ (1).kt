@@ -2489,7 +2489,7 @@ class NlmSession(private val m: Nlm, seed: Long) {
 }
 
 
-// ============== 20-round Arabic training + post-training self-test workflow ==============
+// ============== Text-grounded training workflow (no fabricated prompts) ==============
 class Trainer(private val context: Context, private val brain: Brain) {
     @Volatile var running: Boolean = false
         private set
@@ -2498,24 +2498,20 @@ class Trainer(private val context: Context, private val brain: Brain) {
     private val stopFlag = java.util.concurrent.atomic.AtomicBoolean(false)
     fun stop() { stopFlag.set(true) }
 
-    private val practicePairs = listOf(
-        "س: ما وظيفة اللغة؟\nج: اللغة وسيلة للتواصل وأداة للتفكير ونقل المعرفة.\n",
-        "س: ما الفرق بين الفصحى واللهجات؟\nج: الفصحى لغة مشتركة للكتابة والتعليم، واللهجات أشكال طبيعية للتواصل اليومي تختلف حسب المناطق.\n",
-        "س: لماذا نختار الكلمات بعناية؟\nج: اختيار الكلمات وترتيبها يساعد على إيصال المعنى بوضوح.\n",
-        "س: ما المقصود بالسياق؟\nج: السياق هو الظروف والكلام المحيط الذي يساعد على فهم المقصود.\n",
-        "س: كيف أتعامل مع معلومة غير مؤكدة؟\nج: أميز بين المعلومة والاستنتاج وأصرح بعدم التأكد بدل اختراع جواب.\n",
-        "س: ما فائدة السؤال؟\nج: السؤال يحدد الحاجة إلى المعرفة ويساعد على توضيح المعنى.\n",
-        "س: ما الذي يجعل الإجابة واضحة؟\nج: أن تكون مرتبطة بالسؤال، دقيقة، مرتبة، وبألفاظ مناسبة.\n",
-        "س: ما هي العربية الفصحى المعاصرة؟\nج: هي العربية المشتركة المستخدمة في التعليم والكتب والإعلام والكتابة الرسمية.\n",
-        "س: هل اختلاف اللهجة يعني ضعف اللغة؟\nج: لا، اللهجة مرتبطة بالمجتمع والبيئة ولا تعني ضعف القدرة اللغوية.\n",
-        "س: كيف ينبغي أن يجيب النموذج؟\nج: يجيب بوضوح ودقة، ولا يختلق حقائق عندما لا يعرف.\n"
-    )
-    private val testQuestions = listOf(
-        "ما وظيفة اللغة؟", "ما الفرق بين الفصحى واللهجات؟", "لماذا نختار الكلمات بعناية؟",
-        "ما المقصود بالسياق؟", "كيف أتعامل مع معلومة غير مؤكدة؟", "ما فائدة السؤال؟",
-        "ما الذي يجعل الإجابة واضحة؟", "ما هي العربية الفصحى المعاصرة؟",
-        "هل اختلاف اللهجة يعني ضعف اللغة؟", "كيف ينبغي أن يجيب النموذج؟"
-    )
+    // Read the user's actual Arabic source text from Android assets. No synthetic training examples.
+    private fun sourceText(): String = context.assets.open("arabic_language_training.txt")
+        .bufferedReader(Charsets.UTF_8).use { it.readText() }
+
+    private fun extractSentences(text: String): List<String> = text
+        .replace(Regex("(?m)^[-=]{3,}\\s*$"), " ")
+        .split(Regex("[\\n\\r]+|(?<=[.!؟])\\s+"))
+        .map { it.trim() }
+        .filter { it.length >= 30 && it.any { ch -> ch.isLetter() } }
+        .distinct()
+
+    // Evaluation prompts are derived from actual source sentences: quote the sentence and ask for its meaning.
+    private fun groundedQuestions(sentences: List<String>): List<String> =
+        sentences.take(10).map { "اشرح معنى العبارة التالية من نص التدريب دون إضافة معلومات خارجها:\\n«$it»" }
 
     private fun avgLoss(model: Nlm, samples: List<String>): Float {
         var total = 0.0; var count = 0
@@ -2529,47 +2525,53 @@ class Trainer(private val context: Context, private val brain: Brain) {
     fun start(onStatus: (String) -> Unit) {
         if (running) return
         stopFlag.set(false); running = true
-        thread(name = "arabic-training-and-review") {
+        thread(name = "source-grounded-training") {
             try {
                 val model = brain.trainModel() ?: run { onStatus("النموذج غير محمّل."); return@thread }
-                var bestLoss = synchronized(brain.modelLock) { avgLoss(model, practicePairs) }
-                var savedRounds = 0
-                onStatus("بدأ التدريب على 10 أمثلة عربية. عدد الدورات المحدد: 20.")
+                val fullText = try { sourceText() } catch (e: Exception) {
+                    onStatus("لم أجد asset arabic_language_training.txt. أضف ملف النص نفسه إلى assets ليعمل التدريب على نصك."); return@thread
+                }
+                val sentences = extractSentences(fullText)
+                if (sentences.isEmpty()) { onStatus("ملف النص موجود لكنه لا يحتوي مقاطع تدريب مناسبة."); return@thread }
+                val samples = sentences.map { it + "\\n" }
+                val questions = groundedQuestions(sentences)
+                var bestLoss = synchronized(brain.modelLock) { avgLoss(model, samples) }
+                var saves = 0
+                onStatus("تم تحميل نصك الحقيقي: ${sentences.size} مقطع. بدء 20 دورة تدريب.")
                 for (round in 1..20) {
                     if (stopFlag.get()) break
-                    val batch = practicePairs.shuffled()
                     val snap = synchronized(brain.modelLock) { model.snapshot() }
-                    synchronized(brain.modelLock) { batch.forEach { if (!stopFlag.get()) model.trainWindow(it, 0.00012f) } }
-                    val after = synchronized(brain.modelLock) { avgLoss(model, practicePairs) }
-                    if (after.isFinite() && after < bestLoss) {
-                        bestLoss = after
-                        brain.saveTrained()
-                        savedRounds++
-                    } else {
-                        synchronized(brain.modelLock) { model.restoreSnapshot(snap) }
+                    synchronized(brain.modelLock) {
+                        sentences.shuffled().forEach { sentence -> if (!stopFlag.get()) model.trainWindow(sentence, 0.00012f) }
                     }
-                    onStatus("التدريب: الجولة ${round}/20 — أفضل خسارة ${"%.4f".format(java.util.Locale.US,bestLoss)} — checkpoints محفوظة: ${savedRounds}")
+                    val current = synchronized(brain.modelLock) { avgLoss(model, samples) }
+                    if (current.isFinite() && current < bestLoss) {
+                        bestLoss = current; brain.saveTrained(); saves++
+                    } else synchronized(brain.modelLock) { model.restoreSnapshot(snap) }
+                    onStatus("تدريب النص الأصلي — دورة ${round}/20 — المقاطع ${sentences.size} — أفضل قياس ${"%.4f".format(java.util.Locale.US,bestLoss)} — حفظ تحسينات: ${saves}")
                     val target = percent.coerceIn(5,100)
                     if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
-                if (stopFlag.get()) onStatus("أُوقف التدريب؛ أبدأ مراجعة الحالة المحفوظة.")
-                else onStatus("اكتمل التدريب 20/20. أبدأ اختبار النموذج الآن...")
                 brain.saveTrained()
-                if (selfReview) {
-                    val out = StringBuilder("\n\n=== اختبار بعد التدريب (10 أسئلة كحد أقصى) ===\n")
-                    testQuestions.take(10).forEachIndexed { i, q ->
+                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبارًا مشتقًا من نصك (حتى 10 أسئلة).")
+                if (selfReview && !stopFlag.get()) {
+                    val report = StringBuilder("\\n\\n=== مراجعة نص التدريب الأصلية ===\\n")
+                    questions.take(10).forEachIndexed { index, question ->
                         if (stopFlag.get()) return@forEachIndexed
-                        val response = brain.selfAttempt(q).ifBlank { "(لم ينتج رد)" }
-                        out.append("\n").append(i+1).append(") السؤال: ").append(q)
-                            .append("\nرد النموذج: ").append(response).append("\n")
-                        onStatus(out.toString())
+                        val quotedSource = question.substringAfter("«").substringBefore("»")
+                        val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(quotedSource)) }
+                        val answer = brain.selfAttempt(question).ifBlank { "(لم ينتج رد)" }
+                        report.append("\\n").append(index+1).append(") السؤال المبني على النص: ").append(question)
+                            .append("\\nرد النموذج: ").append(answer)
+                            .append("\\nقياس المقطع (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\\n")
+                        onStatus(report.toString())
                     }
-                    onStatus("اكتمل التدريب والمراجعة. الأوزان محفوظة.\n" + out.toString())
-                } else onStatus("انتهى التدريب وتم حفظ الأوزان. المراجعة الذاتية معطلة.")
+                    onStatus("انتهى الاختبار. الأسئلة مأخوذة من جمل النص المرفق، ولم أضف مادة تدريبية من عندي.\\n" + report.toString())
+                } else onStatus("انتهى التدريب وحُفظت الأوزان. اختبار الأسئلة متوقف.")
             } catch (e: InterruptedException) {
-                onStatus("توقفت العملية. آخر checkpoint محفوظ.")
+                onStatus("توقف التدريب. آخر حالة محفوظة.")
             } catch (e: Throwable) {
-                onStatus("حدث خطأ في التدريب/الاختبار: ${e.message ?: e.javaClass.simpleName}")
+                onStatus("خطأ في سير التدريب: ${e.message ?: e.javaClass.simpleName}")
             } finally { running = false; stopFlag.set(false) }
         }
     }
