@@ -69,10 +69,17 @@ class TrainingWorkflow(private val context: Context, private val brain: Brain) {
                     return@thread
                 }
 
-                val quiz = sentences.take(10)
-                status("اختبار ${quiz.size} أسئلة من النص الأصلي. ستتكرر الأسئلة الخاطئة بلا حد.")
-                quiz.forEachIndexed { index, target ->
-                    val question = "أعد كتابة الجملة التالية حرفيًا كما وردت في ملف التدريب، دون شرح أو إضافة:" + "\n«" + target + "»"
+                val quiz = sentences.mapNotNull { sentence ->
+                    val words = sentence.split(Regex("\\s+")).filter { it.isNotBlank() }
+                    if (words.size < 6) null else {
+                        val splitAt = (words.size / 2).coerceAtLeast(2).coerceAtMost(words.size - 2)
+                        Pair(words.take(splitAt).joinToString(" "), words.drop(splitAt).joinToString(" "))
+                    }
+                }.take(10)
+                status("اختبار ${quiz.size} أسئلة إكمال مأخوذة من المصدر. ستتكرر الأسئلة الخاطئة بلا حد.")
+                quiz.forEachIndexed { index, item ->
+                    val (prefix, target) = item
+                    val question = "أكمل النص التالي من مادة التدريب، واكتب تتمته فقط:" + "\\n" + prefix"
                     var attempt = 0
                     while (!stopRequested.get()) {
                         attempt++
