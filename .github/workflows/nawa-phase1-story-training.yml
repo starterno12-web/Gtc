@@ -4,10 +4,6 @@ on:
   push:
     paths:
       - 'training/nawa_phase1_story.txt'
-      - 'training/run_nawa_phase1.py'
-      - 'النموذج_نسخة_محدثة__1_ (1).kt'
-      - 'runner/**'
-      - '.github/workflows/nawa-phase1-story-training.yml'
 permissions:
   contents: write
 concurrency:
@@ -37,7 +33,14 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add training/model/nlm2_user.bin training/model/results_phase1.txt
           git commit -m 'Persist Phase 1 story-trained NLM weights'
-          git push
+          # Handle repository commits that landed while the 50-pass training was running.
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            echo "Push attempt $attempt failed; retrying after rebase"
+          done
+          echo 'Unable to push saved model weights after three retries.'
+          exit 1
       - name: Upload training results
         uses: actions/upload-artifact@v4
         with:
