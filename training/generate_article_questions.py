@@ -10,8 +10,8 @@ SOURCE = ROOT / "src/main/assets/arabic_language_training.txt"
 OUTPUT = ROOT / "training/generated_article_qa.json"
 
 def split_sentences(text: str) -> list[str]:
-    return [s.strip() for s in re.split(r"(?<=[.!؟])\\s+|[\\r\\n]+", text)
-            if len(s.strip()) >= 35 and re.search(r"[\\u0600-\\u06ff]", s)]
+    return [s.strip() for s in re.split(r"(?<=[.!؟])\s+|[\r\n]+", text)
+            if len(s.strip()) >= 35 and re.search(r"[\u0600-\u06ff]", s)]
 
 def main() -> None:
     text = SOURCE.read_text(encoding="utf-8")
@@ -26,11 +26,11 @@ def main() -> None:
                     break
     for raw in text.splitlines():
         line = raw.strip()
-        match = re.match(r"^\\d+\\.\\s+(.+)$", line)
+        match = re.match(r"^\d+\.\s+(.+)$", line)
         if match:
             flush()
             heading, body = match.group(1), []
-        elif line and not re.fullmatch(r"[=\\-]{3,}", line):
+        elif line and not re.fullmatch(r"[=\-]{3,}", line):
             body.append(line)
     flush()
 
@@ -59,10 +59,10 @@ def main() -> None:
         "method": "extractive: questions from section headings; answers copied verbatim",
         "count": len(items),
         "items": items,
-    }, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Generated and validated {len(items)} article-grounded QA pairs.")
     for i, item in enumerate(items, 1):
-        print(f"{i}. Q: {item['question']}\\n   A: {item['answer']}")
+        print(f"{i}. Q: {item['question']}\n   A: {item['answer']}")
 
 if __name__ == "__main__":
     main()
