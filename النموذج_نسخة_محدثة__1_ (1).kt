@@ -2104,8 +2104,26 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         if (g != null) adam(g, lr)
         return (res.first / Math.log(2.0)).toFloat()
     }
-    fun snapshot(): List<FloatArray> = P.map { it.copyOf() }
-    fun restoreSnapshot(s: List<FloatArray>) { for (k in P.indices) System.arraycopy(s[k], 0, P[k], 0, P[k].size) }
+    data class TrainingSnapshot internal constructor(
+        val weights: List<FloatArray>,
+        val firstMoment: List<FloatArray>,
+        val secondMoment: List<FloatArray>,
+        val adamStep: Int
+    )
+    fun snapshot(): TrainingSnapshot = TrainingSnapshot(
+        P.map { it.copyOf() },
+        mAdam.map { it.copyOf() },
+        vAdam.map { it.copyOf() },
+        tAdam
+    )
+    fun restoreSnapshot(s: TrainingSnapshot) {
+        for (k in P.indices) {
+            System.arraycopy(s.weights[k], 0, P[k], 0, P[k].size)
+            System.arraycopy(s.firstMoment[k], 0, mAdam[k], 0, mAdam[k].size)
+            System.arraycopy(s.secondMoment[k], 0, vAdam[k], 0, vAdam[k].size)
+        }
+        tAdam = s.adamStep
+    }
 
     /** Self-development on what was heard. `rehearse` = lines of the original training data ("س:..\nج:..\n"), mixed in so nothing already known is forgotten.
      *  Returns (bits/char before, after) on the heard text. The weights are rolled back if the heard text did not improve OR the rehearsal text got worse by more than 8%.
