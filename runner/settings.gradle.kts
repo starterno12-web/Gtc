@@ -1,1 +1,1 @@
-rootProject.name = "nuwaa-arabic-training"\n
+rootProject.name = "nuwaa-arabic-training"
