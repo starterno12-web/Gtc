@@ -1,0 +1,7 @@
+{
+  "source": "training/arabic_language_training.txt",
+  "passes": 3,
+  "characters": 21432,
+  "sha256": "8d4110fa0fa150fc70773e6d5add96aeb5e1f12f987cdebd93105eea671b1608",
+  "verified_full_read_each_pass": true
+}
