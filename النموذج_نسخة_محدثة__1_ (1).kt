@@ -2489,50 +2489,34 @@ class NlmSession(private val m: Nlm, seed: Long) {
 }
 
 
-// ============== Source-only training with forced rereading between tests ==============
+// ============== Text-grounded training workflow (no fabricated prompts) ==============
 class Trainer(private val context: Context, private val brain: Brain) {
     @Volatile var running: Boolean = false
         private set
     @Volatile var percent: Int = 40
-        private set
-    @Volatile var selfReview: Boolean = true
+        @Volatile var selfReview: Boolean = true
     private val stopFlag = java.util.concurrent.atomic.AtomicBoolean(false)
     fun stop() { stopFlag.set(true) }
 
+    // Read the user's actual Arabic source text from Android assets. No synthetic training examples.
     private fun sourceText(): String = context.assets.open("arabic_language_training.txt")
         .bufferedReader(Charsets.UTF_8).use { it.readText() }
 
     private fun extractSentences(text: String): List<String> = text
         .replace(Regex("(?m)^[-=]{3,}\\s*$"), " ")
-        .split(Regex("[\\n\\r]+|(?<=[.!؟])\\s+"))
+        .split(Regex("[\n\\r]+|(?<=[.!؟])\\s+"))
         .map { it.trim() }
-        .filter { it.length >= 25 && it.any { ch -> ch.isLetter() } }
+        .filter { it.length >= 30 && it.any { ch -> ch.isLetter() } }
         .distinct()
 
-    private fun groundedQuestions(sentences: List<String>): List<String> {
-        if (sentences.isEmpty()) return emptyList()
-        val count = minOf(10, sentences.size)
-        return (0 until count).map { i ->
-            val index = if (count == 1) 0 else (i * (sentences.size - 1) / (count - 1))
-            "اشرح معنى العبارة التالية من نص التدريب فقط، ولا تضف معلومات من خارجها:\n«" + sentences[index] + "»"
-        }
-    }
-
-    private fun trainWholeSource(model: Nlm, sentences: List<String>, rounds: Int): Boolean {
-        for (pass in 1..rounds) {
-            if (stopFlag.get()) return false
-            for (sentence in sentences) {
-                if (stopFlag.get()) return false
-                model.trainWindow(sentence + "\n", 0.00012f)
-            }
-        }
-        return true
-    }
+    // Evaluation prompts are derived from actual source sentences: quote the sentence and ask for its meaning.
+    private fun groundedQuestions(sentences: List<String>): List<String> =
+        sentences.take(10).map { "اشرح معنى العبارة التالية من نص التدريب دون إضافة معلومات خارجها:\n«$it»" }
 
     private fun avgLoss(model: Nlm, samples: List<String>): Float {
         var total = 0.0; var count = 0
-        for (sample in samples) {
-            val ids = model.encode(sample)
+        for (text in samples) {
+            val ids = model.encode(text)
             if (ids.size >= 3) { total += model.bpc(ids).toDouble(); count++ }
         }
         return if (count == 0) Float.POSITIVE_INFINITY else (total / count).toFloat()
@@ -2541,55 +2525,53 @@ class Trainer(private val context: Context, private val brain: Brain) {
     fun start(onStatus: (String) -> Unit) {
         if (running) return
         stopFlag.set(false); running = true
-        thread(name = "source-reread-training") {
+        thread(name = "source-grounded-training") {
             try {
                 val model = brain.trainModel() ?: run { onStatus("النموذج غير محمّل."); return@thread }
                 val fullText = try { sourceText() } catch (e: Exception) {
-                    onStatus("تعذر تحميل نص التدريب من assets: arabic_language_training.txt"); return@thread
+                    onStatus("لم أجد asset arabic_language_training.txt. أضف ملف النص نفسه إلى assets ليعمل التدريب على نصك."); return@thread
                 }
                 val sentences = extractSentences(fullText)
-                if (sentences.isEmpty()) { onStatus("ملف التدريب لا يحتوي مقاطع صالحة."); return@thread }
+                if (sentences.isEmpty()) { onStatus("ملف النص موجود لكنه لا يحتوي مقاطع تدريب مناسبة."); return@thread }
                 val samples = sentences.map { it + "\n" }
                 val questions = groundedQuestions(sentences)
                 var bestLoss = synchronized(brain.modelLock) { avgLoss(model, samples) }
-                var savedPasses = 0
-                onStatus("قرأت ملف التدريب الأصلي كاملًا (" + fullText.length + " حرف، " + sentences.size + " مقطع). بدء 20 دورة.")
+                var saves = 0
+                onStatus("تم تحميل نصك الحقيقي: ${sentences.size} مقطع. بدء 20 دورة تدريب.")
                 for (round in 1..20) {
                     if (stopFlag.get()) break
-                    val snapshot = synchronized(brain.modelLock) { model.snapshot() }
-                    synchronized(brain.modelLock) { trainWholeSource(model, sentences, 1) }
-                    val loss = synchronized(brain.modelLock) { avgLoss(model, samples) }
-                    if (loss.isFinite() && loss < bestLoss) {
-                        bestLoss = loss; brain.saveTrained(); savedPasses++
-                    } else synchronized(brain.modelLock) { model.restoreSnapshot(snapshot) }
-                    onStatus("التدريب على النص الأصلي كاملًا — " + round + "/20 — مقاطع " + sentences.size + " — أفضل BPC " + "%.4f".format(java.util.Locale.US,bestLoss) + " — حفظ التحسينات " + savedPasses)
-                    val load = percent.coerceIn(5,100)
-                    if (load < 100 && !stopFlag.get()) Thread.sleep((100-load)*8L)
+                    val snap = synchronized(brain.modelLock) { model.snapshot() }
+                    synchronized(brain.modelLock) {
+                        sentences.shuffled().forEach { sentence -> if (!stopFlag.get()) model.trainWindow(sentence, 0.00012f) }
+                    }
+                    val current = synchronized(brain.modelLock) { avgLoss(model, samples) }
+                    if (current.isFinite() && current < bestLoss) {
+                        bestLoss = current; brain.saveTrained(); saves++
+                    } else synchronized(brain.modelLock) { model.restoreSnapshot(snap) }
+                    onStatus("تدريب النص الأصلي — دورة ${round}/20 — المقاطع ${sentences.size} — أفضل قياس ${"%.4f".format(java.util.Locale.US,bestLoss)} — حفظ تحسينات: ${saves}")
+                    val target = percent.coerceIn(5,100)
+                    if (target < 100 && !stopFlag.get()) Thread.sleep((100-target)*8L)
                 }
                 brain.saveTrained()
-                if (!stopFlag.get() && selfReview) {
-                    val report = StringBuilder("\n\n=== اختبار ذاتي من نص التدريب الأصلي ===\n")
-                    for ((idx, question) in questions.withIndex()) {
-                        if (stopFlag.get()) break
-                        val reread = sourceText()
-                        val rereadSegments = extractSentences(reread)
-                        onStatus("قبل السؤال " + (idx+1) + "/" + questions.size + ": أعدت قراءة النص كاملًا (" + reread.length + " حرف)، وأعيد التدريب عليه...")
-                        val snapshot = synchronized(brain.modelLock) { model.snapshot() }
-                        synchronized(brain.modelLock) { trainWholeSource(model, rereadSegments, 1) }
-                        val loss = synchronized(brain.modelLock) { avgLoss(model, samples) }
-                        if (loss.isFinite() && loss <= bestLoss) { bestLoss = loss; brain.saveTrained() }
-                        else synchronized(brain.modelLock) { model.restoreSnapshot(snapshot) }
+                if (!stopFlag.get()) onStatus("اكتملت 20 دورة. أبدأ اختبارًا مشتقًا من نصك (حتى 10 أسئلة).")
+                if (selfReview && !stopFlag.get()) {
+                    val report = StringBuilder("\n\n=== مراجعة نص التدريب الأصلية ===\n")
+                    questions.take(10).forEachIndexed { index, question ->
+                        if (stopFlag.get()) return@forEachIndexed
+                        val quotedSource = question.substringAfter("«").substringBefore("»")
+                        val sourceBpc = synchronized(brain.modelLock) { model.bpc(model.encode(quotedSource)) }
                         val answer = brain.selfAttempt(question).ifBlank { "(لم ينتج رد)" }
-                        report.append("\n").append(idx+1).append(") السؤال: ").append(question)
-                            .append("\nرد النموذج: ").append(answer).append("\n")
+                        report.append("\n").append(index+1).append(") السؤال المبني على النص: ").append(question)
+                            .append("\nرد النموذج: ").append(answer)
+                            .append("\nقياس المقطع (BPC، ليس تقييمًا بشريًا): ").append("%.4f".format(java.util.Locale.US,sourceBpc)).append("\n")
                         onStatus(report.toString())
                     }
-                    onStatus("انتهى الاختبار. بين كل سؤال والسؤال التالي تمت إعادة قراءة النص كاملًا وإعادة التدريب عليه.\n" + report.toString())
-                } else onStatus("انتهى التدريب، الاختبار متوقف.")
+                    onStatus("انتهى الاختبار. الأسئلة مأخوذة من جمل النص المرفق، ولم أضف مادة تدريبية من عندي.\n" + report.toString())
+                } else onStatus("انتهى التدريب وحُفظت الأوزان. اختبار الأسئلة متوقف.")
             } catch (e: InterruptedException) {
                 onStatus("توقف التدريب. آخر حالة محفوظة.")
             } catch (e: Throwable) {
-                onStatus("خطأ في سير التدريب: " + (e.message ?: e.javaClass.simpleName))
+                onStatus("خطأ في سير التدريب: ${e.message ?: e.javaClass.simpleName}")
             } finally { running = false; stopFlag.set(false) }
         }
     }
