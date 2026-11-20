@@ -1,1 +1,5 @@
-plugins { kotlin("jvm") version "2.0.21"; application }\nrepositories { mavenCentral() }\ndependencies { implementation("org.json:json:20240303") }\nkotlin { jvmToolchain(17) }\napplication { mainClass.set("ai.nuwaa.ModelRunnerKt") }\n
+plugins { kotlin("jvm") version "2.0.21"; application }
+repositories { mavenCentral() }
+dependencies { implementation("org.json:json:20240303") }
+kotlin { jvmToolchain(17) }
+application { mainClass.set("ai.nuwaa.ModelRunnerKt") }
