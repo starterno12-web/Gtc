@@ -43,7 +43,7 @@ fun main() {
   }
   return out.toString().trim()
  }
- val report=questions.mapIndexed { i,q -> "Q"+(i+1)+": "+q+"\\nAnswer: "+answer(q) }.joinToString("\\n\\n")
+ val report="PHASE 2 — QUESTIONS AND MODEL ANSWERS\\n\\n"+questions.mapIndexed { i,q -> "السؤال "+(i+1)+": "+q+"\\nإجابة النموذج: "+answer(q) }.joinToString("\\n\\n")
  File("../training/model/results_phase2_questions.txt").writeText(report,Charsets.UTF_8)
  println(report)
 }
