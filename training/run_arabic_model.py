@@ -17,11 +17,11 @@ qs = ["ما الفرق بين الجملة الاسمية والجملة الف�
 qsrc = ",\n".join('  "'+q.replace('"','\\"')+'"' for q in qs)
 tail = """
 fun main() {
- val corpus = File("src/main/assets/arabic_language_training.txt").readText(Charsets.UTF_8)
+ val corpus = File("../src/main/assets/arabic_language_training.txt").readText(Charsets.UTF_8)
  val qs = listOf(
 """ + qsrc + """
  )
- val modelFile = File("training/model/nlm2_user.bin")
+ val modelFile = File("../training/model/nlm2_user.bin")
  val model = if (modelFile.exists()) Nlm.load(modelFile.readBytes()) else Nlm.fresh(corpus + "\\n" + qs.joinToString("\\n") { "س:" + it + "\\nج:" }, 32, 64)
  fun answer(q:String):String {
    val a=FloatArray(model.h); val b=FloatArray(model.h)
@@ -52,12 +52,12 @@ fun main() {
    println("اكتملت دورة التدريب " + (epoch+1) + "/20")
  }
  val after=qs.mapIndexed { i,q -> "السؤال " + (i+1) + ": " + q + "\\nإجابة النموذج بعد التدريب: " + answer(q) }
- File("training/model").mkdirs()
- val weightTemp = File("training/model/nlm2_user.bin.tmp")
+ File("../training/model").mkdirs()
+ val weightTemp = File("../training/model/nlm2_user.bin.tmp")
  weightTemp.writeBytes(model.toBytes())
- if (modelFile.exists()) File("training/model/nlm2_user.bin.bak").writeBytes(modelFile.readBytes())
+ if (modelFile.exists()) File("../training/model/nlm2_user.bin.bak").writeBytes(modelFile.readBytes())
  if (!weightTemp.renameTo(modelFile)) { modelFile.writeBytes(weightTemp.readBytes()); weightTemp.delete() }
- File("training/model/results.txt").writeText((before+after).joinToString("\\n\\n"),Charsets.UTF_8)
+ File("../training/model/results.txt").writeText((before+after).joinToString("\\n\\n"),Charsets.UTF_8)
  println("تم حفظ أوزان NLM بعد التدريب: " + model.paramCount() + " معامل")
  println((before+after).joinToString("\\n\\n"))
 }
