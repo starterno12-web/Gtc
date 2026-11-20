@@ -62,7 +62,9 @@ required = (
     "brain.trainPairs()",
     "samples.shuffled().forEach { sample -> if (!stopFlag.get()) model.trainWindow(sample, 0.00012f) }",
     "for (round in 1..20)",
-    "brain.selfAttempt(question)",\n    "if (qaPairs.size != 10)",\n    "referenceAnswers[index]",
+    "brain.selfAttempt(question)",
+    "if (qaPairs.size != 10)",
+    "referenceAnswers[index]",
 )
 for marker in required:
     if marker not in engine:
