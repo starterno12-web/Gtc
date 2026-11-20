@@ -2623,7 +2623,7 @@ class Trainer(private val context: Context, private val brain: Brain) {
                 val questions = selectedPairs.map { pair -> pair.substringAfter("س:").substringBefore("\n").trim() }
                 val referenceAnswers = selectedPairs.map { pair -> pair.substringAfter("ج:").trim() }
                 if (questions.any { it.isBlank() } || referenceAnswers.any { it.isBlank() }) {
-                    onStatus("ملف train.txt يحتوي سؤالًا أو إجابة فارغة؛ أوقفت التدريب قبل تعديل الأوزان.")
+                    onStatus("ملف اللغة العربية يحتوي سؤالًا أو إجابة فارغة؛ أوقفت التدريب قبل تعديل الأوزان.")
                     return@thread
                 }
                 var bestLoss = synchronized(brain.modelLock) { avgLoss(model, samples) }
