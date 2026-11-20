@@ -11,7 +11,7 @@ import java.io.File
 import org.json.JSONArray
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-private class NMem
+class NMem
 """
 qs = ["ما الفرق بين الجملة الاسمية والجملة الفعلية؟","أعرب الجملة: قرأ الطالب الكتاب.","ما الفرق بين الفاعل ونائب الفاعل؟","متى ترفع الأسماء الخمسة بالواو؟","ما الفرق بين إن وأن؟","استخرج الجذر من كلمة مكتبة.","ما الفرق بين اسم الفاعل واسم المفعول؟","اشتق اسم الفاعل من الفعل استخرج.","ما وزن كلمة مستقبِل؟","حوّل الفعل كتب إلى المضارع والأمر."]
 qsrc = ",\n".join('  "'+q.replace('"','\\"')+'"' for q in qs)
@@ -21,7 +21,8 @@ fun main() {
  val qs = listOf(
 """ + qsrc + """
  )
- val model = Nlm.fresh(corpus + "\\n" + qs.joinToString("\\n") { "س:" + it + "\\nج:" }, 32, 64)
+ val modelFile = File("training/model/nlm2_user.bin")
+ val model = if (modelFile.exists()) Nlm.load(modelFile.readBytes()) else Nlm.fresh(corpus + "\\n" + qs.joinToString("\\n") { "س:" + it + "\\nج:" }, 32, 64)
  fun answer(q:String):String {
    val a=FloatArray(model.h); val b=FloatArray(model.h)
    var p=model.stepChar(model.cid('\\n'),a,b)
@@ -52,7 +53,10 @@ fun main() {
  }
  val after=qs.mapIndexed { i,q -> "السؤال " + (i+1) + ": " + q + "\\nإجابة النموذج بعد التدريب: " + answer(q) }
  File("training/model").mkdirs()
- File("training/model/nlm2_user.bin").writeBytes(model.toBytes())
+ val weightTemp = File("training/model/nlm2_user.bin.tmp")
+ weightTemp.writeBytes(model.toBytes())
+ if (modelFile.exists()) File("training/model/nlm2_user.bin.bak").writeBytes(modelFile.readBytes())
+ if (!weightTemp.renameTo(modelFile)) { modelFile.writeBytes(weightTemp.readBytes()); weightTemp.delete() }
  File("training/model/results.txt").writeText((before+after).joinToString("\\n\\n"),Charsets.UTF_8)
  println("تم حفظ أوزان NLM بعد التدريب: " + model.paramCount() + " معامل")
  println((before+after).joinToString("\\n\\n"))
