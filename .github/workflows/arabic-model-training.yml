@@ -10,6 +10,9 @@ on:
       - '.github/workflows/arabic-model-training.yml'
 permissions:
   contents: write
+concurrency:
+  group: arabic-nlm-training
+  cancel-in-progress: false
 jobs:
   train:
     runs-on: ubuntu-latest
