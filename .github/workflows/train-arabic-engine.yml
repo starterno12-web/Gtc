@@ -118,7 +118,7 @@ jobs:
       - name: Run Arabic QA probes (80 questions, character-model metric)
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/weights/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
           test -s "$GITHUB_WORKSPACE/qa-report.json"
 
       - name: Generate visible answers for simple Arabic smoke questions
