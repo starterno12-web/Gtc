@@ -25,6 +25,41 @@ private fun score(model: Nlm, text: String): Float {
     val ids = model.encode(text)
     return model.bpc(ids, 128)
 }
+
+/** Generate a real continuation from the trained NLM2 weights using its recurrent GRU state. */
+private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
+    val state1 = FloatArray(96)
+    val state2 = FloatArray(96)
+    val prompt = "س: $question\nج:"
+    var probabilities = FloatArray(0)
+    for (ch in prompt) {
+        probabilities = model.stepChar(model.encode(ch.toString())[0], state1, state2)
+    }
+    val rng = java.util.Random(seed)
+    val out = StringBuilder()
+    val maxChars = 100
+    repeat(maxChars) { step ->
+        val candidates = probabilities.indices
+            .filter { model.chars[it] != "\n" && model.chars[it] != "�" }
+            .sortedByDescending { probabilities[it] }
+            .take(8)
+        if (candidates.isEmpty()) return@repeat
+        val temperature = 0.85
+        val weights = candidates.map { Math.pow(probabilities[it].toDouble().coerceAtLeast(1e-12), 1.0 / temperature) }
+        val total = weights.sum()
+        var pick = rng.nextDouble() * total
+        var chosen = candidates.last()
+        for (i in candidates.indices) {
+            pick -= weights[i]
+            if (pick <= 0.0) { chosen = candidates[i]; break }
+        }
+        val token = model.chars[chosen]
+        if (token == "\n" && step >= 8) return out.toString().trim()
+        out.append(token)
+        probabilities = model.stepChar(chosen, state1, state2)
+    }
+    return out.toString().trim()
+}
 fun main(args: Array<String>) {
     require(args.isNotEmpty()) { "Expected train, verify, or qa" }
     when (args[0]) {
@@ -94,10 +129,16 @@ fun main(args: Array<String>) {
             for (i in 0 until arr.length()) {
                 val q = arr.getJSONObject(i).optString("question")
                 require(q.isNotBlank()) { "empty QA question at index $i" }
-                rows.put(org.json.JSONObject().put("id", arr.getJSONObject(i).optInt("id", i + 1)).put("question", q).put("character_model_bpc", score(model, "س:$q\nج:")))
+                val answer = generateAnswer(model, q, 20261121L + i)
+                rows.put(org.json.JSONObject()
+                    .put("id", arr.getJSONObject(i).optInt("id", i + 1))
+                    .put("question", q)
+                    .put("generated_answer", answer)
+                    .put("answer_characters", answer.length)
+                    .put("character_model_bpc", score(model, "س:$q\nج:")))
             }
             report.parentFile?.mkdirs()
-            report.writeText(org.json.JSONObject().put("count", rows.length()).put("metric", "character_model_bpc").put("semantic_accuracy_evaluated", false).put("results", rows).toString(2) + "\n")
+            report.writeText(org.json.JSONObject().put("count", rows.length()).put("metric", "generated_text_plus_character_model_bpc").put("generation_engine", "Nlm.stepChar").put("semantic_accuracy_evaluated", false).put("results", rows).toString(2) + "\n")
             println("Completed $minimum+ character-model probes; semantic correctness is not claimed.")
         }
         else -> error("Unknown command: ${args[0]}")
