@@ -10,7 +10,7 @@ private fun arg(args: Array<String>, key: String, fallback: String? = null): Str
 }
 private fun corpusVocab(text: String): List<String> {
     val seen = LinkedHashSet<String>()
-    seen.add("\\n")
+    seen.add("\n")
     seen.add("�")
     for (c in text) seen.add(c.toString())
     return seen.toList()
@@ -72,7 +72,7 @@ fun main(args: Array<String>) {
             require(f.isFile && f.length() > 32) { "weights file missing or too small" }
             val model = Nlm.load(f.readBytes())
             require(model.paramCount() > 0 && model.v >= 3)
-            val probe = model.bpc(model.encode("اختبار النموذج العربي\\n"), 32)
+            val probe = model.bpc(model.encode("اختبار النموذج العربي\n"), 32)
             require(probe.isFinite()) { "model produced non-finite loss" }
             println("Verified NLM2: vocab=${model.v}, parameters=${model.paramCount()}, probe_bpc=$probe")
         }
@@ -88,7 +88,7 @@ fun main(args: Array<String>) {
             for (i in 0 until arr.length()) {
                 val q = arr.getJSONObject(i).optString("question")
                 require(q.isNotBlank()) { "empty QA question at index $i" }
-                rows.put(org.json.JSONObject().put("id", arr.getJSONObject(i).optInt("id", i + 1)).put("question", q).put("character_model_bpc", score(model, "س:$q\\nج:")))
+                rows.put(org.json.JSONObject().put("id", arr.getJSONObject(i).optInt("id", i + 1)).put("question", q).put("character_model_bpc", score(model, "س:$q\nج:")))
             }
             report.parentFile?.mkdirs()
             report.writeText(org.json.JSONObject().put("count", rows.length()).put("metric", "character_model_bpc").put("semantic_accuracy_evaluated", false).put("results", rows).toString(2) + "\n")
