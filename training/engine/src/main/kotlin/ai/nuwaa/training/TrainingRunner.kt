@@ -40,7 +40,7 @@ private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
     val maxChars = 100
     repeat(maxChars) { step ->
         val candidates = probabilities.indices
-            .filter { model.chars[it] != "\n" && model.chars[it] != "�" }
+            .filter { model.chars[it] != "�" && (step >= 8 || model.chars[it] != "\n") }
             .sortedByDescending { probabilities[it] }
             .take(8)
         if (candidates.isEmpty()) return@repeat
