@@ -467,7 +467,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         /** Deterministic Xavier-style initialization for a genuinely new model. Vocabulary index 0 is newline; index 1 is the unknown token. */
         fun create(e: Int, h: Int, chars: List<String>, seed: Long = 1729L): Nlm {
             require(e > 0 && h > 0 && chars.size >= 3)
-            require(chars[0] == "\\n" && chars[1] == "�") { "vocabulary must start with newline and unknown token" }
+            require(chars[0] == "\n" && chars[1] == "�") { "vocabulary must start with newline and unknown token" }
             require(chars.distinct().size == chars.size) { "duplicate vocabulary entries" }
             val m = Nlm(e, h, chars)
             val rng = java.util.Random(seed)
