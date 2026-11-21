@@ -104,18 +104,18 @@ jobs:
       - name: Train the actual Kotlin GRU engine and produce NLM2 weights
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="train --corpus .training-tmp/corpus --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output ../../weights/nlm2.bin --report ../../training-report.json"
+          gradle -p training/engine --no-daemon run --args="train --corpus .training-tmp/corpus --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output weights/nlm2.bin --report training-report.json"
 
       - name: Verify generated NLM2 weights with the same Kotlin engine
         run: |
           set -euo pipefail
           test -s weights/nlm2.bin
-          gradle -p training/engine --no-daemon run --args="verify --weights ../../weights/nlm2.bin"
+          gradle -p training/engine --no-daemon run --args="verify --weights weights/nlm2.bin"
 
       - name: Run Arabic QA probes (80 questions, character-model metric)
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights ../../weights/nlm2.bin --questions ../../training/qa_questions.json --minimum-questions 80 --report ../../qa-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights ../../weights/nlm2.bin --questions training/qa_questions.json --minimum-questions 80 --report qa-report.json"
           test -s qa-report.json
 
       - name: Commit verified weights and reports to repository
