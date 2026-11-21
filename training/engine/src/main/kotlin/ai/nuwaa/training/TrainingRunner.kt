@@ -28,8 +28,8 @@ private fun score(model: Nlm, text: String): Float {
 
 /** Generate a real continuation from the trained NLM2 weights using its recurrent GRU state. */
 private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
-    val state1 = FloatArray(96)
-    val state2 = FloatArray(96)
+    val state1 = FloatArray(model.h)
+    val state2 = FloatArray(model.h)
     val prompt = "س: $question\nج:"
     var probabilities = FloatArray(0)
     for (ch in prompt) {
