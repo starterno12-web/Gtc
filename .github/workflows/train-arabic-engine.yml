@@ -1,0 +1,104 @@
+name: Arabic Engine Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: "Training epochs"
+        required: true
+        default: "15"
+        type: string
+      learning_rate:
+        description: "Learning rate"
+        required: true
+        default: "0.0004"
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: arabic-engine-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download corpus from Google Drive
+        id: corpus
+        env:
+          DRIVE_FILE_ID: 1g7SnmYAI7nlzIXo2XqGFUAO9KwtlFI6q
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade gdown
+          mkdir -p .training-tmp
+          gdown --id "$DRIVE_FILE_ID" -O .training-tmp/corpus
+          test -s .training-tmp/corpus
+          echo "Downloaded corpus ($(du -h .training-tmp/corpus | cut -f1))."
+
+      - name: Validate corpus as text
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path(".training-tmp/corpus")
+          data = p.read_bytes()
+          if not data:
+              raise SystemExit("Corpus download is empty.")
+          try:
+              text = data.decode("utf-8-sig")
+          except UnicodeDecodeError as e:
+              raise SystemExit(f"Corpus is not valid UTF-8 text: {e}")
+          if len(text.strip()) < 1000:
+              raise SystemExit("Corpus is too short to train.")
+          print(f"Validated UTF-8 text: {len(data):,} bytes, {len(text):,} characters.")
+          PY
+
+      - name: Confirm real engine training adapter is present
+        run: |
+          set -euo pipefail
+          if [ ! -f training/runner.py ]; then
+            echo "::error::Training halted safely: this repository currently contains only the Android Kotlin engine source; there is no runnable portable training adapter (training/runner.py) yet. The workflow downloaded and validated the corpus, but did NOT train or create fake weights."
+            exit 1
+          fi
+          echo "Training adapter found."
+
+      - name: Train model and produce weights
+        run: |
+          set -euo pipefail
+          python training/runner.py train \
+            --corpus .training-tmp/corpus \
+            --epochs "${{ inputs.epochs }}" \
+            --learning-rate "${{ inputs.learning_rate }}" \
+            --output weights/nlm2.bin \
+            --report training-report.json
+
+      - name: Verify generated NLM2 weights
+        run: |
+          set -euo pipefail
+          test -s weights/nlm2.bin
+          python training/runner.py verify --weights weights/nlm2.bin
+          git status --short
+
+      - name: Commit verified weights to repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add weights/nlm2.bin training-report.json
+          git diff --cached --quiet && { echo "No verified changes to commit."; exit 0; }
+          git commit -m "Save verified trained NLM2 weights"
+          git push
+
+      - name: Cleanup temporary corpus (always)
+        if: always()
+        run: |
+          rm -rf .training-tmp
+          echo "Temporary corpus deleted."
