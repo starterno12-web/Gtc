@@ -1,6 +1,0 @@
-Phase 1 story training
-Passes: 50
-Before bits/char: 5.29051
-After bits/char: 4.401988
-Weights: 50085
-Saved: true
