@@ -30,7 +30,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download corpus from Google Drive
-        id: corpus
         env:
           DRIVE_FILE_ID: 1g7SnmYAI7nlzIXo2XqGFUAO9KwtlFI6q
         run: |
@@ -46,27 +45,26 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          p = Path(".training-tmp/corpus")
+          p = Path('.training-tmp/corpus')
           data = p.read_bytes()
           if not data:
-              raise SystemExit("Corpus download is empty.")
+              raise SystemExit('Corpus download is empty.')
           try:
-              text = data.decode("utf-8-sig")
+              text = data.decode('utf-8-sig')
           except UnicodeDecodeError as e:
-              raise SystemExit(f"Corpus is not valid UTF-8 text: {e}")
+              raise SystemExit(f'Corpus is not valid UTF-8 text: {e}')
           if len(text.strip()) < 1000:
-              raise SystemExit("Corpus is too short to train.")
-          print(f"Validated UTF-8 text: {len(data):,} bytes, {len(text):,} characters.")
+              raise SystemExit('Corpus is too short to train.')
+          print(f'Validated UTF-8: {len(data):,} bytes, {len(text):,} characters.')
           PY
 
       - name: Confirm real engine training adapter is present
         run: |
           set -euo pipefail
           if [ ! -f training/runner.py ]; then
-            echo "::error::Training halted safely: this repository currently contains only the Android Kotlin engine source; there is no runnable portable training adapter (training/runner.py) yet. The workflow downloaded and validated the corpus, but did NOT train or create fake weights."
+            echo '::error::Training halted safely: Android Kotlin engine source is present, but no portable training adapter training/runner.py exists. Corpus download/validation succeeded; no training or fake weights were produced.'
             exit 1
           fi
-          echo "Training adapter found."
 
       - name: Train model and produce weights
         run: |
@@ -83,22 +81,29 @@ jobs:
           set -euo pipefail
           test -s weights/nlm2.bin
           python training/runner.py verify --weights weights/nlm2.bin
-          git status --short
 
-      - name: Commit verified weights to repository
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Run Arabic QA probes (80 questions)
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add weights/nlm2.bin training-report.json
-          git diff --cached --quiet && { echo "No verified changes to commit."; exit 0; }
-          git commit -m "Save verified trained NLM2 weights"
+          python training/runner.py qa \
+            --weights weights/nlm2.bin \
+            --questions training/qa_questions.json \
+            --minimum-questions 80 \
+            --report qa-report.json
+          test -s qa-report.json
+
+      - name: Commit verified weights and reports to repository
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add weights/nlm2.bin training-report.json qa-report.json
+          git diff --cached --quiet && { echo 'No verified changes to commit.'; exit 0; }
+          git commit -m 'Save verified trained NLM2 weights and QA report'
           git push
 
       - name: Cleanup temporary corpus (always)
         if: always()
         run: |
           rm -rf .training-tmp
-          echo "Temporary corpus deleted."
+          echo 'Temporary corpus deleted.'
