@@ -34,25 +34,36 @@ fun main(args: Array<String>) {
             require(text.length >= 1000) { "corpus is too short" }
             val chars = corpusVocab(text)
             require(chars.size >= 3)
+            // Bound training work while sampling across the entire source file, not just its beginning.
+            val maxTrainingChars = 2_000_000
+            val trainingText = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
+                val segments = 200
+                val segmentSize = maxTrainingChars / segments
+                for (i in 0 until segments) {
+                    val start = ((text.length - segmentSize).toLong() * i / (segments - 1)).toInt()
+                    append(text, start, minOf(start + segmentSize, text.length))
+                }
+            }
             val model = Nlm.create(48, 96, chars, 1729L)
             val window = 256
-            var seen = 0
-            val before = score(model, text.take(minOf(text.length, 100_000)))
+            var seen = 0L
+            val evalText = text.take(minOf(text.length, 100_000))
+            val before = score(model, evalText)
             for (epoch in 0 until epochs) {
                 var pos = 0
-                while (pos < text.length - 1) {
-                    val end = minOf(pos + window, text.length)
-                    if (end - pos >= 8) model.trainWindow(text.substring(pos, end), lr)
-                    seen += end - pos
+                while (pos < trainingText.length - 1) {
+                    val end = minOf(pos + window, trainingText.length)
+                    if (end - pos >= 8) model.trainWindow(trainingText.substring(pos, end), lr)
+                    seen += (end - pos).toLong()
                     pos = end
                 }
-                println("epoch ${epoch + 1}/$epochs; processed $seen characters")
+                println("epoch ${epoch + 1}/$epochs; processed $seen characters across sampled corpus")
             }
-            val after = score(model, text.take(minOf(text.length, 100_000)))
+            val after = score(model, evalText)
             require(after.isFinite() && before.isFinite()) { "non-finite training loss" }
             out.parentFile?.mkdirs()
             out.writeBytes(model.toBytes())
-            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"processed_characters":$seen,"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
+            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
             report.parentFile?.mkdirs(); report.writeText(json + "\n")
             println(json)
         }
