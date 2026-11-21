@@ -115,7 +115,7 @@ jobs:
       - name: Run Arabic QA probes (80 questions, character-model metric)
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights ../../weights/nlm2.bin --questions training/qa_questions.json --minimum-questions 80 --report qa-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights weights/nlm2.bin --questions training/qa_questions.json --minimum-questions 80 --report qa-report.json"
           test -s qa-report.json
 
       - name: Commit verified weights and reports to repository
