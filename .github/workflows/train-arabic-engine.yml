@@ -34,11 +34,38 @@ jobs:
           DRIVE_FILE_ID: 1g7SnmYAI7nlzIXo2XqGFUAO9KwtlFI6q
         run: |
           set -euo pipefail
-          python -m pip install --upgrade gdown
+          python -m pip install --upgrade "gdown>=5.2,<6"
           mkdir -p .training-tmp
-          gdown --id "$DRIVE_FILE_ID" -O .training-tmp/corpus
-          test -s .training-tmp/corpus
-          echo "Downloaded corpus ($(du -h .training-tmp/corpus | cut -f1))."
+          DRIVE_URL="https://drive.google.com/uc?id=${DRIVE_FILE_ID}"
+          OUTPUT=".training-tmp/corpus"
+
+          downloaded=false
+          for attempt in 1 2 3; do
+            echo "Google Drive download attempt ${attempt}/3..."
+            rm -f "$OUTPUT"
+            if gdown --fuzzy "$DRIVE_URL" --output "$OUTPUT" && [ -s "$OUTPUT" ]; then
+              downloaded=true
+              break
+            fi
+            echo "Download attempt ${attempt} failed."
+            sleep $((attempt * 10))
+          done
+
+          if [ "$downloaded" != true ]; then
+            echo "::error::Google Drive download failed after 3 attempts. Check that the Drive file exists and is shared as 'Anyone with the link – Viewer'."
+            exit 1
+          fi
+
+          python - <<'PY'
+          from pathlib import Path
+          p = Path(".training-tmp/corpus")
+          with p.open("rb") as f:
+              head = f.read(1024).lstrip().lower()
+          if head.startswith((b"<!doctype html", b"<html")):
+              raise SystemExit("Google Drive returned an HTML access/confirmation page instead of the corpus. Check public link permissions and file sharing.")
+          print(f"Downloaded {p.stat().st_size:,} bytes.")
+          PY
+          echo "Downloaded corpus ($(du -h "$OUTPUT" | cut -f1))."
 
       - name: Validate corpus as text
         run: |
