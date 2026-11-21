@@ -5,563 +5,563 @@
   "semantic_accuracy_evaluated": false,
   "results": [
     {
-      "answer_characters": 100,
+      "answer_characters": 22,
       "question": "السلام عليكم",
-      "character_model_bpc": 3.9773932,
-      "generated_answer": "والتحقق من الماء والتعامل المعلومات والمعلومات والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل",
+      "character_model_bpc": 7.9096184,
+      "generated_answer": "وعلى العمب نتوجي الله.",
       "id": 1
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 33,
       "question": "كيف حالك؟",
-      "character_model_bpc": 3.681052,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 7.3739524,
+      "generated_answer": "ينتقل الأرض برفيقة المعدية الجسم.",
       "id": 2
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 42,
       "question": "ما معنى كلمة كتاب؟",
-      "character_model_bpc": 1.8248149,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.56459,
+      "generated_answer": "المقلوك بعد بشرة، أما الكتبرنها بمعالكتام.",
       "id": 3
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 52,
       "question": "هل يمكنك مساعدتي؟",
-      "character_model_bpc": 2.6206675,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.3455834,
+      "generated_answer": "بكل مشلك، ومع أجابه المترحع، والمفكار بين إلى المشك.",
       "id": 4
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 46,
       "question": "ما معنى كلمة علم؟",
-      "character_model_bpc": 2.4533749,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.894978,
+      "generated_answer": "الأشضاء وفي تحول بناءًا لك، حيد سرعة الأستخمل.",
       "id": 5
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 58,
       "question": "ما معنى كلمة مدرسة؟",
-      "character_model_bpc": 1.7978368,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.8812366,
+      "generated_answer": "البيئة منتجعة العربية الجسم وتراوع المعلومة الماء، وتعافم.",
       "id": 6
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 37,
       "question": "ما معنى كلمة صديق؟",
-      "character_model_bpc": 2.1195104,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.49,
+      "generated_answer": "الصحق مركة والترمع بالجائل إلى تحويك.",
       "id": 7
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 24,
       "question": "ما معنى كلمة شجاعة؟",
-      "character_model_bpc": 2.2769148,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.6785216,
+      "generated_answer": "الساعة التي عطرة ها بسم.",
       "id": 8
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 99,
       "question": "ما معنى كلمة عدالة؟",
-      "character_model_bpc": 2.1223514,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.353828,
+      "generated_answer": "القراة تجوع من وقة متابة ثم الهواء واختبرات منتسبة والتفودية، واخترر تسزين أوارك، والساود والعملية،",
       "id": 9
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 59,
       "question": "ما معنى كلمة تعاون؟",
-      "character_model_bpc": 2.182367,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.176511,
+      "generated_answer": "يساعد جرمة الباضوع والتحقق من المصدر الأركار ومحتفة نوجعات.",
       "id": 10
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 44,
       "question": "ما معنى كلمة طبيعة؟",
-      "character_model_bpc": 2.1514099,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.763282,
+      "generated_answer": "القاصة سائنة العادل إلى تحقين اللغة والرفام.",
       "id": 11
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 96,
       "question": "ما معنى كلمة تجربة؟",
-      "character_model_bpc": 1.9336455,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.9692817,
+      "generated_answer": "التردق من أربع التيسيع وظت وكر مع يقبذ العرسة الجلمة المعرية هيام والتي والأطبام والتحوب والأرك.",
       "id": 12
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 40,
       "question": "ما معنى كلمة لغة؟",
-      "character_model_bpc": 2.0193481,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.80541,
+      "generated_answer": "الحقاء هو نظر الأساصة عني بماجه، أو أنت؟",
       "id": 13
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 57,
       "question": "ما معنى كلمة معرفة؟",
-      "character_model_bpc": 1.958378,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.0252395,
+      "generated_answer": "المفركة هو تحقيمها أو تخطيمه،، :كن علاست أو محمونة جتباع.",
       "id": 14
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 22,
       "question": "ما معنى كلمة مستقبل؟",
-      "character_model_bpc": 1.98736,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.4211636,
+      "generated_answer": "مفرك كلمة كتاب هو قلة.",
       "id": 15
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 93,
       "question": "ما معنى كلمة ماضي؟",
-      "character_model_bpc": 2.1313367,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.458988,
+      "generated_answer": "التحدي مع أو تحريح المعرية من النقوط المعدنة المجربة والاستماعة الماء والوحاوج والوعتية الله.",
       "id": 16
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 29,
       "question": "ما معنى كلمة حاضر؟",
-      "character_model_bpc": 2.2828262,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.2717166,
+      "generated_answer": "الإنتان عند معافك هو من سؤال.",
       "id": 17
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 51,
       "question": "ما معنى كلمة تفكير؟",
-      "character_model_bpc": 2.014102,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.9171576,
+      "generated_answer": "يقعد على المتر الواحدة، وتعاف عمل الإجدار والأهمان.",
       "id": 18
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 27,
       "question": "ما معنى كلمة سؤال؟",
-      "character_model_bpc": 1.8371248,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.833841,
+      "generated_answer": "السنت متكون أو جقول: للشست.",
       "id": 19
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 44,
       "question": "ما معنى كلمة إجابة؟",
-      "character_model_bpc": 1.6505435,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.825494,
+      "generated_answer": "الإجداز واستعاد عن المحد النظافة هي الرمسية.",
       "id": 20
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 39,
       "question": "ما معنى كلمة هدف؟",
-      "character_model_bpc": 1.9266605,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.0783534,
+      "generated_answer": "القليق هو أسين والساحة وتراون المعلومة.",
       "id": 21
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 25,
       "question": "ما معنى كلمة نجاح؟",
-      "character_model_bpc": 2.2856166,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.2345653,
+      "generated_answer": "الساصل عند يحتب هو العطب.",
       "id": 22
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 54,
       "question": "ما معنى كلمة فشل؟",
-      "character_model_bpc": 2.208781,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.740562,
+      "generated_answer": "الحمد هو التقديم على الروح تحدينها والسؤائل والتعنمين.",
       "id": 23
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 42,
       "question": "ما معنى كلمة تعلم؟",
-      "character_model_bpc": 2.2637243,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.842009,
+      "generated_answer": "المنت بالخطاء بيئ الأواصر، والأشراء إليها.",
       "id": 24
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 50,
       "question": "ما معنى كلمة تدريب؟",
-      "character_model_bpc": 2.027202,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.3120894,
+      "generated_answer": "الحالة السعودي، والاستخمانها والأرض والجمار بسخين.",
       "id": 25
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 28,
       "question": "ما معنى كلمة ذاكرة؟",
-      "character_model_bpc": 2.4300265,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.601832,
+      "generated_answer": "الماجية تتكون من 365 يتيذتن.",
       "id": 26
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 32,
       "question": "ما معنى كلمة نموذج؟",
-      "character_model_bpc": 2.3778226,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.6728716,
+      "generated_answer": "أنا مساعد على فهائه يومًا سعيدة.",
       "id": 27
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 24,
       "question": "ما معنى كلمة محرك؟",
-      "character_model_bpc": 2.0304306,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.601555,
+      "generated_answer": "عكس هو كتابة وقائر جهمة.",
       "id": 28
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 52,
       "question": "ما معنى كلمة حاسوب؟",
-      "character_model_bpc": 1.7851062,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.6029253,
+      "generated_answer": "القواد هو علم إجابة أنهم العالوم باستخدام أو منتجات.",
       "id": 29
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 21,
       "question": "ما معنى كلمة هاتف؟",
-      "character_model_bpc": 2.0530791,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.980217,
+      "generated_answer": "الهاء هو قولة الكويت.",
       "id": 30
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 37,
       "question": "ما معنى كلمة شبكة؟",
-      "character_model_bpc": 2.0236752,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.981804,
+      "generated_answer": "التربط هو معناج إليه أولي يحود أوجيه.",
       "id": 31
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 30,
       "question": "ما معنى كلمة إنترنت؟",
-      "character_model_bpc": 1.8314909,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.1352787,
+      "generated_answer": "ينحد التمسع بالواحد تنفظم لها.",
       "id": 32
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 33,
       "question": "ما معنى كلمة بيانات؟",
-      "character_model_bpc": 1.6711571,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.53283,
+      "generated_answer": "المفردة ك مينة أو تعافي هو مدنظة.",
       "id": 33
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 36,
       "question": "ما معنى كلمة نص؟",
-      "character_model_bpc": 2.5304532,
-      "generated_answer": "التحقق من الماء على تعادل التحوي مع الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعل",
+      "character_model_bpc": 5.1042285,
+      "generated_answer": "النصف معدنت والعمل إلى الشمس والأرض.",
       "id": 34
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 38,
       "question": "ما معنى كلمة جملة؟",
-      "character_model_bpc": 1.8999039,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.6028953,
+      "generated_answer": "الكود هو قلم بطري هو التعديل والعراسة.",
       "id": 35
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 29,
       "question": "ما معنى كلمة حرف؟",
-      "character_model_bpc": 2.2109683,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.5971494,
+      "generated_answer": "الصقر عند أيها بكائير فو جعم.",
       "id": 36
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 39,
       "question": "ما معنى كلمة كلمة؟",
-      "character_model_bpc": 2.211582,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.7811756,
+      "generated_answer": "الهديدة هو أجسبة وتنتيذ الجروب والأركب.",
       "id": 37
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 15,
       "question": "ما معنى كلمة قاموس؟",
-      "character_model_bpc": 2.3716552,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.941671,
+      "generated_answer": "التقاف هي حوّا.",
       "id": 38
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 16,
       "question": "ما معنى كلمة ترجمة؟",
-      "character_model_bpc": 2.457984,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.921685,
+      "generated_answer": "عاصمة مور بيعها.",
       "id": 39
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 51,
       "question": "ما معنى كلمة شرح؟",
-      "character_model_bpc": 1.9675509,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.287896,
+      "generated_answer": "الصقر والحقة وتجوي المشرب بالأخطاء وتحل عدد الأوها.",
       "id": 40
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 60,
       "question": "ما معنى كلمة واضح؟",
-      "character_model_bpc": 2.0620291,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.860507,
+      "generated_answer": "الحقوق هو التحقق من أل معنوة الجربية على إجداز وتحرص من سله.",
       "id": 41
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 48,
       "question": "ما معنى كلمة صعب؟",
-      "character_model_bpc": 2.506504,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.0029316,
+      "generated_answer": "الإجداز عامة أو تيفيذها الحداء بين وتساعد الأرض.",
       "id": 42
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 35,
       "question": "ما معنى كلمة سهل؟",
-      "character_model_bpc": 2.360608,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.8430014,
+      "generated_answer": "يكو على ترحيم الماء عند أوضين قوله.",
       "id": 43
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 54,
       "question": "ما معنى كلمة سريع؟",
-      "character_model_bpc": 2.0231538,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.253934,
+      "generated_answer": "اتقبي كلمة أولي هي المطلوب على تحسيع الأنظزة والترحمي.",
       "id": 44
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 38,
       "question": "ما معنى كلمة بطيء؟",
-      "character_model_bpc": 2.396323,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.5863132,
+      "generated_answer": "الحقاق هو أن تعيد يمكنك أو تقوّر بخير.",
       "id": 45
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 36,
       "question": "ما معنى كلمة كبير؟",
-      "character_model_bpc": 1.9978781,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.0938745,
+      "generated_answer": "اكتر مشاعد خمسة لطرق على فهم الحرون.",
       "id": 46
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 51,
       "question": "ما معنى كلمة صغير؟",
-      "character_model_bpc": 2.0274076,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.3428407,
+      "generated_answer": "الإجتزا المعتفية تعلم وقالك من ستعلم فيعها بالمصدر.",
       "id": 47
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 59,
       "question": "ما معنى كلمة جديد؟",
-      "character_model_bpc": 2.1472366,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.9074645,
+      "generated_answer": "الكتب كلمي أنا من ذو حورات ممناب العملية تتكون أناء برنامج.",
       "id": 48
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 42,
       "question": "ما معنى كلمة قديم؟",
-      "character_model_bpc": 2.4031873,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.833593,
+      "generated_answer": "الإنترنت هو القماء تتجمع الالتزام والواحد.",
       "id": 49
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 38,
       "question": "ما معنى كلمة مهم؟",
-      "character_model_bpc": 2.1569273,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.887462,
+      "generated_answer": "الإرداز عادة أرسام هو تققيع على مداون.",
       "id": 50
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 38,
       "question": "ما معنى كلمة مفيد؟",
-      "character_model_bpc": 2.2213933,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.725685,
+      "generated_answer": "المحراج كتكوا يمتن بسيقة وخقوة الخدرة.",
       "id": 51
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 44,
       "question": "ما معنى كلمة صحيح؟",
-      "character_model_bpc": 2.3841696,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.948032,
+      "generated_answer": "الصول الاحتيني على فهم الماء أو تعوير نتمجة.",
       "id": 52
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 60,
       "question": "ما معنى كلمة خطأ؟",
-      "character_model_bpc": 2.2245636,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.538905,
+      "generated_answer": "الحمول جزع منافية الجربة والساعة التي توضحًا ثالتبطين أوضيق.",
       "id": 53
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 50,
       "question": "ما معنى كلمة لماذا؟",
-      "character_model_bpc": 2.0979922,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.21496,
+      "generated_answer": "الماطنع أنظام يعتاجة الجروية العدد تعنيية أو مشكل.",
       "id": 54
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 73,
       "question": "ما معنى كلمة كيف؟",
-      "character_model_bpc": 2.2523632,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.88105,
+      "generated_answer": "يمكنك أن قوال إطساعة أو تعوير، وأنبّن المسعطلودية أنكار من مصلومات وقلاث.",
       "id": 55
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 19,
       "question": "ما معنى كلمة متى؟",
-      "character_model_bpc": 2.5106986,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.7036586,
+      "generated_answer": "المستقدن باستخدمها.",
       "id": 56
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 47,
       "question": "ما معنى كلمة أين؟",
-      "character_model_bpc": 2.6852324,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.92939,
+      "generated_answer": "يعدد مشتوع الطريق من المشرات الفعل إلى النتيجة.",
       "id": 57
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 35,
       "question": "ما معنى كلمة ماذا؟",
-      "character_model_bpc": 2.155181,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.7734623,
+      "generated_answer": "الماء على إحصاء والتعامر على الشحر.",
       "id": 58
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 18,
       "question": "ما معنى كلمة من؟",
-      "character_model_bpc": 2.1380913,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.272606,
+      "generated_answer": "معلومة أو تنظيمها.",
       "id": 59
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 20,
       "question": "ما معنى كلمة هل؟",
-      "character_model_bpc": 2.2786593,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.466042,
+      "generated_answer": "لا بأر، حمورك قلمها.",
       "id": 60
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 58,
       "question": "ما معنى كلمة ربما؟",
-      "character_model_bpc": 2.5825481,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.2584844,
+      "generated_answer": "الممنك هي حادة الأرض والهاون وتساعدت بالخطية والتعود بانظ.",
       "id": 61
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 38,
       "question": "ما معنى كلمة دائمًا؟",
-      "character_model_bpc": 2.4300785,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.8418617,
+      "generated_answer": "السائن كلمة تدريب هو أسين من المطلوبة.",
       "id": 62
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 47,
       "question": "ما معنى كلمة أحيانًا؟",
-      "character_model_bpc": 2.381043,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.952572,
+      "generated_answer": "المحرف باختماز إلى حودة، ثا مشاء معينًا مبعسًا.",
       "id": 63
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 26,
       "question": "ما معنى كلمة أبدًا؟",
-      "character_model_bpc": 2.349554,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.294565,
+      "generated_answer": "تمك كنا حماء للصحص بوختكا.",
       "id": 64
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 64,
       "question": "ما معنى كلمة صباح؟",
-      "character_model_bpc": 2.2701783,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.0643764,
+      "generated_answer": "السنوم الأركان والحامة واعتربة هي مائة الأخرى، ثم عاصمة الأركبي.",
       "id": 65
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 51,
       "question": "ما معنى كلمة مساء؟",
-      "character_model_bpc": 2.2533417,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.966135,
+      "generated_answer": "المضاء عدد أمها بكوني على محرفة، ثم استخدمه النحور.",
       "id": 66
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 26,
       "question": "ما معنى كلمة يوم؟",
-      "character_model_bpc": 2.3337674,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.651962,
+      "generated_answer": "جمع الإنضراء وتعاول إليها.",
       "id": 67
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 19,
       "question": "ما معنى كلمة أسبوع؟",
-      "character_model_bpc": 2.373045,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.8334484,
+      "generated_answer": "عاصمة مصر بعليماته.",
       "id": 68
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 58,
       "question": "ما معنى كلمة شهر؟",
-      "character_model_bpc": 2.264342,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.6306825,
+      "generated_answer": "يكتب فعن مشلومًا مشكلًا، وأعل منتععة التي طول مهادة الأرض.",
       "id": 69
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 15,
       "question": "ما معنى كلمة سنة؟",
-      "character_model_bpc": 2.2758398,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.989726,
+      "generated_answer": "المرحس هي مدمة.",
       "id": 70
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 57,
       "question": "ما معنى كلمة وقت؟",
-      "character_model_bpc": 2.139122,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.430034,
+      "generated_answer": "عمو شجكة السعودية ومعافكنات ويقعة العدد إلى أنظام الحولة.",
       "id": 71
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 16,
       "question": "ما معنى كلمة مكان؟",
-      "character_model_bpc": 1.8137014,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.415386,
+      "generated_answer": "مكرك به، أوضذًا.",
       "id": 72
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 79,
       "question": "ما معنى كلمة مدينة؟",
-      "character_model_bpc": 1.6980137,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.269503,
+      "generated_answer": "المدينة تجمع سكاء النصاء من الصاحة وتنظيم الأرجاص بعولي، أربط والعنوون الأريسة.",
       "id": 73
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 68,
       "question": "ما معنى كلمة قرية؟",
-      "character_model_bpc": 1.8152981,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.5328455,
+      "generated_answer": "السرحة من ذوعه الأشكار معينة الأرجاط من سؤالكتواعد إلى أنظزة مربدًا.",
       "id": 74
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 64,
       "question": "ما معنى كلمة بيت؟",
-      "character_model_bpc": 2.4222696,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.3642735,
+      "generated_answer": "جعمل عند أهل المكار وقط بين أسضوء تريسبات بأختاجها، ولله أوضيًه.",
       "id": 75
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 33,
       "question": "ما معنى كلمة طريق؟",
-      "character_model_bpc": 1.854734,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 4.296487,
+      "generated_answer": "الحقيق هو كتمب الواحد إلى الشراء.",
       "id": 76
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 26,
       "question": "ما معنى كلمة ماء؟",
-      "character_model_bpc": 1.9379437,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.1040506,
+      "generated_answer": "الإنسان معلومة وقتان الله.",
       "id": 77
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 29,
       "question": "ما معنى كلمة هواء؟",
-      "character_model_bpc": 1.9844315,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 4.35831,
+      "generated_answer": "النحاف جعولي للحساقة في سطوي.",
       "id": 78
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 37,
       "question": "ما معنى كلمة طاقة؟",
-      "character_model_bpc": 1.9856335,
-      "generated_answer": "المقصود بالمعلومة تتكون من الماء والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والتعامل والت",
+      "character_model_bpc": 5.112665,
+      "generated_answer": "المدة سربع ما يحدم وضحكة أسرح مكانية.",
       "id": 79
     },
     {
-      "answer_characters": 100,
+      "answer_characters": 66,
       "question": "ما معنى كلمة حياة؟",
-      "character_model_bpc": 1.9075581,
-      "generated_answer": "المعلومة تتكون من الماء والتعامل المعلومات والمعلومات والمعلومات والمعلومات والمعلومات والمعلومات وا",
+      "character_model_bpc": 5.253964,
+      "generated_answer": "المقلومة في عملين هي المناسة والمحاريت بالمستخدمها، ومعلوك والأرض؟",
       "id": 80
     }
   ]
