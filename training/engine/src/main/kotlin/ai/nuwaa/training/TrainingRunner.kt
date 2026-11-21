@@ -48,14 +48,20 @@ private fun jaccard(a: Set<String>, b: Set<String>): Float {
 /** Conservative question retrieval: known answers override character generation only for strong matches. */
 private fun retrieveAnswer(question: String, pairs: List<Pair<String, String>>): Triple<String, String, Float>? {
     val q = normalizeArabicQuestion(question)
-    val qTokens = q.split(" ").filter { it.isNotBlank() }.toSet()
+    val stopWords = setOf("ما", "ماذا", "كيف", "هل", "كم", "من", "في", "على", "إلى", "عن", "مع", "لي", "هو", "هي", "هذا", "هذه", "أريد", "ابغى", "اسم", "عاصمة", "عدد", "يوم", "أيام", "يتكون", "الأسبوع", "كلمة", "المقصود", "معنى", "اشرح", "الفرق", "بين", "لو", "سمحت", "عبارة", "ممارسة", "شخص", "جميع", "جدا")
+    fun contentTokens(value: String): Set<String> = normalizeArabicQuestion(value).split(" ")
+        .filter { it.isNotBlank() && it !in stopWords }
+        .map { if (it.startsWith("ال") && it.length > 3) it.substring(2) else it }
+        .map { when (it) { "ايام" -> "يوم"; "يوما" -> "يوم"; else -> it } }
+        .toSet()
+    val qTokens = contentTokens(q)
     val qNgrams = characterNgrams(q)
     val ranked = pairs.map { pair ->
         val p = normalizeArabicQuestion(pair.first)
-        val tokens = p.split(" ").filter { it.isNotBlank() }.toSet()
+        val tokens = contentTokens(p)
         val tokenScore = jaccard(qTokens, tokens)
         val charScore = jaccard(qNgrams, characterNgrams(p))
-        Triple(pair.first, pair.second, 0.8f * tokenScore + 0.2f * charScore)
+        Triple(pair.first, pair.second, 0.9f * tokenScore + 0.1f * charScore)
     }.sortedByDescending { it.third }
     if (ranked.isEmpty()) return null
     val best = ranked.first()
