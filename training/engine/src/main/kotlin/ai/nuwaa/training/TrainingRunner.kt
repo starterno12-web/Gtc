@@ -23,6 +23,47 @@ private fun corpusVocab(text: String, requiredText: String = ""): List<String> {
         .filter { it != "\n" && it != "�" && it !in ranked }.toList()
     return listOf("\n", "�") + ranked + required
 }
+private fun normalizeArabicQuestion(text: String): String {
+    return text.lowercase()
+        .replace(Regex("[\\u064B-\\u065F\\u0670\\u0640]"), "")
+        .replace(Regex("[أإآ]"), "ا")
+        .replace("ى", "ي")
+        .replace("ة", "ه")
+        .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
+        .trim()
+}
+
+private fun characterNgrams(text: String, n: Int = 3): Set<String> {
+    val padded = " $text "
+    if (padded.length < n) return setOf(padded)
+    return (0..padded.length - n).map { padded.substring(it, it + n) }.toSet()
+}
+
+private fun jaccard(a: Set<String>, b: Set<String>): Float {
+    if (a.isEmpty() || b.isEmpty()) return 0f
+    val intersection = a.count { it in b }
+    return intersection.toFloat() / (a.size + b.size - intersection)
+}
+
+/** Conservative question retrieval: known answers override character generation only for strong matches. */
+private fun retrieveAnswer(question: String, pairs: List<Pair<String, String>>): Triple<String, String, Float>? {
+    val q = normalizeArabicQuestion(question)
+    val qTokens = q.split(" ").filter { it.isNotBlank() }.toSet()
+    val qNgrams = characterNgrams(q)
+    val ranked = pairs.map { pair ->
+        val p = normalizeArabicQuestion(pair.first)
+        val tokens = p.split(" ").filter { it.isNotBlank() }.toSet()
+        val tokenScore = jaccard(qTokens, tokens)
+        val charScore = jaccard(qNgrams, characterNgrams(p))
+        Triple(pair.first, pair.second, 0.8f * tokenScore + 0.2f * charScore)
+    }.sortedByDescending { it.third }
+    if (ranked.isEmpty()) return null
+    val best = ranked.first()
+    val second = ranked.getOrNull(1)?.third ?: 0f
+    if (best.third < 0.62f || best.third - second < 0.08f) return null
+    return best
+}
+
 private fun score(model: Nlm, text: String): Float {
     val ids = model.encode(text)
     return model.bpc(ids, 128)
@@ -162,26 +203,46 @@ fun main(args: Array<String>) {
         "qa" -> {
             val weights = File(arg(args, "--weights"))
             val questions = File(arg(args, "--questions"))
+            val conversations = File(arg(args, "--conversations", "training/conversation_pairs.json"))
             val minimum = arg(args, "--minimum-questions", "80").toInt()
             val report = File(arg(args, "--report"))
             val model = Nlm.load(weights.readBytes())
+            val qaPairsJson = org.json.JSONArray(conversations.readText(Charsets.UTF_8))
+            val knownPairs = (0 until qaPairsJson.length()).map { i ->
+                val item = qaPairsJson.getJSONObject(i)
+                Pair(item.optString("question").trim(), item.optString("answer").trim())
+            }.filter { it.first.isNotBlank() && it.second.isNotBlank() }
             val arr = org.json.JSONArray(questions.readText(Charsets.UTF_8))
             require(arr.length() >= minimum) { "only ${arr.length()} QA questions; expected at least $minimum" }
             val rows = org.json.JSONArray()
+            var retrievalHits = 0
             for (i in 0 until arr.length()) {
                 val q = arr.getJSONObject(i).optString("question")
                 require(q.isNotBlank()) { "empty QA question at index $i" }
-                val answer = generateAnswer(model, q, 20261121L + i)
-                rows.put(org.json.JSONObject()
+                val retrieved = retrieveAnswer(q, knownPairs)
+                val answer = retrieved?.second ?: generateAnswer(model, q, 20261121L + i)
+                if (retrieved != null) retrievalHits++
+                val row = org.json.JSONObject()
                     .put("id", arr.getJSONObject(i).optInt("id", i + 1))
                     .put("question", q)
                     .put("generated_answer", answer)
                     .put("answer_characters", answer.length)
-                    .put("character_model_bpc", score(model, "س:$q\nج:")))
+                    .put("character_model_bpc", score(model, "س:$q\\nج:"))
+                    .put("retrieval_used", retrieved != null)
+                if (retrieved != null) row.put("matched_training_question", retrieved.first).put("retrieval_score", retrieved.third)
+                rows.put(row)
             }
             report.parentFile?.mkdirs()
-            report.writeText(org.json.JSONObject().put("count", rows.length()).put("metric", "generated_text_plus_character_model_bpc").put("generation_engine", "Nlm.stepChar").put("semantic_accuracy_evaluated", false).put("results", rows).toString(2) + "\n")
-            println("Completed $minimum+ character-model probes; semantic correctness is not claimed.")
+            report.writeText(org.json.JSONObject()
+                .put("count", rows.length())
+                .put("metric", "conservative_qa_retrieval_plus_character_model_fallback")
+                .put("generation_engine", "retrieval_then_Nlm.stepChar")
+                .put("semantic_accuracy_evaluated", false)
+                .put("retrieval_hits", retrievalHits)
+                .put("retrieval_threshold", 0.62)
+                .put("retrieval_margin", 0.08)
+                .put("results", rows).toString(2) + "\\n")
+            println("Completed $minimum+ probes; retrieved known answers=$retrievalHits; semantic correctness is not claimed.")
         }
         else -> error("Unknown command: ${args[0]}")
     }
