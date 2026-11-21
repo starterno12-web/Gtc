@@ -9,11 +9,17 @@ private fun arg(args: Array<String>, key: String, fallback: String? = null): Str
     return if (i >= 0 && i + 1 < args.size) args[i + 1] else fallback ?: error("Missing argument: $key")
 }
 private fun corpusVocab(text: String): List<String> {
-    val seen = LinkedHashSet<String>()
-    seen.add("\n")
-    seen.add("�")
-    for (c in text) seen.add(c.toString())
-    return seen.toList()
+    val counts = HashMap<String, Int>()
+    for (c in text) {
+        val token = c.toString()
+        counts[token] = (counts[token] ?: 0) + 1
+    }
+    val ranked = counts.entries
+        .filter { it.key != "\n" && it.key != "�" }
+        .sortedByDescending { it.value }
+        .take(510)
+        .map { it.key }
+    return listOf("\n", "�") + ranked
 }
 private fun score(model: Nlm, text: String): Float {
     val ids = model.encode(text)
@@ -35,7 +41,7 @@ fun main(args: Array<String>) {
             val chars = corpusVocab(text)
             require(chars.size >= 3)
             // Bound training work while sampling across the entire source file, not just its beginning.
-            val maxTrainingChars = 2_000_000
+            val maxTrainingChars = 8_192
             val trainingText = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
                 val segments = 200
                 val segmentSize = maxTrainingChars / segments
@@ -45,7 +51,7 @@ fun main(args: Array<String>) {
                 }
             }
             val model = Nlm.create(48, 96, chars, 1729L)
-            val window = 256
+            val window = 128
             var seen = 0L
             val evalText = text.take(minOf(text.length, 100_000))
             val before = score(model, evalText)
