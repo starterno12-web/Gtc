@@ -38,14 +38,31 @@ private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
         probabilities = model.stepChar(model.encode(ch.toString())[0], state1, state2)
     }
     val out = StringBuilder()
+    val random = java.util.Random(seed)
+    val recent = ArrayDeque<String>()
     val maxChars = 100
     repeat(maxChars) { step ->
-        val chosen = probabilities.indices
+        val candidates = probabilities.indices
             .filter { model.chars[it] != "�" && (step >= 8 || model.chars[it] != "\n") }
-            .maxByOrNull { probabilities[it] } ?: return out.toString().trim()
+            .sortedByDescending { probabilities[it] }
+            .take(5)
+        if (candidates.isEmpty()) return out.toString().trim()
+        val weighted = candidates.map { id ->
+            val count = recent.count { it == model.chars[id] }
+            probabilities[id].toDouble() / (1.0 + count * 0.8)
+        }
+        val total = weighted.sum()
+        var draw = random.nextDouble() * total
+        var chosen = candidates.last()
+        for (i in candidates.indices) {
+            draw -= weighted[i]
+            if (draw <= 0.0) { chosen = candidates[i]; break }
+        }
         val token = model.chars[chosen]
         if (token == "\n" && step >= 8) return out.toString().trim()
         out.append(token)
+        recent.addLast(token)
+        if (recent.size > 12) recent.removeFirst()
         probabilities = model.stepChar(chosen, state1, state2)
     }
     return out.toString().trim()
