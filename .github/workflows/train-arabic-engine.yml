@@ -135,9 +135,12 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add nlm2.bin training-report.json qa-report.json smoke-test-report.json
-          git diff --cached --quiet && { echo 'No verified changes to commit.'; exit 1; }
-          git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
-          git push origin HEAD:main
+          if ! git diff --cached --quiet; then
+            git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
+            git push origin HEAD:main
+          else
+            echo 'Weights and reports are unchanged; verifying the already committed root weights.'
+          fi
           git fetch origin main
           LOCAL_BLOB="$(git hash-object "$GITHUB_WORKSPACE/nlm2.bin")"
           REMOTE_BLOB="$(git rev-parse origin/main:nlm2.bin)"
