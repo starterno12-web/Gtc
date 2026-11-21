@@ -8,7 +8,7 @@ private fun arg(args: Array<String>, key: String, fallback: String? = null): Str
     val i = args.indexOf(key)
     return if (i >= 0 && i + 1 < args.size) args[i + 1] else fallback ?: error("Missing argument: $key")
 }
-private fun corpusVocab(text: String): List<String> {
+private fun corpusVocab(text: String, requiredText: String = ""): List<String> {
     val counts = HashMap<String, Int>()
     for (c in text) {
         val token = c.toString()
@@ -19,7 +19,9 @@ private fun corpusVocab(text: String): List<String> {
         .sortedByDescending { it.value }
         .take(510)
         .map { it.key }
-    return listOf("\n", "�") + ranked
+    val required = requiredText.asSequence().map { it.toString() }.distinct()
+        .filter { it != "\n" && it != "�" && it !in ranked }.toList()
+    return listOf("\n", "�") + ranked + required
 }
 private fun score(model: Nlm, text: String): Float {
     val ids = model.encode(text)
@@ -73,11 +75,24 @@ fun main(args: Array<String>) {
             require(corpusFile.isFile && corpusFile.length() > 0) { "corpus file missing or empty" }
             val text = corpusFile.readText(Charsets.UTF_8).removePrefix("\uFEFF")
             require(text.length >= 1000) { "corpus is too short" }
-            val chars = corpusVocab(text)
+            val conversationFile = File(arg(args, "--conversations"))
+            require(conversationFile.isFile && conversationFile.length() > 0) { "conversation dataset missing or empty" }
+            val conversationArray = org.json.JSONArray(conversationFile.readText(Charsets.UTF_8))
+            require(conversationArray.length() >= 100) { "conversation dataset must contain at least 100 pairs" }
+            val conversationText = buildString {
+                for (i in 0 until conversationArray.length()) {
+                    val pair = conversationArray.getJSONObject(i)
+                    val question = pair.optString("question").trim()
+                    val answer = pair.optString("answer").trim()
+                    require(question.isNotBlank() && answer.isNotBlank()) { "empty conversation pair at index $i" }
+                    append("س: ").append(question).append("\nج: ").append(answer).append("\n")
+                }
+            }
+            val chars = corpusVocab(text, conversationText)
             require(chars.size >= 3)
-            // Bound training work while sampling across the entire source file, not just its beginning.
+            // Keep broad language exposure while deliberately repeating supervised question/answer examples.
             val maxTrainingChars = 8_192
-            val trainingText = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
+            val sampledCorpus = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
                 val segments = 200
                 val segmentSize = maxTrainingChars / segments
                 for (i in 0 until segments) {
@@ -85,11 +100,18 @@ fun main(args: Array<String>) {
                     append(text, start, minOf(start + segmentSize, text.length))
                 }
             }
+            val conversationRepeats = arg(args, "--conversation-repeats", "3").toInt().coerceIn(1, 20)
+            val trainingText = buildString(sampledCorpus.length + conversationText.length * conversationRepeats) {
+                append(sampledCorpus)
+                repeat(conversationRepeats) { append(conversationText) }
+            }
             val model = Nlm.create(48, 96, chars, 1729L)
             val window = 128
             var seen = 0L
             val evalText = text.take(minOf(text.length, 100_000))
+            val conversationEval = conversationText.take(100_000)
             val before = score(model, evalText)
+            val conversationBefore = score(model, conversationEval)
             for (epoch in 0 until epochs) {
                 var pos = 0
                 while (pos < trainingText.length - 1) {
@@ -98,13 +120,14 @@ fun main(args: Array<String>) {
                     seen += (end - pos).toLong()
                     pos = end
                 }
-                println("epoch ${epoch + 1}/$epochs; processed $seen characters across sampled corpus")
+                println("epoch ${epoch + 1}/$epochs; processed $seen characters (language sample + repeated conversation pairs)")
             }
             val after = score(model, evalText)
+            val conversationAfter = score(model, conversationEval)
             require(after.isFinite() && before.isFinite()) { "non-finite training loss" }
             out.parentFile?.mkdirs()
             out.writeBytes(model.toBytes())
-            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
+            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
             report.parentFile?.mkdirs(); report.writeText(json + "\n")
             println(json)
         }
