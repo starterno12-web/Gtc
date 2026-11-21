@@ -89,10 +89,9 @@ fun main(args: Array<String>) {
                 }
             }
             val conversationRepeats = arg(args, "--conversation-repeats", "3").toInt().coerceIn(1, 20)
-            val trainingText = buildString(sampledCorpus.length + conversationText.length * conversationRepeats) {
-                append(sampledCorpus)
-                repeat(conversationRepeats) { append(conversationText) }
-            }
+            // Train the broad corpus as language modeling, then train every QA pair with answer-only loss.
+            // The prompt updates recurrent context, but question characters are excluded from supervised loss.
+            val trainingText = sampledCorpus
             val model = Nlm.create(48, 96, chars, 1729L)
             val window = 128
             var seen = 0L
@@ -100,22 +99,37 @@ fun main(args: Array<String>) {
             val conversationEval = conversationText.take(100_000)
             val before = score(model, evalText)
             val conversationBefore = score(model, conversationEval)
+            var supervisedSteps = 0L
+            var supervisedLoss = 0.0
+            val pairs = (0 until conversationArray.length()).map { i ->
+                val obj = conversationArray.getJSONObject(i)
+                Pair(obj.optString("question").trim(), obj.optString("answer").trim())
+            }
+            val rng = java.util.Random(1729L)
             for (epoch in 0 until epochs) {
                 var pos = 0
                 while (pos < trainingText.length - 1) {
                     val end = minOf(pos + window, trainingText.length)
-                    if (end - pos >= 8) model.trainWindow(trainingText.substring(pos, end), lr)
+                    if (end - pos >= 8) model.trainWindow(trainingText.substring(pos, end), lr * 0.25f)
                     seen += (end - pos).toLong()
                     pos = end
                 }
-                println("epoch ${epoch + 1}/$epochs; processed $seen characters (language sample + repeated conversation pairs)")
+                repeat(conversationRepeats) {
+                    val shuffled = pairs.shuffled(rng)
+                    for ((question, answer) in shuffled) {
+                        val loss = model.trainAnswerPair(question, answer, lr)
+                        supervisedLoss += loss
+                        supervisedSteps++
+                    }
+                }
+                println("epoch ${epoch + 1}/$epochs; corpus chars processed=$seen; answer-only supervised updates=${supervisedSteps}")
             }
             val after = score(model, evalText)
             val conversationAfter = score(model, conversationEval)
             require(after.isFinite() && before.isFinite() && conversationAfter.isFinite() && conversationBefore.isFinite()) { "non-finite training loss" }
             out.parentFile?.mkdirs()
             out.writeBytes(model.toBytes())
-            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
+            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"supervised_updates":$supervisedSteps,"supervised_loss_bits_average":${if (supervisedSteps > 0) supervisedLoss / supervisedSteps else 0.0},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
             report.parentFile?.mkdirs(); report.writeText(json + "\n")
             println(json)
         }
