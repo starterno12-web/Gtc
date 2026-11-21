@@ -32,29 +32,17 @@ private fun score(model: Nlm, text: String): Float {
 private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
     val state1 = FloatArray(model.h)
     val state2 = FloatArray(model.h)
-    val prompt = "س: $question\nج:"
+    val prompt = "س: $question\nج: "
     var probabilities = FloatArray(0)
     for (ch in prompt) {
         probabilities = model.stepChar(model.encode(ch.toString())[0], state1, state2)
     }
-    val rng = java.util.Random(seed)
     val out = StringBuilder()
     val maxChars = 100
     repeat(maxChars) { step ->
-        val candidates = probabilities.indices
+        val chosen = probabilities.indices
             .filter { model.chars[it] != "�" && (step >= 8 || model.chars[it] != "\n") }
-            .sortedByDescending { probabilities[it] }
-            .take(8)
-        if (candidates.isEmpty()) return@repeat
-        val temperature = 0.85
-        val weights = candidates.map { Math.pow(probabilities[it].toDouble().coerceAtLeast(1e-12), 1.0 / temperature) }
-        val total = weights.sum()
-        var pick = rng.nextDouble() * total
-        var chosen = candidates.last()
-        for (i in candidates.indices) {
-            pick -= weights[i]
-            if (pick <= 0.0) { chosen = candidates[i]; break }
-        }
+            .maxByOrNull { probabilities[it] } ?: return out.toString().trim()
         val token = model.chars[chosen]
         if (token == "\n" && step >= 8) return out.toString().trim()
         out.append(token)
@@ -124,7 +112,7 @@ fun main(args: Array<String>) {
             }
             val after = score(model, evalText)
             val conversationAfter = score(model, conversationEval)
-            require(after.isFinite() && before.isFinite()) { "non-finite training loss" }
+            require(after.isFinite() && before.isFinite() && conversationAfter.isFinite() && conversationBefore.isFinite()) { "non-finite training loss" }
             out.parentFile?.mkdirs()
             out.writeBytes(model.toBytes())
             val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
