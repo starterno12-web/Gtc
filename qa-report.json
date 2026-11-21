@@ -1,0 +1,407 @@
+{
+  "metric": "character_model_bpc",
+  "count": 80,
+  "semantic_accuracy_evaluated": false,
+  "results": [
+    {
+      "question": "السلام عليكم",
+      "character_model_bpc": 5.5816345,
+      "id": 1
+    },
+    {
+      "question": "كيف حالك؟",
+      "character_model_bpc": 6.6952076,
+      "id": 2
+    },
+    {
+      "question": "ما معنى كلمة كتاب؟",
+      "character_model_bpc": 5.5290174,
+      "id": 3
+    },
+    {
+      "question": "هل يمكنك مساعدتي؟",
+      "character_model_bpc": 6.097122,
+      "id": 4
+    },
+    {
+      "question": "ما معنى كلمة علم؟",
+      "character_model_bpc": 5.3082404,
+      "id": 5
+    },
+    {
+      "question": "ما معنى كلمة مدرسة؟",
+      "character_model_bpc": 5.6631956,
+      "id": 6
+    },
+    {
+      "question": "ما معنى كلمة صديق؟",
+      "character_model_bpc": 5.6100807,
+      "id": 7
+    },
+    {
+      "question": "ما معنى كلمة شجاعة؟",
+      "character_model_bpc": 5.653793,
+      "id": 8
+    },
+    {
+      "question": "ما معنى كلمة عدالة؟",
+      "character_model_bpc": 5.4974375,
+      "id": 9
+    },
+    {
+      "question": "ما معنى كلمة تعاون؟",
+      "character_model_bpc": 5.509521,
+      "id": 10
+    },
+    {
+      "question": "ما معنى كلمة طبيعة؟",
+      "character_model_bpc": 5.7483974,
+      "id": 11
+    },
+    {
+      "question": "ما معنى كلمة تجربة؟",
+      "character_model_bpc": 5.5946813,
+      "id": 12
+    },
+    {
+      "question": "ما معنى كلمة لغة؟",
+      "character_model_bpc": 5.8710194,
+      "id": 13
+    },
+    {
+      "question": "ما معنى كلمة معرفة؟",
+      "character_model_bpc": 5.5333605,
+      "id": 14
+    },
+    {
+      "question": "ما معنى كلمة مستقبل؟",
+      "character_model_bpc": 5.571706,
+      "id": 15
+    },
+    {
+      "question": "ما معنى كلمة ماضي؟",
+      "character_model_bpc": 5.4398437,
+      "id": 16
+    },
+    {
+      "question": "ما معنى كلمة حاضر؟",
+      "character_model_bpc": 5.641352,
+      "id": 17
+    },
+    {
+      "question": "ما معنى كلمة تفكير؟",
+      "character_model_bpc": 5.5209336,
+      "id": 18
+    },
+    {
+      "question": "ما معنى كلمة سؤال؟",
+      "character_model_bpc": 5.5881343,
+      "id": 19
+    },
+    {
+      "question": "ما معنى كلمة إجابة؟",
+      "character_model_bpc": 5.7435074,
+      "id": 20
+    },
+    {
+      "question": "ما معنى كلمة هدف؟",
+      "character_model_bpc": 5.8015776,
+      "id": 21
+    },
+    {
+      "question": "ما معنى كلمة نجاح؟",
+      "character_model_bpc": 5.6048493,
+      "id": 22
+    },
+    {
+      "question": "ما معنى كلمة فشل؟",
+      "character_model_bpc": 5.8101215,
+      "id": 23
+    },
+    {
+      "question": "ما معنى كلمة تعلم؟",
+      "character_model_bpc": 5.370181,
+      "id": 24
+    },
+    {
+      "question": "ما معنى كلمة تدريب؟",
+      "character_model_bpc": 5.376293,
+      "id": 25
+    },
+    {
+      "question": "ما معنى كلمة ذاكرة؟",
+      "character_model_bpc": 5.7572174,
+      "id": 26
+    },
+    {
+      "question": "ما معنى كلمة نموذج؟",
+      "character_model_bpc": 5.693119,
+      "id": 27
+    },
+    {
+      "question": "ما معنى كلمة محرك؟",
+      "character_model_bpc": 5.66377,
+      "id": 28
+    },
+    {
+      "question": "ما معنى كلمة حاسوب؟",
+      "character_model_bpc": 5.470615,
+      "id": 29
+    },
+    {
+      "question": "ما معنى كلمة هاتف؟",
+      "character_model_bpc": 5.5721717,
+      "id": 30
+    },
+    {
+      "question": "ما معنى كلمة شبكة؟",
+      "character_model_bpc": 5.876678,
+      "id": 31
+    },
+    {
+      "question": "ما معنى كلمة إنترنت؟",
+      "character_model_bpc": 5.6846247,
+      "id": 32
+    },
+    {
+      "question": "ما معنى كلمة بيانات؟",
+      "character_model_bpc": 5.2695675,
+      "id": 33
+    },
+    {
+      "question": "ما معنى كلمة نص؟",
+      "character_model_bpc": 5.8008103,
+      "id": 34
+    },
+    {
+      "question": "ما معنى كلمة جملة؟",
+      "character_model_bpc": 5.814185,
+      "id": 35
+    },
+    {
+      "question": "ما معنى كلمة حرف؟",
+      "character_model_bpc": 5.815164,
+      "id": 36
+    },
+    {
+      "question": "ما معنى كلمة كلمة؟",
+      "character_model_bpc": 5.680975,
+      "id": 37
+    },
+    {
+      "question": "ما معنى كلمة قاموس؟",
+      "character_model_bpc": 5.570478,
+      "id": 38
+    },
+    {
+      "question": "ما معنى كلمة ترجمة؟",
+      "character_model_bpc": 5.537024,
+      "id": 39
+    },
+    {
+      "question": "ما معنى كلمة شرح؟",
+      "character_model_bpc": 5.8625455,
+      "id": 40
+    },
+    {
+      "question": "ما معنى كلمة واضح؟",
+      "character_model_bpc": 5.6062083,
+      "id": 41
+    },
+    {
+      "question": "ما معنى كلمة صعب؟",
+      "character_model_bpc": 5.7310114,
+      "id": 42
+    },
+    {
+      "question": "ما معنى كلمة سهل؟",
+      "character_model_bpc": 5.8769407,
+      "id": 43
+    },
+    {
+      "question": "ما معنى كلمة سريع؟",
+      "character_model_bpc": 5.679789,
+      "id": 44
+    },
+    {
+      "question": "ما معنى كلمة بطيء؟",
+      "character_model_bpc": 5.6843104,
+      "id": 45
+    },
+    {
+      "question": "ما معنى كلمة كبير؟",
+      "character_model_bpc": 5.6192055,
+      "id": 46
+    },
+    {
+      "question": "ما معنى كلمة صغير؟",
+      "character_model_bpc": 5.6202807,
+      "id": 47
+    },
+    {
+      "question": "ما معنى كلمة جديد؟",
+      "character_model_bpc": 5.5712643,
+      "id": 48
+    },
+    {
+      "question": "ما معنى كلمة قديم؟",
+      "character_model_bpc": 5.441314,
+      "id": 49
+    },
+    {
+      "question": "ما معنى كلمة مهم؟",
+      "character_model_bpc": 5.577209,
+      "id": 50
+    },
+    {
+      "question": "ما معنى كلمة مفيد؟",
+      "character_model_bpc": 5.4854965,
+      "id": 51
+    },
+    {
+      "question": "ما معنى كلمة صحيح؟",
+      "character_model_bpc": 5.700255,
+      "id": 52
+    },
+    {
+      "question": "ما معنى كلمة خطأ؟",
+      "character_model_bpc": 5.8389053,
+      "id": 53
+    },
+    {
+      "question": "ما معنى كلمة لماذا؟",
+      "character_model_bpc": 5.3050203,
+      "id": 54
+    },
+    {
+      "question": "ما معنى كلمة كيف؟",
+      "character_model_bpc": 5.666342,
+      "id": 55
+    },
+    {
+      "question": "ما معنى كلمة متى؟",
+      "character_model_bpc": 5.72097,
+      "id": 56
+    },
+    {
+      "question": "ما معنى كلمة أين؟",
+      "character_model_bpc": 5.5831094,
+      "id": 57
+    },
+    {
+      "question": "ما معنى كلمة ماذا؟",
+      "character_model_bpc": 5.437277,
+      "id": 58
+    },
+    {
+      "question": "ما معنى كلمة من؟",
+      "character_model_bpc": 5.4443755,
+      "id": 59
+    },
+    {
+      "question": "ما معنى كلمة هل؟",
+      "character_model_bpc": 5.787466,
+      "id": 60
+    },
+    {
+      "question": "ما معنى كلمة ربما؟",
+      "character_model_bpc": 5.533569,
+      "id": 61
+    },
+    {
+      "question": "ما معنى كلمة دائمًا؟",
+      "character_model_bpc": 5.7507505,
+      "id": 62
+    },
+    {
+      "question": "ما معنى كلمة أحيانًا؟",
+      "character_model_bpc": 5.717449,
+      "id": 63
+    },
+    {
+      "question": "ما معنى كلمة أبدًا؟",
+      "character_model_bpc": 5.862939,
+      "id": 64
+    },
+    {
+      "question": "ما معنى كلمة صباح؟",
+      "character_model_bpc": 5.6194754,
+      "id": 65
+    },
+    {
+      "question": "ما معنى كلمة مساء؟",
+      "character_model_bpc": 5.352549,
+      "id": 66
+    },
+    {
+      "question": "ما معنى كلمة يوم؟",
+      "character_model_bpc": 5.4743757,
+      "id": 67
+    },
+    {
+      "question": "ما معنى كلمة أسبوع؟",
+      "character_model_bpc": 5.6402826,
+      "id": 68
+    },
+    {
+      "question": "ما معنى كلمة شهر؟",
+      "character_model_bpc": 5.827826,
+      "id": 69
+    },
+    {
+      "question": "ما معنى كلمة سنة؟",
+      "character_model_bpc": 5.89597,
+      "id": 70
+    },
+    {
+      "question": "ما معنى كلمة وقت؟",
+      "character_model_bpc": 5.5691357,
+      "id": 71
+    },
+    {
+      "question": "ما معنى كلمة مكان؟",
+      "character_model_bpc": 5.4572983,
+      "id": 72
+    },
+    {
+      "question": "ما معنى كلمة مدينة؟",
+      "character_model_bpc": 5.497521,
+      "id": 73
+    },
+    {
+      "question": "ما معنى كلمة قرية؟",
+      "character_model_bpc": 5.6708555,
+      "id": 74
+    },
+    {
+      "question": "ما معنى كلمة بيت؟",
+      "character_model_bpc": 5.557575,
+      "id": 75
+    },
+    {
+      "question": "ما معنى كلمة طريق؟",
+      "character_model_bpc": 5.709466,
+      "id": 76
+    },
+    {
+      "question": "ما معنى كلمة ماء؟",
+      "character_model_bpc": 5.416169,
+      "id": 77
+    },
+    {
+      "question": "ما معنى كلمة هواء؟",
+      "character_model_bpc": 5.3667064,
+      "id": 78
+    },
+    {
+      "question": "ما معنى كلمة طاقة؟",
+      "character_model_bpc": 5.8095493,
+      "id": 79
+    },
+    {
+      "question": "ما معنى كلمة حياة؟",
+      "character_model_bpc": 5.6774592,
+      "id": 80
+    }
+  ]
+}
