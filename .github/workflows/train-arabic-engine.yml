@@ -104,14 +104,16 @@ jobs:
       - name: Train the actual Kotlin GRU engine and produce NLM2 weights
         run: |
           set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/weights"
-          gradle -p training/engine --no-daemon run --args="train --corpus $GITHUB_WORKSPACE/.training-tmp/corpus --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output $GITHUB_WORKSPACE/weights/nlm2.bin --report $GITHUB_WORKSPACE/training-report.json"
+          OUTPUT_WEIGHTS="$GITHUB_WORKSPACE/nlm2.bin"
+          mkdir -p "$GITHUB_WORKSPACE"
+          gradle -p training/engine --no-daemon run --args="train --corpus $GITHUB_WORKSPACE/.training-tmp/corpus --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output $GITHUB_WORKSPACE/nlm2.bin --report $GITHUB_WORKSPACE/training-report.json"
 
       - name: Verify generated NLM2 weights with the same Kotlin engine
         run: |
           set -euo pipefail
-          test -s "$GITHUB_WORKSPACE/weights/nlm2.bin"
-          gradle -p training/engine --no-daemon run --args="verify --weights $GITHUB_WORKSPACE/weights/nlm2.bin"
+          test -s "$GITHUB_WORKSPACE/nlm2.bin"
+          sha256sum "$GITHUB_WORKSPACE/nlm2.bin"
+          gradle -p training/engine --no-daemon run --args="verify --weights $GITHUB_WORKSPACE/nlm2.bin"
 
       - name: Run Arabic QA probes (80 questions, character-model metric)
         run: |
@@ -119,15 +121,30 @@ jobs:
           gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/weights/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
           test -s "$GITHUB_WORKSPACE/qa-report.json"
 
-      - name: Commit verified weights and reports to repository
+      - name: Generate visible answers for simple Arabic smoke questions
+        run: |
+          set -euo pipefail
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/smoke_questions.json --minimum-questions 16 --report $GITHUB_WORKSPACE/smoke-test-report.json"
+          test -s "$GITHUB_WORKSPACE/smoke-test-report.json"
+          echo "Generated answers:"
+          cat "$GITHUB_WORKSPACE/smoke-test-report.json"
+
+      - name: Commit verified weights and reports to repository root
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add weights/nlm2.bin training-report.json qa-report.json
-          git diff --cached --quiet && { echo 'No verified changes to commit.'; exit 0; }
-          git commit -m 'Save verified trained NLM2 weights and QA report'
-          git push
+          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json
+          git diff --cached --quiet && { echo 'No verified changes to commit.'; exit 1; }
+          git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
+          git push origin HEAD:main
+          git fetch origin main
+          LOCAL_BLOB="$(git hash-object "$GITHUB_WORKSPACE/nlm2.bin")"
+          REMOTE_BLOB="$(git rev-parse origin/main:nlm2.bin)"
+          test "$LOCAL_BLOB" = "$REMOTE_BLOB"
+          git ls-tree -l origin/main nlm2.bin
+          echo "Confirmed: root/nlm2.bin is committed on origin/main (blob $REMOTE_BLOB)."
+
 
       - name: Cleanup temporary corpus (always)
         if: always()
