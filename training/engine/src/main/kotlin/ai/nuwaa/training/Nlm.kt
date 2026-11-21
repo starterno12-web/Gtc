@@ -179,29 +179,37 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     }
 
     /** x: inputs, y: targets (same length). s1/s2: starting states (updated to the final states). Returns (loss in nats/char, gradients), or just the loss when grads is false. */
-    private fun run(x: IntArray, y: IntArray, s1: FloatArray, s2: FloatArray, grads: Boolean): Pair<Float, List<FloatArray>?> {
+    private fun run(x: IntArray, y: IntArray, s1: FloatArray, s2: FloatArray, grads: Boolean, targetMask: BooleanArray? = null): Pair<Float, List<FloatArray>?> {
         val t = x.size
         val tr = Trace(t, h)
         var h1p = s1.copyOf(); var h2p = s2.copyOf()
         val g1 = FloatArray(h3); val g2 = FloatArray(h3)
         var loss = 0f
+        var lossCount = 0
         for (i in 0 until t) {
             gx1(x[i], g1)
             cellFwd(g1, h1p, P[2], tr.h1[i], tr.r1[i], tr.z1[i], tr.n1[i], tr.rh1[i])
             gx2(tr.h1[i], g2)
             cellFwd(g2, h2p, P[5], tr.h2[i], tr.r2[i], tr.z2[i], tr.n2[i], tr.rh2[i])
             val p = softmaxOf(tr.h2[i]); tr.p[i] = p
-            loss -= Math.log((p[y[i]] + 1e-9f).toDouble()).toFloat()
+            if (targetMask == null || targetMask[i]) {
+                loss -= Math.log((p[y[i]] + 1e-9f).toDouble()).toFloat()
+                lossCount++
+            }
             h1p = tr.h1[i]; h2p = tr.h2[i]
         }
-        loss /= t
+        loss /= maxOf(1, lossCount)
         if (!grads) { System.arraycopy(h1p, 0, s1, 0, h); System.arraycopy(h2p, 0, s2, 0, h); return Pair(loss, null) }
         val g = P.map { FloatArray(it.size) }
         val dH2 = Array(t) { FloatArray(h) }
         for (i in 0 until t) {
             val d = tr.p[i]!!
-            d[y[i]] -= 1f
-            for (j in 0 until v) d[j] /= t.toFloat()
+            if (targetMask != null && !targetMask[i]) {
+                java.util.Arrays.fill(d, 0f)
+            } else {
+                d[y[i]] -= 1f
+                for (j in 0 until v) d[j] /= maxOf(1, lossCount).toFloat()
+            }
             for (j in 0 until v) g[8][j] += d[j]
             for (q in 0 until h) {
                 val hv = tr.h2[i][q]; val o = q * v
@@ -303,6 +311,21 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
                 i = end
             }
         }
+    }
+
+    /** Supervised QA update: question and answer are fed as context, but loss is applied ONLY to answer characters. */
+    fun trainAnswerPair(question: String, answer: String, lr: Float): Float {
+        require(question.isNotBlank() && answer.isNotBlank()) { "question and answer must be non-empty" }
+        val full = "س: $question\nج: $answer\n"
+        val answerStart = full.indexOf(answer, full.indexOf("\nج: ") + 4)
+        require(answerStart >= 0) { "answer boundary not found" }
+        val ids = encode(full)
+        val x = ids.copyOfRange(0, ids.size - 1)
+        val y = ids.copyOfRange(1, ids.size)
+        val mask = BooleanArray(x.size) { i -> (i + 1) in answerStart..(answerStart + answer.length) }
+        val res = run(x, y, FloatArray(h), FloatArray(h), true, mask)
+        res.second?.let { adam(it, lr) }
+        return (res.first / Math.log(2.0)).toFloat()
     }
 
     /** ONE gradient step on one window of text (fresh state at its start). Returns bits per character of that window before the step. Used by Trainer. */
