@@ -118,13 +118,13 @@ jobs:
       - name: Run Arabic QA probes (80 questions, character-model metric)
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --conversations $GITHUB_WORKSPACE/training/conversation_pairs.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
           test -s "$GITHUB_WORKSPACE/qa-report.json"
 
       - name: Generate visible answers for held-out Arabic conversation questions
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/holdout_questions.json --minimum-questions 20 --report $GITHUB_WORKSPACE/smoke-test-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/holdout_questions.json --conversations $GITHUB_WORKSPACE/training/conversation_pairs.json --minimum-questions 20 --report $GITHUB_WORKSPACE/smoke-test-report.json"
           test -s "$GITHUB_WORKSPACE/smoke-test-report.json"
           echo "Generated answers:"
           cat "$GITHUB_WORKSPACE/smoke-test-report.json"
