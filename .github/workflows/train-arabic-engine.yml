@@ -290,7 +290,7 @@ jobs:
           echo "Generated answers:"
           cat "$GITHUB_WORKSPACE/smoke-test-report.json"
 
-      - name: Evaluate model on 30 general questions
+      - name: Evaluate model on 84 general and corpus-derived questions
         run: |
           set -euo pipefail
           gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics-and-corpus.json --minimum-questions 84 --report $GITHUB_WORKSPACE/general-84-report.json"
