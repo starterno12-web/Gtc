@@ -85,6 +85,88 @@ jobs:
           print(f'Validated UTF-8: {len(data):,} bytes, {len(text):,} characters.')
           PY
 
+      - name: Download extra temporary TXT corpus from Google Drive
+        env:
+          EXTRA_DRIVE_FILE_ID: 1ChmGsq0gCoJdH6oLBXaeRoSlG9hTB7B3
+        run: |
+          set -euo pipefail
+          EXTRA_URL="https://drive.google.com/uc?id=${EXTRA_DRIVE_FILE_ID}"
+          EXTRA_OUTPUT=".training-tmp/extra-corpus.txt"
+          downloaded=false
+          for attempt in 1 2 3; do
+            echo "Extra TXT download attempt ${attempt}/3..."
+            rm -f "$EXTRA_OUTPUT"
+            if gdown --fuzzy "$EXTRA_URL" --output "$EXTRA_OUTPUT" && [ -s "$EXTRA_OUTPUT" ]; then
+              downloaded=true
+              break
+            fi
+            echo "Extra download attempt failed."
+            sleep $((attempt * 10))
+          done
+          if [ "$downloaded" != true ]; then
+            echo "::error::Failed to download extra corpus from Google Drive after 3 attempts."
+            exit 1
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.training-tmp/extra-corpus.txt')
+          data = p.read_bytes()
+          if data.lstrip().lower().startswith((b'<!doctype html', b'<html')):
+              raise SystemExit('Drive returned HTML, not the TXT file. Check sharing permissions.')
+          text = data.decode('utf-8-sig')
+          if len(text.strip()) < 1000:
+              raise SystemExit('Extra TXT is too short to be useful as a corpus.')
+          base = Path('.training-tmp/corpus').read_text(encoding='utf-8-sig')
+          merged = base.rstrip() + '\n\n' + text.lstrip()
+          Path('.training-tmp/combined-corpus.txt').write_text(merged, encoding='utf-8')
+          print(f'Extra TXT: {len(text):,} chars; combined corpus: {len(merged):,} chars.')
+          PY
+
+      - name: Create 30 general QA questions for post-training evaluation
+        run: |
+          set -euo pipefail
+          cat > .training-tmp/general-30-questions.json <<'JSON'
+          [
+            {"id":1,"question":"ما عاصمة المملكة العربية السعودية؟"},
+            {"id":2,"question":"كم عدد أيام الأسبوع؟"},
+            {"id":3,"question":"ما الكوكب الذي نعيش عليه؟"},
+            {"id":4,"question":"ما مصدر الضوء والحرارة الرئيسي للأرض؟"},
+            {"id":5,"question":"ما الغاز الذي يحتاجه الإنسان للتنفس؟"},
+            {"id":6,"question":"ما وظيفة القلب في جسم الإنسان؟"},
+            {"id":7,"question":"ما المقصود بالماء؟"},
+            {"id":8,"question":"لماذا تتبخر المياه عند تسخينها؟"},
+            {"id":9,"question":"ما الحيوان المعروف بسفينة الصحراء؟"},
+            {"id":10,"question":"ما فائدة جذور النباتات؟"},
+            {"id":11,"question":"ما المقصود بالبناء الضوئي؟"},
+            {"id":12,"question":"ما أكبر محيط على سطح الأرض؟"},
+            {"id":13,"question":"ما اللغة الرسمية في المملكة العربية السعودية؟"},
+            {"id":14,"question":"ما العملة المستخدمة في السعودية؟"},
+            {"id":15,"question":"ما معنى التعاون؟"},
+            {"id":16,"question":"كيف يساعد تنظيم الوقت على إنجاز المهام؟"},
+            {"id":17,"question":"ما المقصود بالتعلم؟"},
+            {"id":18,"question":"ما الفرق بين البيانات والمعلومات؟"},
+            {"id":19,"question":"ما وظيفة نظام التشغيل في الحاسوب؟"},
+            {"id":20,"question":"ما المقصود بالإنترنت؟"},
+            {"id":21,"question":"ما هي الخوارزمية؟"},
+            {"id":22,"question":"ما فائدة الاختبارات في البرمجة؟"},
+            {"id":23,"question":"ما معنى المصدر المفتوح في البرمجيات؟"},
+            {"id":24,"question":"كيف نحافظ على نظافة البيئة؟"},
+            {"id":25,"question":"لماذا يجب الالتزام بإشارات المرور؟"},
+            {"id":26,"question":"ما فائدة ممارسة الرياضة بانتظام؟"},
+            {"id":27,"question":"كيف نتحقق من صحة خبر على الإنترنت؟"},
+            {"id":28,"question":"ما معنى احترام الآخرين؟"},
+            {"id":29,"question":"ما المقصود بالهدف؟"},
+            {"id":30,"question":"كيف يمكن تعلم مهارة جديدة بشكل تدريجي؟"}
+          ]
+          JSON
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          questions = json.loads(Path('.training-tmp/general-30-questions.json').read_text(encoding='utf-8'))
+          assert len(questions) == 30 and len({q['id'] for q in questions}) == 30
+          print('Validated exactly 30 distinct general evaluation questions.')
+          PY
+
       - name: Set up Java for the Kotlin engine
         uses: actions/setup-java@v4
         with:
@@ -106,7 +188,7 @@ jobs:
           set -euo pipefail
           OUTPUT_WEIGHTS="$GITHUB_WORKSPACE/nlm2.bin"
           mkdir -p "$GITHUB_WORKSPACE"
-          gradle -p training/engine --no-daemon run --args="train --corpus $GITHUB_WORKSPACE/.training-tmp/corpus --conversations $GITHUB_WORKSPACE/training/conversation_pairs.json --conversation-repeats 3 --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output $GITHUB_WORKSPACE/nlm2.bin --report $GITHUB_WORKSPACE/training-report.json"
+          gradle -p training/engine --no-daemon run --args="train --corpus $GITHUB_WORKSPACE/.training-tmp/combined-corpus.txt --conversations $GITHUB_WORKSPACE/training/conversation_pairs.json --conversation-repeats 3 --epochs ${{ inputs.epochs }} --learning-rate ${{ inputs.learning_rate }} --output $GITHUB_WORKSPACE/nlm2.bin --report $GITHUB_WORKSPACE/training-report.json"
 
       - name: Verify generated NLM2 weights with the same Kotlin engine
         run: |
@@ -129,12 +211,20 @@ jobs:
           echo "Generated answers:"
           cat "$GITHUB_WORKSPACE/smoke-test-report.json"
 
+      - name: Evaluate model on 30 general questions
+        run: |
+          set -euo pipefail
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-30-questions.json --conversations $GITHUB_WORKSPACE/training/conversation_pairs.json --minimum-questions 30 --report $GITHUB_WORKSPACE/general-30-report.json"
+          test -s "$GITHUB_WORKSPACE/general-30-report.json"
+          echo "30-question evaluation results:"
+          cat "$GITHUB_WORKSPACE/general-30-report.json"
+
       - name: Commit verified weights and reports to repository root
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json
+          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json general-30-report.json
           if ! git diff --cached --quiet; then
             git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
             git push origin HEAD:main
