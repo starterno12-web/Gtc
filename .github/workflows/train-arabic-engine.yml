@@ -122,6 +122,42 @@ jobs:
           print(f'Extra TXT: {len(text):,} chars; combined corpus: {len(merged):,} chars.')
           PY
 
+      - name: Download new temporary training TXT from Google Drive and merge
+        env:
+          NEW_DRIVE_FILE_ID: 1v85GDSaVVWGCgnRUpOceWwqk_x20F1HR
+        run: |
+          set -euo pipefail
+          URL="https://drive.google.com/uc?id=${NEW_DRIVE_FILE_ID}"
+          OUTPUT=".training-tmp/new-corpus.txt"
+          downloaded=false
+          for attempt in 1 2 3; do
+            echo "New corpus download attempt ${attempt}/3..."
+            rm -f "$OUTPUT"
+            if gdown --fuzzy "$URL" --output "$OUTPUT" && [ -s "$OUTPUT" ]; then
+              downloaded=true
+              break
+            fi
+            sleep $((attempt * 10))
+          done
+          if [ "$downloaded" != true ]; then
+            echo "::error::Failed to download new corpus from Google Drive."
+            exit 1
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.training-tmp/new-corpus.txt')
+          raw = p.read_bytes()
+          if raw.lstrip().lower().startswith((b'<!doctype html', b'<html')):
+              raise SystemExit('Drive returned HTML instead of text.')
+          text = raw.decode('utf-8-sig')
+          if len(text.strip()) < 1000:
+              raise SystemExit('New TXT corpus is too short.')
+          combined_path = Path('.training-tmp/combined-corpus.txt')
+          base = combined_path.read_text(encoding='utf-8')
+          combined_path.write_text(base.rstrip() + '\\n\\n' + text.lstrip(), encoding='utf-8')
+          print(f'New TXT validated: {len(text):,} chars; merged training corpus: {len(base)+len(text):,} chars.')
+          PY
+
       - name: Create 30 general QA questions for post-training evaluation
         run: |
           set -euo pipefail
@@ -160,9 +196,31 @@ jobs:
           ]
           JSON
           python - <<'PY'
-          import json
+          import json, random, re
           from pathlib import Path
-          questions = json.loads(Path('.training-tmp/general-30-questions.json').read_text(encoding='utf-8'))
+          qpath = Path('.training-tmp/general-30-questions.json')
+          questions = json.loads(qpath.read_text(encoding='utf-8'))
+          questions.extend([
+            {"id":31,"question":"ما الأشكال الهندسية الأساسية؟"},
+            {"id":32,"question":"ما شكل المكعب وما خصائصه؟"},
+            {"id":33,"question":"علمني أساسيات الفيزياء."},
+            {"id":34,"question":"دربني على الفيزياء بسؤال وتمرين."}
+          ])
+          text = Path('.training-tmp/new-corpus.txt').read_text(encoding='utf-8-sig')
+          # Randomly select five text excerpts from the new source and turn them into grounded reading probes.
+          chunks = [s.strip() for s in re.split(r'(?<=[.!؟?])\\s+|\\n+', text) if len(s.strip()) >= 45]
+          if len(chunks) < 5:
+              chunks = [text[i:i+240].strip() for i in range(0, len(text), max(1, len(text)//10)) if len(text[i:i+240].strip()) >= 45]
+          if len(chunks) < 5:
+              raise SystemExit('Could not extract five sufficiently long random excerpts from the new corpus.')
+          random.Random(20261123).shuffle(chunks)
+          for i, excerpt in enumerate(chunks[:5], start=35):
+              excerpt = re.sub(r'\\s+', ' ', excerpt)[:240]
+              questions.append({"id":i,"question":"ما الفكرة أو المعلومة الواردة في هذا المقطع؟ " + excerpt})
+          qpath.write_text(json.dumps(questions, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')
+          assert len(questions) == 39 and len({q['id'] for q in questions}) == 39
+          print('Created 39 evaluation prompts: 30 existing, 4 geometry/physics prompts, and 5 random excerpt-based prompts.')
+          PY
           assert len(questions) == 30 and len({q['id'] for q in questions}) == 30
           print('Validated exactly 30 distinct general evaluation questions.')
           PY
