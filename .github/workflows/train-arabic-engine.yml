@@ -154,7 +154,7 @@ jobs:
               raise SystemExit('New TXT corpus is too short.')
           combined_path = Path('.training-tmp/combined-corpus.txt')
           base = combined_path.read_text(encoding='utf-8')
-          combined_path.write_text(base.rstrip() + '\\n\\n' + text.lstrip(), encoding='utf-8')
+          combined_path.write_text(base.rstrip() + '\n\n' + text.lstrip(), encoding='utf-8')
           print(f'New TXT validated: {len(text):,} chars; merged training corpus: {len(base)+len(text):,} chars.')
           PY
 
