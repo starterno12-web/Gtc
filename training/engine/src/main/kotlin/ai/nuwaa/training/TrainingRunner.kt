@@ -143,7 +143,7 @@ fun main(args: Array<String>) {
             val chars = corpusVocab(text, conversationText)
             require(chars.size >= 3)
             // Keep broad language exposure while deliberately repeating supervised question/answer examples.
-            val maxTrainingChars = 8_192
+            val maxTrainingChars = 100_000
             val sampledCorpus = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
                 val segments = 200
                 val segmentSize = maxTrainingChars / segments
