@@ -158,10 +158,10 @@ jobs:
           print(f'New TXT validated: {len(text):,} chars; merged training corpus: {len(base)+len(text):,} chars.')
           PY
 
-      - name: Create 30 general QA questions for post-training evaluation
+      - name: Create QA questions including geometry, physics, and 5 random corpus excerpts
         run: |
           set -euo pipefail
-          cat > .training-tmp/general-30-questions.json <<'JSON'
+          cat > .training-tmp/general-questions.json <<'JSON'
           [
             {"id":1,"question":"ما عاصمة المملكة العربية السعودية؟"},
             {"id":2,"question":"كم عدد أيام الأسبوع؟"},
@@ -192,39 +192,33 @@ jobs:
             {"id":27,"question":"كيف نتحقق من صحة خبر على الإنترنت؟"},
             {"id":28,"question":"ما معنى احترام الآخرين؟"},
             {"id":29,"question":"ما المقصود بالهدف؟"},
-            {"id":30,"question":"كيف يمكن تعلم مهارة جديدة بشكل تدريجي؟"}
+            {"id":30,"question":"كيف يمكن تعلم مهارة جديدة بشكل تدريجي؟"},
+            {"id":31,"question":"ما الأشكال الهندسية الأساسية؟"},
+            {"id":32,"question":"ما شكل المكعب وما خصائصه؟"},
+            {"id":33,"question":"علمني أساسيات الفيزياء."},
+            {"id":34,"question":"دربني على الفيزياء بسؤال وتمرين."}
           ]
           JSON
           python - <<'PY'
           import json, random, re
           from pathlib import Path
-          qpath = Path('.training-tmp/general-30-questions.json')
+          qpath = Path('.training-tmp/general-questions.json')
           questions = json.loads(qpath.read_text(encoding='utf-8'))
-          questions.extend([
-            {"id":31,"question":"ما الأشكال الهندسية الأساسية؟"},
-            {"id":32,"question":"ما شكل المكعب وما خصائصه؟"},
-            {"id":33,"question":"علمني أساسيات الفيزياء."},
-            {"id":34,"question":"دربني على الفيزياء بسؤال وتمرين."}
-          ])
-          text = Path('.training-tmp/new-corpus.txt').read_text(encoding='utf-8-sig')
-          # Randomly select five text excerpts from the new source and turn them into grounded reading probes.
-          chunks = [s.strip() for s in re.split(r'(?<=[.!؟?])\\s+|\\n+', text) if len(s.strip()) >= 45]
-          if len(chunks) < 5:
-              chunks = [text[i:i+240].strip() for i in range(0, len(text), max(1, len(text)//10)) if len(text[i:i+240].strip()) >= 45]
-          if len(chunks) < 5:
-              raise SystemExit('Could not extract five sufficiently long random excerpts from the new corpus.')
-          random.Random(20261123).shuffle(chunks)
-          for i, excerpt in enumerate(chunks[:5], start=35):
-              excerpt = re.sub(r'\\s+', ' ', excerpt)[:240]
-              questions.append({"id":i,"question":"ما الفكرة أو المعلومة الواردة في هذا المقطع؟ " + excerpt})
-          qpath.write_text(json.dumps(questions, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')
+          source = Path('.training-tmp/new-corpus.txt').read_text(encoding='utf-8-sig')
+          # Randomly sample sentence-like excerpts from the new source as additional corpus-grounded probes.
+          excerpts = [s.strip() for s in re.split(r'(?<=[.!؟?])\s+|\n+', source) if len(s.strip()) >= 45]
+          if len(excerpts) < 5:
+              excerpts = [source[i:i+240].strip() for i in range(0, len(source), max(1, len(source)//10)) if len(source[i:i+240].strip()) >= 45]
+          if len(excerpts) < 5:
+              raise SystemExit('Could not select five usable excerpts from the new corpus.')
+          random.Random(20261123).shuffle(excerpts)
+          for qid, excerpt in enumerate(excerpts[:5], start=35):
+              excerpt = re.sub(r'\s+', ' ', excerpt)[:240]
+              questions.append({"id": qid, "question": "ما الفكرة أو المعلومة الواردة في هذا المقطع؟ " + excerpt})
+          qpath.write_text(json.dumps(questions, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           assert len(questions) == 39 and len({q['id'] for q in questions}) == 39
-          print('Created 39 evaluation prompts: 30 existing, 4 geometry/physics prompts, and 5 random excerpt-based prompts.')
+          print('Prepared 39 probes: 30 existing, 4 geometry/physics, and 5 randomized excerpt probes.')
           PY
-          assert len(questions) == 30 and len({q['id'] for q in questions}) == 30
-          print('Validated exactly 30 distinct general evaluation questions.')
-          PY
-
       - name: Set up Java for the Kotlin engine
         uses: actions/setup-java@v4
         with:
