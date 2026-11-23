@@ -276,17 +276,17 @@ jobs:
       - name: Evaluate model on 30 general questions
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics.json --minimum-questions 39 --report $GITHUB_WORKSPACE/general-30-report.json"
-          test -s "$GITHUB_WORKSPACE/general-30-report.json"
-          echo "30-question evaluation results:"
-          cat "$GITHUB_WORKSPACE/general-30-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics.json --minimum-questions 39 --report $GITHUB_WORKSPACE/general-39-report.json"
+          test -s "$GITHUB_WORKSPACE/general-39-report.json"
+          echo "39-question evaluation results:"
+          cat "$GITHUB_WORKSPACE/general-39-report.json"
 
       - name: Commit verified weights and reports to repository root
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json general-30-report.json
+          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json general-39-report.json
           if ! git diff --cached --quiet; then
             git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
             git push origin HEAD:main
