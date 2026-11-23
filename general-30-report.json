@@ -1,0 +1,271 @@
+{
+  "retrieval_margin": 0.08,
+  "generation_engine": "retrieval_then_Nlm.stepChar",
+  "retrieval_hits": 10,
+  "metric": "conservative_qa_retrieval_plus_character_model_fallback",
+  "count": 30,
+  "semantic_accuracy_evaluated": false,
+  "retrieval_threshold": 0.62,
+  "results": [
+    {
+      "answer_characters": 41,
+      "matched_training_question": "ما عاصمة المملكة العربية السعودية؟",
+      "retrieval_score": 1,
+      "question": "ما عاصمة المملكة العربية السعودية؟",
+      "character_model_bpc": 3.311281,
+      "generated_answer": "عاصمة المملكة العربية السعودية هي الرياض.",
+      "retrieval_used": true,
+      "id": 1
+    },
+    {
+      "answer_characters": 27,
+      "matched_training_question": "كم عدد أيام الأسبوع؟",
+      "retrieval_score": 1,
+      "question": "كم عدد أيام الأسبوع؟",
+      "character_model_bpc": 6.716599,
+      "generated_answer": "عدد أيام الأسبوع سبعة أيام.",
+      "retrieval_used": true,
+      "id": 2
+    },
+    {
+      "answer_characters": 20,
+      "matched_training_question": "ما الكوكب الذي نعيش عليه؟",
+      "retrieval_score": 1,
+      "question": "ما الكوكب الذي نعيش عليه؟",
+      "character_model_bpc": 5.3855596,
+      "generated_answer": "نعيش على كوكب الأرض.",
+      "retrieval_used": true,
+      "id": 3
+    },
+    {
+      "answer_characters": 55,
+      "question": "ما مصدر الضوء والحرارة الرئيسي للأرض؟",
+      "character_model_bpc": 4.538653,
+      "generated_answer": "تمكن الرحم والسعة يتاحد على التعبيل من وحدم من العاطمي.",
+      "retrieval_used": false,
+      "id": 4
+    },
+    {
+      "answer_characters": 43,
+      "matched_training_question": "ما الغاز الذي يحتاجه الإنسان للتنفس؟",
+      "retrieval_score": 1,
+      "question": "ما الغاز الذي يحتاجه الإنسان للتنفس؟",
+      "character_model_bpc": 5.163877,
+      "generated_answer": "يحتاج الإنسان إلى الأكسجين في عملية التنفس.",
+      "retrieval_used": true,
+      "id": 5
+    },
+    {
+      "answer_characters": 26,
+      "question": "ما وظيفة القلب في جسم الإنسان؟",
+      "character_model_bpc": 5.400855,
+      "generated_answer": "الأحل بهل، ومتحاره الخيبة.",
+      "retrieval_used": false,
+      "id": 6
+    },
+    {
+      "answer_characters": 32,
+      "question": "ما المقصود بالماء؟",
+      "character_model_bpc": 5.988109,
+      "generated_answer": "يساعد التي يمكن ظما ينتزام الله.",
+      "retrieval_used": false,
+      "id": 7
+    },
+    {
+      "answer_characters": 26,
+      "question": "لماذا تتبخر المياه عند تسخينها؟",
+      "character_model_bpc": 6.868132,
+      "generated_answer": "تقدم النفس وعلواة السنوار.",
+      "retrieval_used": false,
+      "id": 8
+    },
+    {
+      "answer_characters": 27,
+      "matched_training_question": "ما الحيوان المعروف بسفينة الصحراء؟",
+      "retrieval_score": 1,
+      "question": "ما الحيوان المعروف بسفينة الصحراء؟",
+      "character_model_bpc": 4.629153,
+      "generated_answer": "الجمل يُعرف بسفينة الصحراء.",
+      "retrieval_used": true,
+      "id": 9
+    },
+    {
+      "answer_characters": 43,
+      "question": "ما فائدة جذور النباتات؟",
+      "character_model_bpc": 6.442593,
+      "generated_answer": "عاصمة نصلة اليستمعيية الجسم والسعة العاريم.",
+      "retrieval_used": false,
+      "id": 10
+    },
+    {
+      "answer_characters": 93,
+      "matched_training_question": "ما المقصود بالبناء الضوئي؟",
+      "retrieval_score": 1,
+      "question": "ما المقصود بالبناء الضوئي؟",
+      "character_model_bpc": 5.0565,
+      "generated_answer": "البناء الضوئي عملية تستخدم فيها النباتات الضوء لصنع مواد غذائية من الماء وثاني أكسيد الكربون.",
+      "retrieval_used": true,
+      "id": 11
+    },
+    {
+      "answer_characters": 59,
+      "question": "ما أكبر محيط على سطح الأرض؟",
+      "character_model_bpc": 4.786647,
+      "generated_answer": "أنا مرتوعًا من اسبر العوتراعيك من سطحين من سؤالًا وستحاربي.",
+      "retrieval_used": false,
+      "id": 12
+    },
+    {
+      "answer_characters": 64,
+      "question": "ما اللغة الرسمية في المملكة العربية السعودية؟",
+      "character_model_bpc": 2.9489954,
+      "generated_answer": "المجلمنة ساعة الرتابة ينتجها والأجسارين والواحدتات في عملة أناء.",
+      "retrieval_used": false,
+      "id": 13
+    },
+    {
+      "answer_characters": 77,
+      "question": "ما العملة المستخدمة في السعودية؟",
+      "character_model_bpc": 4.396589,
+      "generated_answer": "العالة جمسة ها ترمل المعلومات وتحفين أن العلبًات فيها المعلومة وتنفه بالكتاب.",
+      "retrieval_used": false,
+      "id": 14
+    },
+    {
+      "answer_characters": 47,
+      "matched_training_question": "ما معنى التعاون؟",
+      "retrieval_score": 1,
+      "question": "ما معنى التعاون؟",
+      "character_model_bpc": 7.9289436,
+      "generated_answer": "التعاون هو أن يعمل الناس معًا لتحقيق هدف مشترك.",
+      "retrieval_used": true,
+      "id": 15
+    },
+    {
+      "answer_characters": 36,
+      "question": "كيف يساعد تنظيم الوقت على إنجاز المهام؟",
+      "character_model_bpc": 4.335674,
+      "generated_answer": "التحقق من الممع بساسين أتبعي يتاديك.",
+      "retrieval_used": false,
+      "id": 16
+    },
+    {
+      "answer_characters": 35,
+      "question": "ما المقصود بالتعلم؟",
+      "character_model_bpc": 6.247129,
+      "generated_answer": "اعترد النور المسبعة تنفيع من الأرض.",
+      "retrieval_used": false,
+      "id": 17
+    },
+    {
+      "answer_characters": 64,
+      "matched_training_question": "ما الفرق بين البيانات والمعلومات؟",
+      "retrieval_score": 1,
+      "question": "ما الفرق بين البيانات والمعلومات؟",
+      "character_model_bpc": 4.303869,
+      "generated_answer": "البيانات حقائق خام، والمعلومات بيانات عولجت أو نظمت لتصبح مفيدة.",
+      "retrieval_used": true,
+      "id": 18
+    },
+    {
+      "answer_characters": 48,
+      "question": "ما وظيفة نظام التشغيل في الحاسوب؟",
+      "character_model_bpc": 5.3522677,
+      "generated_answer": "التربع علية اليحيل منظمة العربية تتكون من وحتها.",
+      "retrieval_used": false,
+      "id": 19
+    },
+    {
+      "answer_characters": 30,
+      "question": "ما المقصود بالإنترنت؟",
+      "character_model_bpc": 5.873493,
+      "generated_answer": "اليوت تماعك ينتج معلومات الله.",
+      "retrieval_used": false,
+      "id": 20
+    },
+    {
+      "answer_characters": 40,
+      "question": "ما هي الخوارزمية؟",
+      "character_model_bpc": 6.130696,
+      "generated_answer": "البراجة جدرة وقتين من أجاطة على تعبينها.",
+      "retrieval_used": false,
+      "id": 21
+    },
+    {
+      "answer_characters": 39,
+      "question": "ما فائدة الاختبارات في البرمجة؟",
+      "character_model_bpc": 4.8228636,
+      "generated_answer": "العرافة قمل تمني يتكروق في نمايي يتبها.",
+      "retrieval_used": false,
+      "id": 22
+    },
+    {
+      "answer_characters": 79,
+      "matched_training_question": "ما معنى المصدر المفتوح؟",
+      "retrieval_score": 0.7395161,
+      "question": "ما معنى المصدر المفتوح في البرمجيات؟",
+      "character_model_bpc": 5.060914,
+      "generated_answer": "المصدر المفتوح يتيح الاطلاع على الشيفرة واستخدامها أو تعديلها وفق شروط الترخيص.",
+      "retrieval_used": true,
+      "id": 23
+    },
+    {
+      "answer_characters": 71,
+      "question": "كيف نحافظ على نظافة البيئة؟",
+      "character_model_bpc": 6.0905333,
+      "generated_answer": "المشيعة ينتسل الأفكار والأستحوع على تعديل الأفكاءً أنظام إلى الجص بنظا.",
+      "retrieval_used": false,
+      "id": 24
+    },
+    {
+      "answer_characters": 27,
+      "question": "لماذا يجب الالتزام بإشارات المرور؟",
+      "character_model_bpc": 5.9204655,
+      "generated_answer": "الستكون مر المعلومات الجسم.",
+      "retrieval_used": false,
+      "id": 25
+    },
+    {
+      "answer_characters": 58,
+      "question": "ما فائدة ممارسة الرياضة بانتظام؟",
+      "character_model_bpc": 5.025476,
+      "generated_answer": "التحول استخدام عبر وقون تقور عنيها للتكبن عندًا من البيرة.",
+      "retrieval_used": false,
+      "id": 26
+    },
+    {
+      "answer_characters": 42,
+      "question": "كيف نتحقق من صحة خبر على الإنترنت؟",
+      "character_model_bpc": 4.524983,
+      "generated_answer": "تستوح الأجام لإنسال معلومة، أتح في اللمعة.",
+      "retrieval_used": false,
+      "id": 27
+    },
+    {
+      "answer_characters": 44,
+      "matched_training_question": "ما معنى الاحترام؟",
+      "retrieval_score": 0.6652174,
+      "question": "ما معنى احترام الآخرين؟",
+      "character_model_bpc": 5.6718497,
+      "generated_answer": "الاحترام هو تقدير الآخرين وحسن التعامل معهم.",
+      "retrieval_used": true,
+      "id": 28
+    },
+    {
+      "answer_characters": 54,
+      "question": "ما المقصود بالهدف؟",
+      "character_model_bpc": 6.531427,
+      "generated_answer": "المحدوه يُك عبد أفور عله الحداق، واكتب الجسم والشرمات.",
+      "retrieval_used": false,
+      "id": 29
+    },
+    {
+      "answer_characters": 36,
+      "question": "كيف يمكن تعلم مهارة جديدة بشكل تدريجي؟",
+      "character_model_bpc": 4.7825694,
+      "generated_answer": "لا سي يركط هي مشبعة تنتجع له بقريرة.",
+      "retrieval_used": false,
+      "id": 30
+    }
+  ]
+}\n

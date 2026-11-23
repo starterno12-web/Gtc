@@ -8,34 +8,34 @@
   "retrieval_threshold": 0.62,
   "results": [
     {
-      "answer_characters": 40,
+      "answer_characters": 26,
       "question": "يا هلا، كيف أقدر أستفيد منك؟",
-      "character_model_bpc": 5.233406,
-      "generated_answer": "أشتبك أو شجحًا مع مصلور يساقي عددًا عمس.",
+      "character_model_bpc": 5.7541375,
+      "generated_answer": "نصف العلس، أما أخدان الله.",
       "retrieval_used": false,
       "id": 1
     },
     {
-      "answer_characters": 23,
+      "answer_characters": 22,
       "question": "لو سمحت عرفني بنفسك.",
-      "character_model_bpc": 8.721102,
-      "generated_answer": "الأملام هد بقول: فيلها.",
+      "character_model_bpc": 7.283599,
+      "generated_answer": "عادم أو يرتب في سمايك.",
       "retrieval_used": false,
       "id": 2
     },
     {
-      "answer_characters": 45,
+      "answer_characters": 18,
       "question": "أبغى أتعلم، من وين أبدأ؟",
-      "character_model_bpc": 7.1110816,
-      "generated_answer": "نقر البماء تستطيع معلومات وفيتاتيم واستخدامه.",
+      "character_model_bpc": 7.26869,
+      "generated_answer": "السؤب كلمة أشرانه؟",
       "retrieval_used": false,
       "id": 3
     },
     {
-      "answer_characters": 43,
+      "answer_characters": 69,
       "question": "وش أسوي إذا تشتت وأنا أذاكر؟",
-      "character_model_bpc": 7.2186546,
-      "generated_answer": "يمكنك الصغير ستوتي تنظم الترسيب الاستخدمها.",
+      "character_model_bpc": 7.5377107,
+      "generated_answer": "نصف الكتمر، وعدو استبارات ومراعدة السعويية، والسنبة ومعتورة الموليًا.",
       "retrieval_used": false,
       "id": 4
     },
@@ -44,16 +44,16 @@
       "matched_training_question": "ما معنى الوفاء؟",
       "retrieval_score": 0.95,
       "question": "اشرح لي معنى الوفاء.",
-      "character_model_bpc": 6.842761,
+      "character_model_bpc": 5.8289948,
       "generated_answer": "الوفاء هو الالتزام بالوعود وحفظ العهد.",
       "retrieval_used": true,
       "id": 5
     },
     {
-      "answer_characters": 46,
+      "answer_characters": 25,
       "question": "ما المقصود بالتفكير؟",
-      "character_model_bpc": 6.115607,
-      "generated_answer": "الحقل يهان يسعلم وتحقم والوعة عناصر في التمنك.",
+      "character_model_bpc": 6.0959063,
+      "generated_answer": "الكور تمونظ يحير التعنيم.",
       "retrieval_used": false,
       "id": 6
     },
@@ -62,32 +62,32 @@
       "matched_training_question": "كم عدد أيام الأسبوع؟",
       "retrieval_score": 0.9290322,
       "question": "كم يومًا يتكون الأسبوع؟",
-      "character_model_bpc": 5.239138,
+      "character_model_bpc": 6.3918777,
       "generated_answer": "عدد أيام الأسبوع سبعة أيام.",
       "retrieval_used": true,
       "id": 7
     },
     {
-      "answer_characters": 99,
+      "answer_characters": 33,
       "question": "ما اسم عاصمة السعودية؟",
-      "character_model_bpc": 4.646219,
-      "generated_answer": "توضح النوس الحرواره، واختبر الإخدمات في الطرب عن تي يمكنا بالطليم وتحتوج الأسيخ. أنا؟ وقت الحمد لله",
+      "character_model_bpc": 5.3620024,
+      "generated_answer": "المدينة هو اجرم عن الطرب والستجه.",
       "retrieval_used": false,
       "id": 8
     },
     {
-      "answer_characters": 33,
+      "answer_characters": 40,
       "question": "هل الإنترنت شبكة محلية أم عالمية؟",
-      "character_model_bpc": 4.4133773,
-      "generated_answer": "ناست عشرة هي أقسلة الجود بالسؤال.",
+      "character_model_bpc": 5.0669255,
+      "generated_answer": "الجملية استمسبة واحدر بارظة قولة موادهة.",
       "retrieval_used": false,
       "id": 9
     },
     {
-      "answer_characters": 46,
+      "answer_characters": 96,
       "question": "كيف أتحقق من صحة خبر قرأته؟",
-      "character_model_bpc": 6.1861944,
-      "generated_answer": "أنا بحقف باضت أواقًا لك يومًا على أنسان الجسم.",
+      "character_model_bpc": 5.888264,
+      "generated_answer": "يساسك مرتكنه بأضا لشكارًا لكتكبًا بكتساع. أن يساعدتك، ولا نشم بساعًا. أنا نمع الترقل علمكة أواص.",
       "retrieval_used": false,
       "id": 10
     },
@@ -96,48 +96,48 @@
       "matched_training_question": "ما فائدة المشي؟",
       "retrieval_score": 0.6666667,
       "question": "ما فائدة ممارسة المشي؟",
-      "character_model_bpc": 5.987752,
+      "character_model_bpc": 6.3921976,
       "generated_answer": "المشي نشاط بدني يساعد على تحسين اللياقة وصحة القلب.",
       "retrieval_used": true,
       "id": 11
     },
     {
-      "answer_characters": 22,
+      "answer_characters": 44,
       "question": "ما المقصود بالبرمجة؟",
-      "character_model_bpc": 6.1196995,
-      "generated_answer": "السنوع من أربات بنسسة.",
+      "character_model_bpc": 6.2193303,
+      "generated_answer": "الكريات البيئة تدوية الجهزة قترات مبين وقاء.",
       "retrieval_used": false,
       "id": 12
     },
     {
-      "answer_characters": 44,
+      "answer_characters": 82,
       "question": "هل أنت شخص حقيقي؟",
-      "character_model_bpc": 6.472056,
-      "generated_answer": "يستخطم الهدف الأو تعنيي مههان أو حلا، أكرًا.",
+      "character_model_bpc": 6.0848956,
+      "generated_answer": "استرجكب هي مدلة عالمة تسبعنها الحفول والسعودي ومعانورة والسعودية السعودية التخمين.",
       "retrieval_used": false,
       "id": 13
     },
     {
-      "answer_characters": 28,
+      "answer_characters": 42,
       "question": "هل تعرف جميع الإجابات؟",
-      "character_model_bpc": 5.886259,
-      "generated_answer": "عاصمة دول:ة أماتها أو تخطين.",
+      "character_model_bpc": 6.4973836,
+      "generated_answer": "عاصمة المطرر بينها والتحقق والتطرر باسيئة.",
       "retrieval_used": false,
       "id": 14
     },
     {
-      "answer_characters": 86,
+      "answer_characters": 29,
       "question": "أريد تلخيص مقال، هل تساعدني؟",
-      "character_model_bpc": 6.3707986,
-      "generated_answer": "نعم، أربع، أنا مساقد كلمة أسيلًا. وأختر عدم تنظم، أراج خطوات متتوبعة، والتحدين المعلف.",
+      "character_model_bpc": 6.5032144,
+      "generated_answer": "السعة تقلم، واكتب فرر معتبكة.",
       "retrieval_used": false,
       "id": 15
     },
     {
-      "answer_characters": 75,
+      "answer_characters": 63,
       "question": "كيف أرتب مهامي اليومية؟",
-      "character_model_bpc": 6.4273143,
-      "generated_answer": "يابعة المربع وقت حقدًا لتحقو السطوي على اكتخار ابنوات المعلومات وقلاث معنة.",
+      "character_model_bpc": 6.4706435,
+      "generated_answer": "السؤال إبراء وقائق المعردة في الأولية وتحدير الأجسال والمعاترة.",
       "retrieval_used": false,
       "id": 16
     },
@@ -146,32 +146,32 @@
       "matched_training_question": "ما الفرق بين التعلم والتعليم؟",
       "retrieval_score": 1,
       "question": "ما الفرق بين التعلم والتعليم؟",
-      "character_model_bpc": 4.7522426,
+      "character_model_bpc": 4.721571,
       "generated_answer": "التعلم اكتساب المعرفة والمهارة، والتعليم عملية مساعدة الآخرين على التعلم.",
       "retrieval_used": true,
       "id": 17
     },
     {
-      "answer_characters": 12,
+      "answer_characters": 52,
       "question": "ما الرد المناسب لعبارة شكرًا لك؟",
-      "character_model_bpc": 5.2866483,
-      "generated_answer": "مكتك هو كتب.",
+      "character_model_bpc": 5.3549213,
+      "generated_answer": "نسفك برد الأخراء إلى تضل معدومة، واكتب بردمات قصوقة.",
       "retrieval_used": false,
       "id": 18
     },
     {
-      "answer_characters": 52,
+      "answer_characters": 33,
       "question": "اكتب عبارة قصيرة تشجع على الاجتهاد.",
-      "character_model_bpc": 4.788654,
-      "generated_answer": "تساعد النصوف اللحرة يعاحي الأوضاء واستخدمه العالبية.",
+      "character_model_bpc": 4.8465858,
+      "generated_answer": "المجموكة البرض نبيج أماح الأنسبة.",
       "retrieval_used": false,
       "id": 19
     },
     {
-      "answer_characters": 33,
+      "answer_characters": 31,
       "question": "إلى أن نلتقي، ماذا أقول؟",
-      "character_model_bpc": 7.2380233,
-      "generated_answer": "نعت، أكاج من ستين أولق، وانتخدّل.",
+      "character_model_bpc": 6.771766,
+      "generated_answer": "نصو، شكرًا لستكل بشكلًا وختساب.",
       "retrieval_used": false,
       "id": 20
     }
