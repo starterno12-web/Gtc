@@ -1,783 +1,685 @@
 {
   "retrieval_margin": 0.08,
   "generation_engine": "retrieval_then_Nlm.stepChar",
-  "retrieval_hits": 50,
+  "retrieval_hits": 0,
   "metric": "conservative_qa_retrieval_plus_character_model_fallback",
   "count": 84,
+  "answer_source": "Nlm GRU only; retrieval disabled",
   "semantic_accuracy_evaluated": false,
+  "neural_only": true,
   "retrieval_threshold": 0.62,
   "results": [
     {
-      "answer_characters": 41,
-      "matched_training_question": "ما عاصمة المملكة العربية السعودية؟",
-      "retrieval_score": 1,
-      "question": "ما عاصمة المملكة العربية السعودية؟",
-      "character_model_bpc": 4.0456333,
-      "generated_answer": "عاصمة المملكة العربية السعودية هي الرياض.",
-      "retrieval_used": true,
-      "id": 1
-    },
-    {
-      "answer_characters": 27,
-      "matched_training_question": "كم عدد أيام الأسبوع؟",
-      "retrieval_score": 1,
-      "question": "كم عدد أيام الأسبوع؟",
-      "character_model_bpc": 5.146067,
-      "generated_answer": "عدد أيام الأسبوع سبعة أيام.",
-      "retrieval_used": true,
-      "id": 2
-    },
-    {
-      "answer_characters": 20,
-      "matched_training_question": "ما الكوكب الذي نعيش عليه؟",
-      "retrieval_score": 1,
-      "question": "ما الكوكب الذي نعيش عليه؟",
-      "character_model_bpc": 5.2697697,
-      "generated_answer": "نعيش على كوكب الأرض.",
-      "retrieval_used": true,
-      "id": 3
-    },
-    {
-      "answer_characters": 8,
+      "answer_characters": 22,
       "question": "ما مصدر الضوء والحرارة الرئيسي للأرض؟",
-      "character_model_bpc": 4.6901846,
-      "generated_answer": "الموروة.",
+      "character_model_bpc": 4.775373,
+      "generated_answer": "المعدة البومية ونالام.",
       "retrieval_used": false,
       "id": 4
     },
     {
-      "answer_characters": 43,
-      "matched_training_question": "ما الغاز الذي يحتاجه الإنسان للتنفس؟",
-      "retrieval_score": 1,
-      "question": "ما الغاز الذي يحتاجه الإنسان للتنفس؟",
-      "character_model_bpc": 4.890828,
-      "generated_answer": "يحتاج الإنسان إلى الأكسجين في عملية التنفس.",
-      "retrieval_used": true,
-      "id": 5
-    },
-    {
-      "answer_characters": 100,
+      "answer_characters": 27,
       "question": "ما وظيفة القلب في جسم الإنسان؟",
-      "character_model_bpc": 4.9172263,
-      "generated_answer": "العود وعندة تحال من ما أستيرة. أول الموان الحراميت والمعرمة المناري من أسمة تحم بورير منالية والعداء",
+      "character_model_bpc": 4.970963,
+      "generated_answer": "التولي البرو عناتة ألاتيرة.",
       "retrieval_used": false,
       "id": 6
     },
     {
-      "answer_characters": 71,
+      "answer_characters": 26,
       "question": "ما المقصود بالماء؟",
-      "character_model_bpc": 5.2765,
-      "generated_answer": "المعلة أسدر الترير والمعداء التعلمة، ومائبة المودير موامدة تولية أنامة.",
+      "character_model_bpc": 5.3143563,
+      "generated_answer": "المود علىة التودري المعدم.",
       "retrieval_used": false,
       "id": 7
     },
     {
-      "answer_characters": 22,
+      "answer_characters": 9,
       "question": "لماذا تتبخر المياه عند تسخينها؟",
-      "character_model_bpc": 5.0239797,
-      "generated_answer": "المواري المعرمة تسولة.",
+      "character_model_bpc": 5.009047,
+      "generated_answer": "الموريمة.",
       "retrieval_used": false,
       "id": 8
     },
     {
-      "answer_characters": 27,
-      "matched_training_question": "ما الحيوان المعروف بسفينة الصحراء؟",
-      "retrieval_score": 1,
-      "question": "ما الحيوان المعروف بسفينة الصحراء؟",
-      "character_model_bpc": 4.341349,
-      "generated_answer": "الجمل يُعرف بسفينة الصحراء.",
-      "retrieval_used": true,
-      "id": 9
-    },
-    {
-      "answer_characters": 20,
+      "answer_characters": 15,
       "question": "ما فائدة جذور النباتات؟",
-      "character_model_bpc": 5.084526,
-      "generated_answer": "المناتدة أو مستيانا.",
+      "character_model_bpc": 5.0854077,
+      "generated_answer": "التمارة. بكسار.",
       "retrieval_used": false,
       "id": 10
     },
     {
-      "answer_characters": 93,
-      "matched_training_question": "ما المقصود بالبناء الضوئي؟",
-      "retrieval_score": 1,
-      "question": "ما المقصود بالبناء الضوئي؟",
-      "character_model_bpc": 4.9336004,
-      "generated_answer": "البناء الضوئي عملية تستخدم فيها النباتات الضوء لصنع مواد غذائية من الماء وثاني أكسيد الكربون.",
-      "retrieval_used": true,
-      "id": 11
-    },
-    {
-      "answer_characters": 14,
+      "answer_characters": 81,
       "question": "ما أكبر محيط على سطح الأرض؟",
-      "character_model_bpc": 4.893319,
-      "generated_answer": "مانم أن معدية.",
+      "character_model_bpc": 4.9792404,
+      "generated_answer": "العرل معدي البرو والمارت بني بيل واعبول ونارتة الحالة ومعد العارة منات بولاتينان.",
       "retrieval_used": false,
       "id": 12
     },
     {
-      "answer_characters": 37,
+      "answer_characters": 42,
       "question": "ما اللغة الرسمية في المملكة العربية السعودية؟",
-      "character_model_bpc": 3.869428,
-      "generated_answer": "المودواء أي تولية من التسام والمرباء.",
+      "character_model_bpc": 4.013195,
+      "generated_answer": "التواب تلوري المنارة والتريل بنيلة تمارام.",
       "retrieval_used": false,
       "id": 13
     },
     {
-      "answer_characters": 19,
+      "answer_characters": 22,
       "question": "ما العملة المستخدمة في السعودية؟",
-      "character_model_bpc": 4.3097253,
-      "generated_answer": "المنتوات علا بينيم.",
+      "character_model_bpc": 4.450997,
+      "generated_answer": "المرالة استودي العموة.",
       "retrieval_used": false,
       "id": 14
     },
     {
-      "answer_characters": 47,
-      "matched_training_question": "ما معنى التعاون؟",
-      "retrieval_score": 1,
-      "question": "ما معنى التعاون؟",
-      "character_model_bpc": 5.6321926,
-      "generated_answer": "التعاون هو أن يعمل الناس معًا لتحقيق هدف مشترك.",
-      "retrieval_used": true,
-      "id": 15
-    },
-    {
       "answer_characters": 20,
       "question": "كيف يساعد تنظيم الوقت على إنجاز المهام؟",
-      "character_model_bpc": 4.308212,
-      "generated_answer": "التماري من المسروعة.",
+      "character_model_bpc": 4.3300347,
+      "generated_answer": "العاصت منريم، ونالت.",
       "retrieval_used": false,
       "id": 16
     },
     {
       "answer_characters": 8,
       "question": "ما المقصود بالتعلم؟",
-      "character_model_bpc": 5.1800456,
-      "generated_answer": "انتوريم.",
+      "character_model_bpc": 5.221456,
+      "generated_answer": "المعال..",
       "retrieval_used": false,
       "id": 17
     },
     {
-      "answer_characters": 64,
-      "matched_training_question": "ما الفرق بين البيانات والمعلومات؟",
-      "retrieval_score": 1,
-      "question": "ما الفرق بين البيانات والمعلومات؟",
-      "character_model_bpc": 4.1420307,
-      "generated_answer": "البيانات حقائق خام، والمعلومات بيانات عولجت أو نظمت لتصبح مفيدة.",
-      "retrieval_used": true,
-      "id": 18
-    },
-    {
-      "answer_characters": 17,
+      "answer_characters": 43,
       "question": "ما وظيفة نظام التشغيل في الحاسوب؟",
-      "character_model_bpc": 4.8218365,
-      "generated_answer": "المنتورية ومنامر.",
+      "character_model_bpc": 4.8721423,
+      "generated_answer": "الأرومة ونارية، والمورام وارأي بنم المحيمة.",
       "retrieval_used": false,
       "id": 19
     },
     {
-      "answer_characters": 13,
+      "answer_characters": 19,
       "question": "ما المقصود بالإنترنت؟",
-      "character_model_bpc": 5.4971085,
-      "generated_answer": "العوري مساند.",
+      "character_model_bpc": 5.455748,
+      "generated_answer": "التوراء وتوليماتهة.",
       "retrieval_used": false,
       "id": 20
     },
     {
-      "answer_characters": 42,
+      "answer_characters": 40,
       "question": "ما هي الخوارزمية؟",
-      "character_model_bpc": 5.725231,
-      "generated_answer": "التوان وعل التعري موارتة أو تنمي ملى أملة.",
+      "character_model_bpc": 5.791188,
+      "generated_answer": "الموم الأنية المعدية ونور تعالة امتودية.",
       "retrieval_used": false,
       "id": 21
     },
     {
-      "answer_characters": 25,
+      "answer_characters": 12,
       "question": "ما فائدة الاختبارات في البرمجة؟",
-      "character_model_bpc": 4.369004,
-      "generated_answer": "الأودية من مسالي التريوة.",
+      "character_model_bpc": 4.4194956,
+      "generated_answer": "التحول منير.",
       "retrieval_used": false,
       "id": 22
     },
     {
-      "answer_characters": 79,
-      "matched_training_question": "ما معنى المصدر المفتوح؟",
-      "retrieval_score": 0.7395161,
+      "answer_characters": 19,
       "question": "ما معنى المصدر المفتوح في البرمجيات؟",
-      "character_model_bpc": 4.2980895,
-      "generated_answer": "المصدر المفتوح يتيح الاطلاع على الشيفرة واستخدامها أو تعديلها وفق شروط الترخيص.",
-      "retrieval_used": true,
+      "character_model_bpc": 4.3953834,
+      "generated_answer": "المارة. أها بولومة.",
+      "retrieval_used": false,
       "id": 23
     },
     {
-      "answer_characters": 41,
+      "answer_characters": 21,
       "question": "كيف نحافظ على نظافة البيئة؟",
-      "character_model_bpc": 4.942761,
-      "generated_answer": "المنامي انتبر موتريا ولاءة، ومارت منرينة.",
+      "character_model_bpc": 5.0855446,
+      "generated_answer": "الأوار بيل المند عور.",
       "retrieval_used": false,
       "id": 24
     },
     {
-      "answer_characters": 14,
+      "answer_characters": 44,
       "question": "لماذا يجب الالتزام بإشارات المرور؟",
-      "character_model_bpc": 4.9246635,
-      "generated_answer": "الأسري واصمولة",
+      "character_model_bpc": 4.9081254,
+      "generated_answer": "انتراء.» ومركد ونائتة مومن والمرامة واعتبال.",
       "retrieval_used": false,
       "id": 25
     },
     {
-      "answer_characters": 32,
+      "answer_characters": 37,
       "question": "ما فائدة ممارسة الرياضة بانتظام؟",
-      "character_model_bpc": 4.620086,
-      "generated_answer": "المولي ووالتة الأرمية أن العالة.",
+      "character_model_bpc": 4.675788,
+      "generated_answer": "التحروار العملة ونترة أن مانمة أواتر.",
       "retrieval_used": false,
       "id": 26
     },
     {
-      "answer_characters": 44,
+      "answer_characters": 56,
       "question": "كيف نتحقق من صحة خبر على الإنترنت؟",
-      "character_model_bpc": 4.7362356,
-      "generated_answer": "التسرر من المعرواء وترال مع باسم وولى أناتة.",
+      "character_model_bpc": 4.76019,
+      "generated_answer": "المعري بوالد واعبيل المحار والأورة وتريرة بالتراتة وعدم.",
       "retrieval_used": false,
       "id": 27
     },
     {
-      "answer_characters": 44,
-      "matched_training_question": "ما معنى الاحترام؟",
-      "retrieval_score": 0.6652174,
+      "answer_characters": 21,
       "question": "ما معنى احترام الآخرين؟",
-      "character_model_bpc": 5.192191,
-      "generated_answer": "الاحترام هو تقدير الآخرين وحسن التعامل معهم.",
-      "retrieval_used": true,
+      "character_model_bpc": 5.3284745,
+      "generated_answer": "الحاساء تنمان الأورة.",
+      "retrieval_used": false,
       "id": 28
     },
     {
-      "answer_characters": 34,
+      "answer_characters": 29,
       "question": "ما المقصود بالهدف؟",
-      "character_model_bpc": 5.5628037,
-      "generated_answer": "المناتية أك المرتب من أم التوامرة.",
+      "character_model_bpc": 5.5662894,
+      "generated_answer": "التوال معلة الأحري والتمروات.",
       "retrieval_used": false,
       "id": 29
     },
     {
-      "answer_characters": 13,
+      "answer_characters": 68,
       "question": "كيف يمكن تعلم مهارة جديدة بشكل تدريجي؟",
-      "character_model_bpc": 4.5032177,
-      "generated_answer": "ملانار منروم.",
+      "character_model_bpc": 4.643721,
+      "generated_answer": "الأرول مالمة التعام ونم بيل العدلة أن مو الحمر تنانة اعتوات الأمورة.",
       "retrieval_used": false,
       "id": 30
     },
     {
-      "answer_characters": 22,
+      "answer_characters": 11,
       "question": "ما الأشكال الهندسية الأساسية؟",
-      "character_model_bpc": 4.788693,
-      "generated_answer": "العالمة ولنان التحروة.",
+      "character_model_bpc": 4.837354,
+      "generated_answer": "المحر عومة.",
       "retrieval_used": false,
       "id": 31
     },
     {
-      "answer_characters": 23,
+      "answer_characters": 20,
       "question": "ما شكل المكعب وما خصائصه؟",
-      "character_model_bpc": 5.288207,
-      "generated_answer": "الساستة تساند المرالية.",
+      "character_model_bpc": 5.3870654,
+      "generated_answer": "المارت. أتندي منراء.",
       "retrieval_used": false,
       "id": 32
     },
     {
       "answer_characters": 14,
       "question": "علمني أساسيات الفيزياء.",
-      "character_model_bpc": 4.8740416,
-      "generated_answer": "من أسام وعلوة.",
+      "character_model_bpc": 4.862845,
+      "generated_answer": "مانمات وارمولة",
       "retrieval_used": false,
       "id": 33
     },
     {
-      "answer_characters": 38,
+      "answer_characters": 34,
       "question": "دربني على الفيزياء بسؤال وتمرين.",
-      "character_model_bpc": 4.4598193,
-      "generated_answer": "مولة الأسدمة البير منمة مواتد التررية.",
+      "character_model_bpc": 4.573443,
+      "generated_answer": "المول بومن المعدية أو بنار تولينة.",
       "retrieval_used": false,
       "id": 34
     },
     {
-      "answer_characters": 267,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن المساحة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن المساحة؟",
-      "character_model_bpc": 4.2790256,
-      "generated_answer": "استفسر متعلم اللغة والتصميم: أسمع كثيراً عن المساحة السلبية والفراغ المحيط وعلاقته بشكل متوازي الأضلاع الموضوع إلى اليسار بزاوية قائمة أثناء تصميم صندوق كنز مزخرف الأركان بخامة الزجاج الشفاف المائل إلى الزرقة، فكيف أربط بين الوصف العربي الصحيح والتنفيذ البصري المتزن؟",
-      "retrieval_used": true,
-      "id": 35
-    },
-    {
-      "answer_characters": 184,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن التناظر؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن التناظر؟",
-      "character_model_bpc": 4.444615,
-      "generated_answer": "لفهم العلاقة الدقيقة بين الشكل والمعنى في بناء واجهة مبنى حجري ثلاثي الأبعاد، نحتاج إلى فهم العلاقة بين نصف القطر والقطر والمحيط في الدائرة الموضوعة في المنتصف تماماً على محور التناظر:",
-      "retrieval_used": true,
-      "id": 36
-    },
-    {
-      "answer_characters": 315,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن تقريبية؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن تقريبية؟",
-      "character_model_bpc": 4.552419,
-      "generated_answer": "فلو افترضنا أن المصمم يبني هذا العنصر بمقاسات تقريبية تدور حول 6 وحدات طولية مقابل 10 وحدات عرضية، ومن خامة مثل الطين الجاف ذو الظلال الناعمة تحت إضاءة خلفية قوية ترسم خطاً مضيئاً حول المحيط الخارجي، فإن السطح سيتفاعل بوضوح: لا يمكن رصف مستوى كامل بمضلعات خماسية منتظمة دون ترك فراغات، بعكس المثلث والمربع والسداسي.",
-      "retrieval_used": true,
-      "id": 37
-    },
-    {
-      "answer_characters": 339,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن جميع؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن جميع؟",
-      "character_model_bpc": 4.679113,
-      "generated_answer": "والأمر المهم الذي يغيب عن غير المنتبهين هو أثر التكبير ثلاثي الأبعاد تحت إضاءة استوديو متزنة تُظهر تغيّر الملمس والخشونة: إذا ضاعف المصمم جميع الأبعاد الثلاثة لتصبح 24 و22 و18، فإن المساحة السطحية تتضاعف أربع مرات لتصل إلى 2712 متراً مربعاً، بينما يتضاعف الحجم ثماني مرات ليبلغ 9504 متراً مكعباً؛ لأن التكبير يشمل الطول والعرض والعمق معاً.",
-      "retrieval_used": true,
-      "id": 38
-    },
-    {
-      "answer_characters": 129,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الذي؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الذي؟",
-      "character_model_bpc": 4.564627,
-      "generated_answer": "والسؤال الذي يختبر الفهم العميق للمصمم ثنائي الأبعاد هو: ماذا يحدث لو ضاعفنا كلاً من الطول والعرض مرتين ليصبح الطول 10 والعرض 46؟",
-      "retrieval_used": true,
-      "id": 39
-    },
-    {
-      "answer_characters": 350,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن طولية؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن طولية؟",
-      "character_model_bpc": 4.53647,
-      "generated_answer": "فلو افترضنا أن المصمم يبني هذا العنصر بمقاسات تقريبية تدور حول 13 وحدات طولية مقابل 13 وحدات عرضية، ومن خامة مثل النحاس العتيق الموزّع للبريق تحت إضاءة ثلاثية النقاط تفصل الكتلة عن الخلفية بوضوح، فإن السطح سيتفاعل بوضوح: يصف المثلث القائم علاقة الظل بالارتفاع؛ فالشجرة العمودية مع ظلها على الأرض والشعاع المائل بين قمتها وطرف ظلها تشكل مثلثاً قائماً.",
-      "retrieval_used": true,
-      "id": 40
-    },
-    {
-      "answer_characters": 327,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الصياغة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الصياغة؟",
-      "character_model_bpc": 4.446138,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل المجسم الثماني المنتظم المصنوع من الجلد المرن متدرج الانعكاس والموضوع بميل متوازن نحو الركن العلوي في رسم طائرة ورقية حادة الزوايا ومتوازنة الجناحين، نقول إنه مجسم منتظم يتكوّن من ثمانية أوجه على شكل مثلثات متساوية الأضلاع، ويبدو كهرمين رباعيين ملتصقين من قاعدتيهما.",
-      "retrieval_used": true,
-      "id": 41
-    },
-    {
-      "answer_characters": 285,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن المنتظم؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن المنتظم؟",
-      "character_model_bpc": 4.409725,
-      "generated_answer": "ناقش رسام ثنائي وثلاثي الأبعاد مع أستاذه مسألة تجهيز قطعة أثاث خشبية داخل غرفة مضاءة: عندما أضع السداسي المنتظم أسفل الحافة السفلية بتماس لطيف بخامة الزجاج الشفاف المائل إلى الزرقة تحت إضاءة استوديو متزنة تُظهر تغيّر الملمس والخشونة، كيف أصف تغيّر شكله وظله بلغة عربية سليمة دون تخمين؟",
-      "retrieval_used": true,
-      "id": 42
-    },
-    {
-      "answer_characters": 283,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن أضلاع؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن أضلاع؟",
-      "character_model_bpc": 4.6015706,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل الخماسي المنتظم المصنوع من الطين الجاف ذو الظلال الناعمة والموضوع أعلى الكتلة الأساسية مباشرة في بناء جسر معلق واضح الدعامات والأحمال، نقول إنه مضلع مستوٍ ذو خمسة أضلاع متساوية في الطول وخمس زوايا داخلية متساوية في القياس.",
-      "retrieval_used": true,
-      "id": 43
-    },
-    {
-      "answer_characters": 334,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن ليبلغ؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن ليبلغ؟",
-      "character_model_bpc": 4.808372,
-      "generated_answer": "والأمر المهم الذي يغيب عن غير المنتبهين هو أثر التكبير ثلاثي الأبعاد تحت إضاءة نهارية ناعمة منتشرة تخفف حدة الحواف: إذا ضاعف المصمم جميع الأبعاد الثلاثة لتصبح 30 و20 و20، فإن المساحة السطحية تتضاعف أربع مرات لتصل إلى 3200 متراً مربعاً، بينما يتضاعف الحجم ثماني مرات ليبلغ 12000 متراً مكعباً؛ لأن التكبير يشمل الطول والعرض والعمق معاً.",
-      "retrieval_used": true,
-      "id": 44
-    },
-    {
-      "answer_characters": 221,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الهندسي؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الهندسي؟",
-      "character_model_bpc": 4.5730186,
-      "generated_answer": "من القواعد الجوهرية التي تضبط جودة العمل في بناء واجهة مبنى حجري ثلاثي الأبعاد، يبدأ التفكير السليم باختيار الشكل الهندسي الأنسب للرسالة البصرية، وهنا يبرز دور الكرة بوصفه شكلاً ثلاثي الأبعاد ينتمي إلى المجسمات الدورانية.",
-      "retrieval_used": true,
-      "id": 45
-    },
-    {
-      "answer_characters": 78,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن مساحته؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن مساحته؟",
-      "character_model_bpc": 4.5226903,
-      "generated_answer": "أما مساحته السطحية فتساوي حاصل ضرب الطول في العرض، وتبلغ 224 سنتيمتراً مربعاً.",
-      "retrieval_used": true,
-      "id": 46
-    },
-    {
-      "answer_characters": 304,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الواضحة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الواضحة؟",
-      "character_model_bpc": 4.3934627,
-      "generated_answer": "سأل سائل عن المخروط الموضوع إلى اليسار بزاوية قائمة والمصنوع من الورق المقوى ذو الحواف الواضحة تحت إضاءة نهارية ناعمة منتشرة تخفف حدة الحواف مع مراعاة الانتقال من المساقط ثنائية الأبعاد إلى المجسم ثلاثي الأبعاد: ما قيمة حجمه ومساحته السطحية لهذا الشكل دون أن يذكر أي رقم لطول ضلعه أو نصف قطره أو ارتفاعه.",
-      "retrieval_used": true,
-      "id": 47
-    },
-    {
-      "answer_characters": 19,
-      "question": "ما المعلومة التي يذكرها النص عن مكانية؟",
-      "character_model_bpc": 4.420324,
-      "generated_answer": "العواءة أك التررية.",
+      "answer_characters": 31,
+      "question": "ما المعلومة التي يذكرها النص عن قائم؟",
+      "character_model_bpc": 4.6705074,
+      "generated_answer": "التحلة المودة تناعل تنير معارة.",
       "retrieval_used": false,
-      "id": 48
+      "id": 1001
     },
     {
-      "answer_characters": 164,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الوصف؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الوصف؟",
-      "character_model_bpc": 4.5280266,
-      "generated_answer": "(وقد قيل هذا الوصف حول الكرة المصنوع من المعدن المصقول العاكس للضوء في سياق تجهيز قبة معمارية متدرجة الإضاءة تحت إضاءة استوديو متزنة تُظهر تغيّر الملمس والخشونة).».",
-      "retrieval_used": true,
-      "id": 49
-    },
-    {
-      "answer_characters": 59,
-      "question": "ما المعلومة التي يذكرها النص عن إضاءة؟",
-      "character_model_bpc": 4.563252,
-      "generated_answer": "الأمريم وتاصب عو بيروع المسمة تسمل تمانيام مو معل المرتيري.",
+      "answer_characters": 29,
+      "question": "ما المعلومة التي يذكرها النص عن الإضاءة؟",
+      "character_model_bpc": 4.430138,
+      "generated_answer": "التخوار وعود ألى مناتة البيد.",
       "retrieval_used": false,
-      "id": 50
+      "id": 1002
     },
     {
-      "answer_characters": 121,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن تدريب؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن تدريب؟",
-      "character_model_bpc": 4.598364,
-      "generated_answer": "تدريب على سلامة اللغة العربية ومنع التناقض في الوصف الهندسي والتصميمي \u2014 محور التمييز الدلالي بين البُعدين والثلاثة أبعاد:",
-      "retrieval_used": true,
-      "id": 51
-    },
-    {
-      "answer_characters": 273,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الملس؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الملس؟",
-      "character_model_bpc": 4.4785366,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل المثلث قائم الزاوية المصنوع من الخزف اللامع الملس السطح والموضوع أسفل الحافة السفلية بتماس لطيف في تشكيل ساعة حائط كلاسيكية واضحة القراءة، نقول إنه مثلث مسطح تحتوي إحدى زواياه الداخلية على قياس تسعين درجة بالضبط.",
-      "retrieval_used": true,
-      "id": 52
-    },
-    {
-      "answer_characters": 69,
-      "question": "ما المعلومة التي يذكرها النص عن الأبعاد؟",
-      "character_model_bpc": 4.416092,
-      "generated_answer": "التروان العور عليرة توامنة أك الأوامة مالتة المرولة أو مساربةة، فاسم.",
+      "answer_characters": 27,
+      "question": "ما المعلومة التي يذكرها النص عن السطح؟",
+      "character_model_bpc": 4.590364,
+      "generated_answer": "المعليم وتوارات ملى العدار.",
       "retrieval_used": false,
-      "id": 53
+      "id": 1003
     },
     {
-      "answer_characters": 135,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن طبيعي؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن طبيعي؟",
-      "character_model_bpc": 4.685879,
-      "generated_answer": "وذلك عند توظيف المربع المصنوع من الجلد المرن متدرج الانعكاس والموضوع إلى اليمين بمحاذاة الأفق في رسم مشهد طبيعي يجمع الجبال والأشجار.».",
-      "retrieval_used": true,
-      "id": 54
-    },
-    {
-      "answer_characters": 273,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الدافئ؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الدافئ؟",
-      "character_model_bpc": 4.583904,
-      "generated_answer": "استفسر متعلم اللغة والتصميم: أسمع كثيراً عن المساحة السلبية والفراغ المحيط وعلاقته بشكل الأسطوانة الموضوع في المنتصف تماماً على محور التناظر أثناء تجهيز قطعة أثاث خشبية داخل غرفة مضاءة بخامة الخشب الدافئ غير اللامع، فكيف أربط بين الوصف العربي الصحيح والتنفيذ البصري المتزن؟",
-      "retrieval_used": true,
-      "id": 55
-    },
-    {
-      "answer_characters": 82,
-      "question": "ما المعلومة التي يذكرها النص عن متدرج؟",
-      "character_model_bpc": 4.6133733,
-      "generated_answer": "المنار على والترمة البيارة تولية المناعة وولوام مالتعلور تولمة أور ملامدة، وتنارة.",
+      "answer_characters": 31,
+      "question": "ما المعلومة التي يذكرها النص عن ومتوازي؟",
+      "character_model_bpc": 4.654147,
+      "generated_answer": "المردوات تنتم ملروالات أو بماء.",
       "retrieval_used": false,
-      "id": 56
+      "id": 1004
     },
     {
-      "answer_characters": 252,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن انطلاقا؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن انطلاقا؟",
-      "character_model_bpc": 4.6411734,
-      "generated_answer": "تُبنى مهارة المصمم الثنائي والثلاثي الأبعاد انطلاقاً من تصميم خوذة حماية متناسقة الانحناءات، يبدأ التفكير السليم باختيار الشكل الهندسي الأنسب للرسالة البصرية، وهنا يبرز دور الكبسولة الهندسية بوصفه شكلاً ثلاثي الأبعاد ينتمي إلى المجسمات المركبة الناعمة.",
-      "retrieval_used": true,
-      "id": 57
-    },
-    {
-      "answer_characters": 171,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن المعالم؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن المعالم؟",
-      "character_model_bpc": 4.279919,
-      "generated_answer": "(وقد قيل هذا الوصف حول المستطيل المصنوع من الجلد المرن متدرج الانعكاس في سياق رسم خريطة مكانية واضحة المعالم تحت ضوء خافت يركز على حافة الشكل المشطوفة دون إغراق المشهد).».",
-      "retrieval_used": true,
-      "id": 58
-    },
-    {
-      "answer_characters": 146,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن السداسي؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن السداسي؟",
-      "character_model_bpc": 4.376024,
-      "generated_answer": "وذلك عند توظيف السداسي المنتظم المصنوع من الورق المقوى ذو الحواف الواضحة والموضوع بميل متوازن نحو الركن العلوي في تصميم صندوق كنز مزخرف الأركان.».",
-      "retrieval_used": true,
-      "id": 59
-    },
-    {
-      "answer_characters": 338,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن عليه؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن عليه؟",
-      "character_model_bpc": 4.53869,
-      "generated_answer": "مثال على التعبير المضطرب الذي يفتقر إلى الفهم: «تحدّث شخص عن المجسم الثماني المنتظم المصنوع من الزجاج الشفاف المائل إلى الزرقة أثناء ترتيب عناصر ملصق إعلاني متناسق فقال بعبارة مشوشة: إن هذا الشكل يقع في كل الجهات وله مواصفات عكس ما هو عليه تماماً تحت ضوء خافت يركز على حافة الشكل المشطوفة دون إغراق المشهد، وهو ما يوقع السامع في الحيرة.».",
-      "retrieval_used": true,
-      "id": 60
-    },
-    {
-      "answer_characters": 143,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن قاعة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن قاعة؟",
-      "character_model_bpc": 4.6249537,
-      "generated_answer": "وذلك عند توظيف المعين المصنوع من الحجر الجيري الخشن الملمس والموضوع في المنتصف تماماً على محور التناظر في تنظيم مشهد داخلي في قاعة عرض واسعة.».",
-      "retrieval_used": true,
-      "id": 61
-    },
-    {
-      "answer_characters": 268,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن يبرز؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن يبرز؟",
-      "character_model_bpc": 4.7331524,
-      "generated_answer": "ونتيجةً لهذا الترابط الهندسي، نجد أن في التصميم العملي تحت مصدر ضوء مزدوج دافئ من اليمين وبارد من اليسار على خامة الرخام الأملس ذو العروق الخفيفة، ينبغي مراعاة قاعدة المساحة السلبية والفراغ المحيط: يبرز العنصر الأساسي ويجعل الأشكال الهندسية تتنفس بوضوح دون تكدّس خانق.",
-      "retrieval_used": true,
-      "id": 62
-    },
-    {
-      "answer_characters": 32,
-      "question": "ما المعلومة التي يذكرها النص عن بوضوح؟",
-      "character_model_bpc": 4.654108,
-      "generated_answer": "المواري وتنرور موتمة أسروا بنير.",
+      "answer_characters": 13,
+      "question": "ما المعلومة التي يذكرها النص عن مقوسة؟",
+      "character_model_bpc": 4.682596,
+      "generated_answer": "الحرية واعمن.",
       "retrieval_used": false,
-      "id": 63
-    },
-    {
-      "answer_characters": 288,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن بلون؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن بلون؟",
-      "character_model_bpc": 4.630369,
-      "generated_answer": "وبالمقابل، ينبغي الانتباه إلى أن ضبط هذا الشكل في الفضاء، سواء وُضع أسفل الحافة السفلية بتماس لطيف أو في قلب التكوين، يرتبط ارتباطاً وثيقاً بمبدأ وضوح الصورة الظلية للشكل؛ لأن قدرة المشاهد على التعرف على الشكل أو الشخصية من حدودها الخارجية فقط إذا لُوّنت بلون أسود مصمت دون تفاصيل داخلية.",
-      "retrieval_used": true,
-      "id": 64
+      "id": 1005
     },
     {
       "answer_characters": 26,
-      "question": "ما المعلومة التي يذكرها النص عن مكانية؟",
-      "character_model_bpc": 4.420324,
-      "generated_answer": "الأمامة المسموع منرار ملى،",
+      "question": "ما المعلومة التي يذكرها النص عن المنظور؟",
+      "character_model_bpc": 4.4620113,
+      "generated_answer": "الحوم العرومة ووانت ماسمن.",
       "retrieval_used": false,
-      "id": 65
+      "id": 1006
     },
     {
-      "answer_characters": 284,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن شكله؟",
-      "retrieval_score": 1,
+      "answer_characters": 74,
+      "question": "ما المعلومة التي يذكرها النص عن سيتفاعل؟",
+      "character_model_bpc": 4.69258,
+      "generated_answer": "التحر مور الأندام التمالة العلل الحودة وتومان من البرية اسأواء الموالاتية.",
+      "retrieval_used": false,
+      "id": 1007
+    },
+    {
+      "answer_characters": 49,
       "question": "ما المعلومة التي يذكرها النص عن شكله؟",
-      "character_model_bpc": 4.6450644,
-      "generated_answer": "ناقش رسام ثنائي وثلاثي الأبعاد مع أستاذه مسألة تصميم بوابة مقوسة ذات تفاصيل متوازنة: عندما أضع المعين في العمق البعيد خلف العنصر الرئيسي بخامة الرخام الأملس ذو العروق الخفيفة تحت إضاءة خلفية قوية ترسم خطاً مضيئاً حول المحيط الخارجي، كيف أصف تغيّر شكله وظله بلغة عربية سليمة دون تخمين؟",
-      "retrieval_used": true,
-      "id": 66
-    },
-    {
-      "answer_characters": 301,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن لشكل؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن لشكل؟",
-      "character_model_bpc": 4.6719475,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل الكرة المصنوع من الجلد المرن متدرج الانعكاس والموضوع في المنتصف تماماً على محور التناظر في تصميم شعار بصري واضح من مسافة بعيدة، نقول إنه مجسم ثلاثي الأبعاد مستدير تماماً يشكّل سطحه مجموعة كل النقاط في الفضاء التي تبعد مسافة ثابتة عن المركز.",
-      "retrieval_used": true,
-      "id": 67
-    },
-    {
-      "answer_characters": 45,
-      "question": "ما المعلومة التي يذكرها النص عن متدرج؟",
-      "character_model_bpc": 4.6133733,
-      "generated_answer": "الترمرة ووتنيرة ولى اعمودات بني ما بمد بمرية.",
+      "character_model_bpc": 4.711503,
+      "generated_answer": "العلم بنوري المنوالة أو تماعمة التعلار والمريوات.",
       "retrieval_used": false,
-      "id": 68
+      "id": 1008
     },
     {
-      "answer_characters": 17,
-      "question": "ما المعلومة التي يذكرها النص عن الأبعاد؟",
-      "character_model_bpc": 4.416092,
-      "generated_answer": "الموري على تنارة.",
+      "answer_characters": 20,
+      "question": "ما المعلومة التي يذكرها النص عن مهارة؟",
+      "character_model_bpc": 4.497263,
+      "generated_answer": "الترر وملرام بنينية.",
       "retrieval_used": false,
-      "id": 69
+      "id": 1009
     },
     {
-      "answer_characters": 333,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الحيرة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الحيرة؟",
-      "character_model_bpc": 4.2926965,
-      "generated_answer": "مثال على التعبير المضطرب الذي يفتقر إلى الفهم: «تحدّث شخص عن المستطيل المصنوع من الجلد المرن متدرج الانعكاس أثناء رسم طائرة ورقية حادة الزوايا ومتوازنة الجناحين فقال بعبارة مشوشة: إن هذا الشكل يقع في كل الجهات وله مواصفات عكس ما هو عليه تماماً تحت إضاءة هادئة من نافذة جانبية تتدرج فيها درجات الرمادي، وهو ما يوقع السامع في الحيرة.».",
-      "retrieval_used": true,
-      "id": 70
+      "answer_characters": 32,
+      "question": "ما المعلومة التي يذكرها النص عن يبني؟",
+      "character_model_bpc": 4.7536187,
+      "generated_answer": "المور المحدة، وتنرر اخأب العلين.",
+      "retrieval_used": false,
+      "id": 1010
     },
     {
-      "answer_characters": 287,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن اللغة؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن اللغة؟",
-      "character_model_bpc": 4.497771,
-      "generated_answer": "استفسر متعلم اللغة والتصميم: أسمع كثيراً عن الفرق بين الأسطح المصقولة والخشنة في الخامات وعلاقته بشكل المنشور الثلاثي الموضوع في العمق البعيد خلف العنصر الرئيسي أثناء رسم قارب شراعي في منظور مفتوح بخامة الحجر الجيري الخشن الملمس، فكيف أربط بين الوصف العربي الصحيح والتنفيذ البصري المتزن؟",
-      "retrieval_used": true,
-      "id": 71
+      "answer_characters": 43,
+      "question": "ما المعلومة التي يذكرها النص عن الناقص؟",
+      "character_model_bpc": 4.5096273,
+      "generated_answer": "العدور. وتكنا بائتيار المربية وولومة أنارة.",
+      "retrieval_used": false,
+      "id": 1011
     },
     {
-      "answer_characters": 158,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن مفتوح؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن مفتوح؟",
-      "character_model_bpc": 4.653612,
-      "generated_answer": "إذا أردت أن تصف المشهد بلغة عربية صافية أثناء رسم قارب شراعي في منظور مفتوح، تبرز أهمية قراءة المساقط الثلاثة والمقطع العرضي للمجسم ثلاثي الأبعاد (الأسطوانة):",
-      "retrieval_used": true,
-      "id": 72
+      "answer_characters": 50,
+      "question": "ما المعلومة التي يذكرها النص عن بعينه؟",
+      "character_model_bpc": 4.7066827,
+      "generated_answer": "المعرة ونتيرة الماسية والتراع منامة تولوات بتروان.",
+      "retrieval_used": false,
+      "id": 1012
     },
     {
-      "answer_characters": 208,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن قائم؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن قائم؟",
-      "character_model_bpc": 4.6357355,
-      "generated_answer": "سأل المتدرب معلمه أثناء العمل على تشكيل إبريق أو إناء خزفي متناظر: أريد استخدام المثلث قائم الزاوية في هذا التصميم ووضعه إلى اليمين بمحاذاة الأفق، لكني أخلط دائماً في وصفه وفي كيفية إظهاره بوضوح أمام المشاهد.",
-      "retrieval_used": true,
-      "id": 73
+      "answer_characters": 16,
+      "question": "ما المعلومة التي يذكرها النص عن الطين؟",
+      "character_model_bpc": 4.570264,
+      "generated_answer": "الأراتة التوميم.",
+      "retrieval_used": false,
+      "id": 1013
     },
     {
-      "answer_characters": 226,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الرباعية؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الرباعية؟",
-      "character_model_bpc": 4.312634,
-      "generated_answer": "من القواعد الجوهرية التي تضبط جودة العمل في بناء واجهة مبنى حجري ثلاثي الأبعاد، يبدأ التفكير السليم باختيار الشكل الهندسي الأنسب للرسالة البصرية، وهنا يبرز دور شبه المنحرف بوصفه شكلاً ثنائي الأبعاد ينتمي إلى المضلعات الرباعية.",
-      "retrieval_used": true,
-      "id": 74
+      "answer_characters": 32,
+      "question": "ما المعلومة التي يذكرها النص عن الدافئ؟",
+      "character_model_bpc": 4.598226,
+      "generated_answer": "التومام وتندي بتنتم البمد منارة.",
+      "retrieval_used": false,
+      "id": 1014
     },
     {
-      "answer_characters": 194,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن وصفه؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن وصفه؟",
-      "character_model_bpc": 4.678886,
-      "generated_answer": "سأل المتدرب معلمه أثناء العمل على تشكيل إبريق أو إناء خزفي متناظر: أريد استخدام المعين في هذا التصميم ووضعه إلى اليسار بزاوية قائمة، لكني أخلط دائماً في وصفه وفي كيفية إظهاره بوضوح أمام المشاهد.",
-      "retrieval_used": true,
-      "id": 75
+      "answer_characters": 44,
+      "question": "ما المعلومة التي يذكرها النص عن الحافة؟",
+      "character_model_bpc": 4.391203,
+      "generated_answer": "المولة العوم باستررةة ومريناء الأعدة ونائمة.",
+      "retrieval_used": false,
+      "id": 1015
     },
     {
-      "answer_characters": 273,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن وضوح؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن وضوح؟",
-      "character_model_bpc": 4.6994433,
-      "generated_answer": "استفسر متعلم اللغة والتصميم: أسمع كثيراً عن وضوح الصورة الظلية للشكل وعلاقته بشكل المعين الموضوع في المنتصف تماماً على محور التناظر أثناء تشكيل ساعة حائط كلاسيكية واضحة القراءة بخامة الزجاج الشفاف المائل إلى الزرقة، فكيف أربط بين الوصف العربي الصحيح والتنفيذ البصري المتزن؟",
-      "retrieval_used": true,
-      "id": 76
+      "answer_characters": 62,
+      "question": "ما المعلومة التي يذكرها النص عن الجهات؟",
+      "character_model_bpc": 4.420552,
+      "generated_answer": "اعمب مو البريرة العود والأحرة ونتي باسمن مولة اختيرات المعووة.",
+      "retrieval_used": false,
+      "id": 1016
     },
     {
-      "answer_characters": 182,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن يطيل؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن يطيل؟",
-      "character_model_bpc": 4.657095,
-      "generated_answer": "(وقد قيل هذا الوصف حول المثلث متساوي الأضلاع المصنوع من الورق المقوى ذو الحواف الواضحة في سياق تصميم صندوق كنز مزخرف الأركان تحت ضوء غروب مائل يطيل الظل ويدفئ الألوان المقابلة له).».",
-      "retrieval_used": true,
-      "id": 77
+      "answer_characters": 22,
+      "question": "ما المعلومة التي يذكرها النص عن زواياه؟",
+      "character_model_bpc": 4.77076,
+      "generated_answer": "الحروات وتنارية أورام.",
+      "retrieval_used": false,
+      "id": 1017
     },
     {
-      "answer_characters": 226,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن المنحنية؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن المنحنية؟",
-      "character_model_bpc": 4.350291,
-      "generated_answer": "لضمان وضوح التكوين وتماسكه البصري خلال بناء جسر معلق واضح الدعامات والأحمال، يبدأ التفكير السليم باختيار الشكل الهندسي الأنسب للرسالة البصرية، وهنا يبرز دور الدائرة بوصفه شكلاً ثنائي الأبعاد ينتمي إلى الأشكال المنحنية المغلقة.",
-      "retrieval_used": true,
-      "id": 78
+      "answer_characters": 27,
+      "question": "ما المعلومة التي يذكرها النص عن قاعة؟",
+      "character_model_bpc": 4.6431303,
+      "generated_answer": "انارب تنمرة المودوة انلوار.",
+      "retrieval_used": false,
+      "id": 1018
+    },
+    {
+      "answer_characters": 37,
+      "question": "ما المعلومة التي يذكرها النص عن مربعا؟",
+      "character_model_bpc": 4.5889077,
+      "generated_answer": "الترري العمواء بوليرات توماء المنيرة.",
+      "retrieval_used": false,
+      "id": 1019
+    },
+    {
+      "answer_characters": 31,
+      "question": "ما المعلومة التي يذكرها النص عن اللمعان؟",
+      "character_model_bpc": 4.4240456,
+      "generated_answer": "الأنر بالأوتوامة تمرومة أتمناء.",
+      "retrieval_used": false,
+      "id": 1020
+    },
+    {
+      "answer_characters": 30,
+      "question": "ما المعلومة التي يذكرها النص عن أسمع؟",
+      "character_model_bpc": 4.680004,
+      "generated_answer": "المعلوم ونيريات العوارة مولام.",
+      "retrieval_used": false,
+      "id": 1021
+    },
+    {
+      "answer_characters": 48,
+      "question": "ما المعلومة التي يذكرها النص عن الفضاء؟",
+      "character_model_bpc": 4.4729776,
+      "generated_answer": "العلاتة معانام والترولة، وتحتيرة البوال بيلاتهة.",
+      "retrieval_used": false,
+      "id": 1022
+    },
+    {
+      "answer_characters": 20,
+      "question": "ما المعلومة التي يذكرها النص عن الصورة؟",
+      "character_model_bpc": 4.4046216,
+      "generated_answer": "التول العدر الأريمة.",
+      "retrieval_used": false,
+      "id": 1023
+    },
+    {
+      "answer_characters": 29,
+      "question": "ما المعلومة التي يذكرها النص عن إضاءة؟",
+      "character_model_bpc": 4.662907,
+      "generated_answer": "الأنارة المعروعي تولرات بومن.",
+      "retrieval_used": false,
+      "id": 1024
+    },
+    {
+      "answer_characters": 48,
+      "question": "ما المعلومة التي يذكرها النص عن حجري؟",
+      "character_model_bpc": 4.759012,
+      "generated_answer": "الماء، وتواتر معات المرامي. وأن وعن التمل بومرة.",
+      "retrieval_used": false,
+      "id": 1025
+    },
+    {
+      "answer_characters": 32,
+      "question": "ما المعلومة التي يذكرها النص عن المشاهد؟",
+      "character_model_bpc": 4.4648485,
+      "generated_answer": "المعد البيد وولرة معلوة الأوروم.",
+      "retrieval_used": false,
+      "id": 1026
+    },
+    {
+      "answer_characters": 46,
+      "question": "ما المعلومة التي يذكرها النص عن إحساس؟",
+      "character_model_bpc": 4.7039437,
+      "generated_answer": "الأرل من وتنيرا ملى أو بنين. أوامة والتماليمة.",
+      "retrieval_used": false,
+      "id": 1027
+    },
+    {
+      "answer_characters": 30,
+      "question": "ما المعلومة التي يذكرها النص عن مرتفع؟",
+      "character_model_bpc": 4.7050214,
+      "generated_answer": "المودوع ترتولة المناع الأعروم.",
+      "retrieval_used": false,
+      "id": 1028
+    },
+    {
+      "answer_characters": 38,
+      "question": "ما المعلومة التي يذكرها النص عن بتماس؟",
+      "character_model_bpc": 4.670478,
+      "generated_answer": "التحام البيوة تعنوم انمر تعلامه العول.",
+      "retrieval_used": false,
+      "id": 1029
+    },
+    {
+      "answer_characters": 22,
+      "question": "ما المعلومة التي يذكرها النص عن الظلال؟",
+      "character_model_bpc": 4.4898953,
+      "generated_answer": "التمارةة أوتة والمرار.",
+      "retrieval_used": false,
+      "id": 1030
+    },
+    {
+      "answer_characters": 31,
+      "question": "ما المعلومة التي يذكرها النص عن العنصرين؟",
+      "character_model_bpc": 4.529732,
+      "generated_answer": "المالتر التولة تومن والتتواربة.",
+      "retrieval_used": false,
+      "id": 1031
+    },
+    {
+      "answer_characters": 35,
+      "question": "ما المعلومة التي يذكرها النص عن وحدات؟",
+      "character_model_bpc": 4.6103325,
+      "generated_answer": "المولات البومة وواناء المحلة وعادة.",
+      "retrieval_used": false,
+      "id": 1032
+    },
+    {
+      "answer_characters": 20,
+      "question": "ما المعلومة التي يذكرها النص عن متوازن؟",
+      "character_model_bpc": 4.6934977,
+      "generated_answer": "العود بالبر المرامة.",
+      "retrieval_used": false,
+      "id": 1033
+    },
+    {
+      "answer_characters": 12,
+      "question": "ما المعلومة التي يذكرها النص عن المشهد؟",
+      "character_model_bpc": 4.50956,
+      "generated_answer": "الأن ومريلة.",
+      "retrieval_used": false,
+      "id": 1034
+    },
+    {
+      "answer_characters": 57,
+      "question": "ما المعلومة التي يذكرها النص عن الخلل؟",
+      "character_model_bpc": 4.4716883,
+      "generated_answer": "المعول بيدر تتالمر الأولة والتودي تلاعتمن ووالمة البيارة.",
+      "retrieval_used": false,
+      "id": 1035
     },
     {
       "answer_characters": 15,
-      "question": "ما المعلومة التي يذكرها النص عن الإضاءة؟",
-      "character_model_bpc": 4.352552,
-      "generated_answer": "التمورة تسترية.",
+      "question": "ما المعلومة التي يذكرها النص عن المصنوع؟",
+      "character_model_bpc": 4.4158645,
+      "generated_answer": "التود مع بناتة.",
       "retrieval_used": false,
-      "id": 79
+      "id": 1036
     },
     {
-      "answer_characters": 332,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن بتماس؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن بتماس؟",
-      "character_model_bpc": 4.633758,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل الطارة (الحلقة المجسمة) المصنوع من الورق المقوى ذو الحواف الواضحة والموضوع أسفل الحافة السفلية بتماس لطيف في إعداد مشهد عرض لمنتج زجاجي أو معدني، نقول إنه مجسم ثلاثي الأبعاد يشبه الإطار أو الكعكة الحلقية، وينتج من دوران دائرة في الفضاء حول محور يقع في مستواها ولا يقطعها.",
-      "retrieval_used": true,
-      "id": 80
+      "answer_characters": 100,
+      "question": "ما المعلومة التي يذكرها النص عن عرضا؟",
+      "character_model_bpc": 4.7246804,
+      "generated_answer": "الموار توتينة، البراري مالتمنوان العللاتهة تومر الأراءي تلانتة ومعري بتتران ماتمة والترومة تحال من ا",
+      "retrieval_used": false,
+      "id": 1037
+    },
+    {
+      "answer_characters": 65,
+      "question": "ما المعلومة التي يذكرها النص عن إليه؟",
+      "character_model_bpc": 4.696668,
+      "generated_answer": "المودوة أل تنير بواعدة أولات ونماري باعتبالة الأحدة ومنيمة اختير.",
+      "retrieval_used": false,
+      "id": 1038
+    },
+    {
+      "answer_characters": 43,
+      "question": "ما المعلومة التي يذكرها النص عن المنشور؟",
+      "character_model_bpc": 4.478168,
+      "generated_answer": "العدر الماربة أو اعتيل منرة والمعر اختريام.",
+      "retrieval_used": false,
+      "id": 1039
+    },
+    {
+      "answer_characters": 27,
+      "question": "ما المعلومة التي يذكرها النص عن بقعة؟",
+      "character_model_bpc": 4.7544637,
+      "generated_answer": "المرات وعنر بنارية المعامة.",
+      "retrieval_used": false,
+      "id": 1040
+    },
+    {
+      "answer_characters": 45,
+      "question": "ما المعلومة التي يذكرها النص عن الموز؟",
+      "character_model_bpc": 4.5263267,
+      "generated_answer": "الأروان تعارب بناعدة وتنالينات والمودير معلة.",
+      "retrieval_used": false,
+      "id": 1041
+    },
+    {
+      "answer_characters": 14,
+      "question": "ما المعلومة التي يذكرها النص عن واضحة؟",
+      "character_model_bpc": 4.6739173,
+      "generated_answer": "الترور. أباعة.",
+      "retrieval_used": false,
+      "id": 1042
+    },
+    {
+      "answer_characters": 12,
+      "question": "ما المعلومة التي يذكرها النص عن الخارجي؟",
+      "character_model_bpc": 4.4410806,
+      "generated_answer": "المور وناتد.",
+      "retrieval_used": false,
+      "id": 1043
+    },
+    {
+      "answer_characters": 16,
+      "question": "ما المعلومة التي يذكرها النص عن المقابلة؟",
+      "character_model_bpc": 4.326142,
+      "generated_answer": "التعدي الأرامية.",
+      "retrieval_used": false,
+      "id": 1044
+    },
+    {
+      "answer_characters": 19,
+      "question": "ما المعلومة التي يذكرها النص عن البعيد؟",
+      "character_model_bpc": 4.511343,
+      "generated_answer": "الحررية ومن الماصت.",
+      "retrieval_used": false,
+      "id": 1045
+    },
+    {
+      "answer_characters": 21,
+      "question": "ما المعلومة التي يذكرها النص عن خريطة؟",
+      "character_model_bpc": 4.6939425,
+      "generated_answer": "العود التحال ملمنينة.",
+      "retrieval_used": false,
+      "id": 1046
+    },
+    {
+      "answer_characters": 100,
+      "question": "ما المعلومة التي يذكرها النص عن ليصبح؟",
+      "character_model_bpc": 4.8138876,
+      "generated_answer": "الموارية مولة ماتتباريم والترومة وانلي وارعدل بومن وتالبري المريو تندين البعاء التحاع ونور ملاسية ال",
+      "retrieval_used": false,
+      "id": 1047
     },
     {
       "answer_characters": 8,
-      "question": "ما المعلومة التي يذكرها النص عن بوضوح؟",
-      "character_model_bpc": 4.654108,
-      "generated_answer": "التوامي.",
+      "question": "ما المعلومة التي يذكرها النص عن ناعمة؟",
+      "character_model_bpc": 4.5194974,
+      "generated_answer": "الأعاد.،",
       "retrieval_used": false,
-      "id": 81
+      "id": 1048
     },
     {
-      "answer_characters": 121,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن المعدن؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن المعدن؟",
-      "character_model_bpc": 4.3630166,
-      "generated_answer": "فهم المساحة السطحية والحجم لمتوازي المستطيلات في تشكيل مركبة خيالية ذات هيكل متماسك باستخدام المعدن المصقول العاكس للضوء:",
-      "retrieval_used": true,
-      "id": 82
+      "answer_characters": 98,
+      "question": "ما المعلومة التي يذكرها النص عن الطبقات؟",
+      "character_model_bpc": 4.4061136,
+      "generated_answer": "الماصة تنيو التحدار الحاس والمناتدية وائتب مانمات مو توتررة منيار تنمل واستم واعتبرة السيل منامات.",
+      "retrieval_used": false,
+      "id": 1049
     },
     {
-      "answer_characters": 120,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن كرتونية؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن كرتونية؟",
-      "character_model_bpc": 4.565788,
-      "generated_answer": "تحليل الزوايا والأضلاع في الثماني المنتظم أثناء تصميم شخصية كرتونية ثنائية الأبعاد بخامة الورق المقوى ذو الحواف الواضحة:",
-      "retrieval_used": true,
-      "id": 83
+      "answer_characters": 13,
+      "question": "ما المعلومة التي يذكرها النص عن المساقط؟",
+      "character_model_bpc": 4.4579844,
+      "generated_answer": "المروات بنيل.",
+      "retrieval_used": false,
+      "id": 1050
     },
     {
-      "answer_characters": 284,
-      "matched_training_question": "ما المعلومة التي يذكرها النص عن الطول؟",
-      "retrieval_score": 1,
-      "question": "ما المعلومة التي يذكرها النص عن الطول؟",
-      "character_model_bpc": 4.3862824,
-      "generated_answer": "الصياغة العربية الصحيحة والمفهومة: «للوصف العربي الصحيح لشكل المستطيل المصنوع من النحاس العتيق الموزّع للبريق والموضوع إلى اليمين بمحاذاة الأفق في تشكيل مركبة خيالية ذات هيكل متماسك، نقول إنه شكل رباعي مسطح جميع زواياه الأربع قائمة، وكل ضلعين متقابلين فيه متساويان في الطول ومتوازيان.",
-      "retrieval_used": true,
-      "id": 84
+      "answer_characters": 19,
+      "question": "ما المعلومة التي يذكرها النص عن مستدير؟",
+      "character_model_bpc": 4.612159,
+      "generated_answer": "الأورة معدي العراء.",
+      "retrieval_used": false,
+      "id": 1051
+    },
+    {
+      "answer_characters": 14,
+      "question": "ما المعلومة التي يذكرها النص عن حماية؟",
+      "character_model_bpc": 4.677642,
+      "generated_answer": "الحمر الأعادة.",
+      "retrieval_used": false,
+      "id": 1052
+    },
+    {
+      "answer_characters": 21,
+      "question": "ما المعلومة التي يذكرها النص عن واضح؟",
+      "character_model_bpc": 4.746913,
+      "generated_answer": "التعرومة المعلة أنتر.",
+      "retrieval_used": false,
+      "id": 1053
+    },
+    {
+      "answer_characters": 8,
+      "question": "ما المعلومة التي يذكرها النص عن الصياغة؟",
+      "character_model_bpc": 4.536556,
+      "generated_answer": "المائتة.",
+      "retrieval_used": false,
+      "id": 1054
+    },
+    {
+      "answer_characters": 10,
+      "question": "ما المعلومة التي يذكرها النص عن خلفية؟",
+      "character_model_bpc": 4.661426,
+      "generated_answer": "الأوليامي.",
+      "retrieval_used": false,
+      "id": 1055
+    },
+    {
+      "answer_characters": 40,
+      "question": "ما المعلومة التي يذكرها النص عن الملس؟",
+      "character_model_bpc": 4.517291,
+      "generated_answer": "الحوام العمر البيوة ونين السالمة وارموم.",
+      "retrieval_used": false,
+      "id": 1056
+    },
+    {
+      "answer_characters": 9,
+      "question": "ما المعلومة التي يذكرها النص عن وتليين؟",
+      "character_model_bpc": 4.6979423,
+      "generated_answer": "التمرياء.",
+      "retrieval_used": false,
+      "id": 1057
+    },
+    {
+      "answer_characters": 29,
+      "question": "ما المعلومة التي يذكرها النص عن أعلى؟",
+      "character_model_bpc": 4.6767445,
+      "generated_answer": "التحرة منامة الأوام بيلاتهات.",
+      "retrieval_used": false,
+      "id": 1058
     }
   ]
 }\n
