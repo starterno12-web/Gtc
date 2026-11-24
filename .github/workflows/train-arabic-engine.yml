@@ -341,14 +341,16 @@ jobs:
               raise SystemExit('Refusing to embed a file without the NLM2 signature.')
           source_path = Path('النموذج_نسخة_محدثة__1_ (2).kt')
           source = source_path.read_text(encoding='utf-8')
-          marker = 'var EMBEDDED_WEIGHTS_B64: String = "'
+          marker = 'var EMBEDDED_WEIGHTS_B64: String = '
           if source.count(marker) != 1:
               raise SystemExit('Expected exactly one embedded NLM2 weights constant.')
           start = source.index(marker) + len(marker)
-          end = source.index('"', start)
+          end = source.index(').joinToString("")', start) + len(').joinToString("")')
           encoded = base64.b64encode(model).decode('ascii')
-          source_path.write_text(source[:start] + encoded + source[end:], encoding='utf-8')
-          print(f'Embedded verified NLM2 weights: {len(model):,} bytes; base64={len(encoded):,} chars.')
+          chunks = [encoded[i:i+16000] for i in range(0, len(encoded), 16000)]
+          expression = 'listOf(\\n' + ',\\n'.join('            "' + part + '"' for part in chunks) + '\\n        ).joinToString("")'
+          source_path.write_text(source[:start] + expression + source[end:], encoding='utf-8')
+          print(f'Embedded verified NLM2 weights: {len(model):,} bytes; {len(chunks)} JVM-safe string chunks.')
           PY
 
       - name: Evaluate NLM2 on 84 unique held-out questions (neural-only)
