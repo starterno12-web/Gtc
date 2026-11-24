@@ -348,7 +348,7 @@ jobs:
           end = source.index(').joinToString("")', start) + len(').joinToString("")')
           encoded = base64.b64encode(model).decode('ascii')
           chunks = [encoded[i:i+16000] for i in range(0, len(encoded), 16000)]
-          expression = 'listOf(\\n' + ',\\n'.join('            "' + part + '"' for part in chunks) + '\\n        ).joinToString("")'
+          expression = 'listOf(\n' + ',\n'.join('            "' + part + '"' for part in chunks) + '\n        ).joinToString("")'
           source_path.write_text(source[:start] + expression + source[end:], encoding='utf-8')
           print(f'Embedded verified NLM2 weights: {len(model):,} bytes; {len(chunks)} JVM-safe string chunks.')
           PY
