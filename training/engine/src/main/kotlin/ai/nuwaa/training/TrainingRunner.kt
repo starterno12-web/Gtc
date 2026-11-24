@@ -140,17 +140,30 @@ fun main(args: Array<String>) {
                     append("س: ").append(question).append("\nج: ").append(answer).append("\n")
                 }
             }
+            println("Counting corpus vocabulary from ${text.length} characters...")
             val chars = corpusVocab(text, conversationText)
             require(chars.size >= 3)
-            // Process the entire corpus sequentially in bounded 8,000-character chunks.
+
+            // Keep the same bounded, evenly distributed corpus sample used by the successful
+            // training runs. Training every character in a multi-million-character corpus
+            // creates hundreds of thousands of expensive GRU backpropagation windows.
+            val maxTrainingChars = 8_192
+            val trainingText = if (text.length <= maxTrainingChars) text else buildString(maxTrainingChars) {
+                val segments = 200
+                val segmentSize = maxTrainingChars / segments
+                for (i in 0 until segments) {
+                    val start = ((text.length - segmentSize).toLong() * i / (segments - 1)).toInt()
+                    append(text, start, minOf(start + segmentSize, text.length))
+                }
+            }
+            println("Vocabulary ready: ${chars.size} symbols; corpus sample=${trainingText.length}/${text.length} characters.")
             val conversationRepeats = arg(args, "--conversation-repeats", "3").toInt().coerceIn(1, 20)
-            // Language modeling on every corpus chunk, followed by supervised QA updates.
             val model = Nlm.create(48, 96, chars, 1729L)
             val window = 128
             var seen = 0L
-            var chunksPerEpoch = 0L
             val evalText = text.take(minOf(text.length, 100_000))
             val conversationEval = conversationText.take(100_000)
+            println("Calculating baseline evaluation...")
             val before = score(model, evalText)
             val conversationBefore = score(model, conversationEval)
             var supervisedSteps = 0L
@@ -161,39 +174,36 @@ fun main(args: Array<String>) {
             }
             val rng = java.util.Random(1729L)
             for (epoch in 0 until epochs) {
-                var corpusPos = 0
-                var chunksThisEpoch = 0
-                while (corpusPos < text.length) {
-                    val chunkEnd = minOf(corpusPos + 8_000, text.length)
-                    val chunk = text.substring(corpusPos, chunkEnd)
-                    chunksThisEpoch++
-                    var pos = 0
-                    while (pos < chunk.length - 1) {
-                        val end = minOf(pos + window, chunk.length)
-                        if (end - pos >= 8) model.trainWindow(chunk.substring(pos, end), lr * 0.25f)
-                        seen += (end - pos).toLong()
-                        pos = end
+                var pos = 0
+                var corpusWindows = 0
+                while (pos < trainingText.length - 1) {
+                    val end = minOf(pos + window, trainingText.length)
+                    if (end - pos >= 8) model.trainWindow(trainingText.substring(pos, end), lr * 0.25f)
+                    seen += (end - pos).toLong()
+                    corpusWindows++
+                    pos = end
+                    if (corpusWindows % 16 == 0 || pos >= trainingText.length - 1) {
+                        println("epoch ${epoch + 1}/$epochs; corpus windows=${corpusWindows}; sample chars processed=$seen/${trainingText.length * (epoch + 1)}; supervised updates=$supervisedSteps")
                     }
-                    corpusPos = chunkEnd
                 }
-                chunksPerEpoch = chunksThisEpoch.toLong()
-                println("epoch ${epoch + 1}/$epochs; corpus chunks of 8,000 chars=${chunksThisEpoch}; chars processed=$seen; answer-only supervised updates=${supervisedSteps}")
-                repeat(conversationRepeats) {
+                repeat(conversationRepeats) { repeatIndex ->
                     val shuffled = pairs.shuffled(rng)
-                    for ((question, answer) in shuffled) {
-                        val loss = model.trainAnswerPair(question, answer, lr)
+                    for ((pairIndex, pair) in shuffled.withIndex()) {
+                        val loss = model.trainAnswerPair(pair.first, pair.second, lr)
                         supervisedLoss += loss
                         supervisedSteps++
+                        if (supervisedSteps % 25L == 0L || pairIndex == shuffled.lastIndex) {
+                            println("epoch ${epoch + 1}/$epochs; QA repeat=${repeatIndex + 1}/$conversationRepeats; pair=${pairIndex + 1}/${shuffled.size}; supervised updates=$supervisedSteps")
+                        }
                     }
                 }
-                println("epoch ${epoch + 1}/$epochs; corpus chars processed=$seen; answer-only supervised updates=${supervisedSteps}")
             }
             val after = score(model, evalText)
             val conversationAfter = score(model, conversationEval)
             require(after.isFinite() && before.isFinite() && conversationAfter.isFinite() && conversationBefore.isFinite()) { "non-finite training loss" }
             out.parentFile?.mkdirs()
             out.writeBytes(model.toBytes())
-            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${text.length},"corpus_chunk_size":8000,"corpus_chunks_per_epoch":$chunksPerEpoch,"supervised_updates":$supervisedSteps,"supervised_loss_bits_average":${if (supervisedSteps > 0) supervisedLoss / supervisedSteps else 0.0},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
+            val json = """{"engine":"Nlm Kotlin GRU","format":"NLM2","corpus_characters":${text.length},"conversation_pairs":${conversationArray.length()},"conversation_characters":${conversationText.length},"conversation_repeats":$conversationRepeats,"vocabulary_size":${chars.size},"embedding":48,"hidden":96,"epochs":$epochs,"learning_rate":$lr,"evaluation_bpc_before":$before,"evaluation_bpc_after":$after,"conversation_bpc_before":$conversationBefore,"conversation_bpc_after":$conversationAfter,"processed_characters":$seen,"training_sample_characters":${trainingText.length},"supervised_updates":$supervisedSteps,"supervised_loss_bits_average":${if (supervisedSteps > 0) supervisedLoss / supervisedSteps else 0.0},"weights_bytes":${out.length()},"note":"Evaluation is on the first 100k corpus characters; this is a character-model loss metric, not semantic QA accuracy."}"""
             report.parentFile?.mkdirs(); report.writeText(json + "\n")
             println(json)
         }
