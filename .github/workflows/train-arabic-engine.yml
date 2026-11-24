@@ -204,47 +204,99 @@ jobs:
             {"id":33,"question":"علمني أساسيات الفيزياء."},
             {"id":34,"question":"دربني على الفيزياء بسؤال وتمرين."}
           ]
-          # Extract distinct readable snippets; these are answers/training targets, not leaked in test prompts.
+          # Build disjoint training and held-out questions. No evaluation prompt is added to training.
           candidates = []
           for part in re.split(r'(?<=[.!؟?])\s+|\n{1,}', source):
               s = re.sub(r'\s+', ' ', part).strip()
               if 60 <= len(s) <= 450 and len(set(s)) > 12:
                   candidates.append(s)
-          if len(candidates) < 50:
+          if len(candidates) < 134:
               candidates = []
-              step = max(60, len(source)//250)
+              step = max(60, len(source)//500)
               for i in range(0, len(source)-60, step):
                   s = re.sub(r'\s+', ' ', source[i:i+320]).strip()
-                  if len(s) >= 60: candidates.append(s)
+                  if len(s) >= 60:
+                      candidates.append(s)
           candidates = list(dict.fromkeys(candidates))
-          if len(candidates) < 50:
-              raise SystemExit(f'Only {len(candidates)} distinct usable snippets; cannot create 50 unique excerpt-based questions.')
-          rng = random.SystemRandom()
-          selected = rng.sample(candidates, 50)
+          if len(candidates) < 134:
+              raise SystemExit(f'Only {len(candidates)} distinct usable snippets; need 134 for disjoint train/evaluation examples.')
+
+          def normalize_question(value):
+              value = value.lower()
+              value = re.sub(r'[\u064B-\u065F\u0670\u0640]', '', value)
+              value = re.sub(r'[أإآ]', 'ا', value).replace('ى', 'ي').replace('ة', 'ه')
+              return re.sub(r'[^\u0621-\u064A\u0660-\u0669a-z0-9]+', ' ', value).strip()
+
+          raw_pairs = json.loads(Path('training/conversation_pairs.json').read_text(encoding='utf-8'))
+          qa_pairs = []
+          seen_train = set()
+          for pair in raw_pairs:
+              q = pair.get('question', '').strip()
+              answer = pair.get('answer', '').strip()
+              key = normalize_question(q)
+              if q and answer and key and key not in seen_train:
+                  qa_pairs.append({"question": q, "answer": answer})
+                  seen_train.add(key)
+
           stop = set("من في على إلى عن أن إن كان تكون هذا هذه ذلك وهي وهو مع عند كما بعد قبل بين حتى حيث لأن إذا أو لا ما ماذا كيف هل قد كل بعض أي ثم مثل حول خلال لدى حسب فوق تحت أكثر أقل جدا أيضا".split())
-          qa_pairs = json.loads(Path('training/conversation_pairs.json').read_text(encoding='utf-8'))
-          generated_questions = []
-          for idx, passage in enumerate(selected, start=35):
-              words = re.findall(r'[\u0621-\u064A\u0627-\u0649]{4,}', passage)
-              words = [w for w in words if w not in stop and not w.startswith(('وال','بال','لل'))]
-              if not words:
-                  words = re.findall(r'[\u0621-\u064A\u0627-\u0649]{3,}', passage)
-              if not words:
-                  raise SystemExit(f'No usable keyword for randomly selected passage {idx-34}.')
-              keyword = rng.choice(words)
-              q = f'ما المعلومة التي يذكرها النص عن {keyword}؟'
-              # Add to training pairs and QA probes. The excerpt stays out of the test question.
-              qa_pairs.append({"question": q, "answer": passage})
-              generated_questions.append({"id": idx, "question": q})
-          questions.extend(generated_questions)
+          rng = random.SystemRandom()
+
+          def make_examples(count, excluded_passages, seen_questions):
+              pool = [p for p in candidates if p not in excluded_passages]
+              rng.shuffle(pool)
+              examples = []
+              used_passages = set()
+              for passage in pool:
+                  words = re.findall(r'[\u0621-\u064A\u0627-\u0649]{4,}', passage)
+                  words = list(dict.fromkeys(
+                      w for w in words
+                      if w not in stop and not w.startswith(('وال', 'بال', 'لل'))
+                  ))
+                  if not words:
+                      words = list(dict.fromkeys(re.findall(r'[\u0621-\u064A\u0627-\u0649]{3,}', passage)))
+                  rng.shuffle(words)
+                  for keyword in words:
+                      q = f'ما المعلومة التي يذكرها النص عن {keyword}؟'
+                      key = normalize_question(q)
+                      if key and key not in seen_questions:
+                          seen_questions.add(key)
+                          examples.append({"question": q, "answer": passage})
+                          used_passages.add(passage)
+                          break
+                  if len(examples) == count:
+                      return examples, used_passages
+              raise SystemExit(f'Could create only {len(examples)} unique questions; required {count}.')
+
+          training_examples, used_training_passages = make_examples(50, set(), seen_train)
+          qa_pairs.extend(training_examples)
+
+          # Keep only static questions that are genuinely absent from the supervised prompts.
+          unique_static = []
+          seen_eval = set(seen_train)
+          for item in questions:
+              key = normalize_question(item["question"])
+              if key and key not in seen_eval:
+                  seen_eval.add(key)
+                  unique_static.append(item)
+          needed_eval = 84 - len(unique_static)
+          evaluation_examples, _ = make_examples(needed_eval, used_training_passages, seen_eval)
+          eval_questions = unique_static + [
+              {"id": 1000 + i, "question": item["question"]}
+              for i, item in enumerate(evaluation_examples, start=1)
+          ]
+
           Path('.training-tmp/conversations-with-geometry-physics-and-corpus.json').write_text(
               json.dumps(qa_pairs, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           Path('.training-tmp/general-questions.json').write_text(
-              json.dumps(questions, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-          assert len(generated_questions) == 50
-          assert len(questions) == 84
-          assert len(qa_pairs) == 400
-          print(f'Fully read new corpus ({len(source):,} characters), prepared 50 random snippet-grounded QA pairs; total questions=84; supervised pairs={len(qa_pairs)}.')
+              json.dumps(eval_questions, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          train_keys = {normalize_question(item["question"]) for item in qa_pairs}
+          eval_keys = [normalize_question(item["question"]) for item in eval_questions]
+          assert len(training_examples) == 50
+          assert len(eval_questions) == 84
+          assert len(set(eval_keys)) == 84
+          assert not (train_keys & set(eval_keys)), 'Evaluation prompts overlap supervised training prompts.'
+          assert len(qa_pairs) == len(seen_train)
+          print(f'Corpus read: {len(source):,} chars; unique supervised pairs={len(qa_pairs)} (50 corpus-derived); held-out neural-only questions=84; training/evaluation overlap=0.')
           PY
       - name: Set up Java for the Kotlin engine
         uses: actions/setup-java@v4
@@ -276,26 +328,35 @@ jobs:
           sha256sum "$GITHUB_WORKSPACE/nlm2.bin"
           gradle -p training/engine --no-daemon run --args="verify --weights $GITHUB_WORKSPACE/nlm2.bin"
 
-      - name: Run Arabic QA probes (80 questions, character-model metric)
+      - name: Embed the verified model into the Android Kotlin source
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/qa_questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics-and-corpus.json --minimum-questions 80 --report $GITHUB_WORKSPACE/qa-report.json"
-          test -s "$GITHUB_WORKSPACE/qa-report.json"
+          mkdir -p "$GITHUB_WORKSPACE/weights"
+          cp "$GITHUB_WORKSPACE/nlm2.bin" "$GITHUB_WORKSPACE/weights/nlm2.bin"
+          python - <<'PY'
+          import base64
+          from pathlib import Path
+          model = Path('nlm2.bin').read_bytes()
+          if model[:4] != b'NLM2':
+              raise SystemExit('Refusing to embed a file without the NLM2 signature.')
+          source_path = Path('النموذج_نسخة_محدثة__1_ (2).kt')
+          source = source_path.read_text(encoding='utf-8')
+          marker = 'var EMBEDDED_WEIGHTS_B64: String = "'
+          if source.count(marker) != 1:
+              raise SystemExit('Expected exactly one embedded NLM2 weights constant.')
+          start = source.index(marker) + len(marker)
+          end = source.index('"', start)
+          encoded = base64.b64encode(model).decode('ascii')
+          source_path.write_text(source[:start] + encoded + source[end:], encoding='utf-8')
+          print(f'Embedded verified NLM2 weights: {len(model):,} bytes; base64={len(encoded):,} chars.')
+          PY
 
-      - name: Generate visible answers for held-out Arabic conversation questions
+      - name: Evaluate NLM2 on 84 unique held-out questions (neural-only)
         run: |
           set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/training/holdout_questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics-and-corpus.json --minimum-questions 20 --report $GITHUB_WORKSPACE/smoke-test-report.json"
-          test -s "$GITHUB_WORKSPACE/smoke-test-report.json"
-          echo "Generated answers:"
-          cat "$GITHUB_WORKSPACE/smoke-test-report.json"
-
-      - name: Evaluate model on 84 general and corpus-derived questions
-        run: |
-          set -euo pipefail
-          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics-and-corpus.json --minimum-questions 84 --report $GITHUB_WORKSPACE/general-84-report.json"
+          gradle -p training/engine --no-daemon run --args="qa --weights $GITHUB_WORKSPACE/nlm2.bin --questions $GITHUB_WORKSPACE/.training-tmp/general-questions.json --conversations $GITHUB_WORKSPACE/.training-tmp/conversations-with-geometry-physics-and-corpus.json --minimum-questions 84 --neural-only --report $GITHUB_WORKSPACE/general-84-report.json"
           test -s "$GITHUB_WORKSPACE/general-84-report.json"
-          echo "84-question evaluation results:"
+          echo "84-question neural-only evaluation results:"
           cat "$GITHUB_WORKSPACE/general-84-report.json"
 
       - name: Commit verified weights and reports to repository root
@@ -303,9 +364,9 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add nlm2.bin training-report.json qa-report.json smoke-test-report.json general-84-report.json
+          git add nlm2.bin weights/nlm2.bin 'النموذج_نسخة_محدثة__1_ (2).kt' training-report.json general-84-report.json
           if ! git diff --cached --quiet; then
-            git commit -m 'Save trained NLM2 weights and Arabic smoke-test outputs'
+            git commit -m 'Save trained NLM2 weights, app model, and neural-only QA results'
             git push origin HEAD:main
           else
             echo 'Weights and reports are unchanged; verifying the already committed root weights.'
