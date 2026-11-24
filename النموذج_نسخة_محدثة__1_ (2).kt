@@ -1024,7 +1024,7 @@ class Brain private constructor(private val ctx: Context) {
             }
             nlm = m
             modelStatus = "نموذج نواة (GRU، سياق غير محدود): " + m.paramCount() +
-                " معامل · سمعت منك " + memory.size + " رسالة"
+                " معامل · نسخة " + baseHash.take(12) + " · سمعت منك " + memory.size + " رسالة"
         } catch (e: java.io.FileNotFoundException) {
             modelStatus = "النموذج غير موجود في التطبيق (nlm2.bin)"
         } catch (e: Throwable) {
