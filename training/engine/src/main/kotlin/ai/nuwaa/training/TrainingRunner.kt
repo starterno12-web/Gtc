@@ -9,19 +9,22 @@ private fun arg(args: Array<String>, key: String, fallback: String? = null): Str
     return if (i >= 0 && i + 1 < args.size) args[i + 1] else fallback ?: error("Missing argument: $key")
 }
 private fun corpusVocab(text: String, requiredText: String = ""): List<String> {
-    val counts = HashMap<String, Int>()
-    for (c in text) {
-        val token = c.toString()
-        counts[token] = (counts[token] ?: 0) + 1
-    }
-    val ranked = counts.entries
-        .filter { it.key != "\n" && it.key != "�" }
-        .sortedByDescending { it.value }
+    // Kotlin Char is a UTF-16 code unit. A primitive counter avoids allocating
+    // tens of millions of one-character String objects for large corpora.
+    val counts = IntArray(Char.MAX_VALUE.code + 1)
+    for (c in text) counts[c.code]++
+    val ranked = counts.indices.asSequence()
+        .filter { it != '\\n'.code && it != '�'.code && counts[it] > 0 }
+        .sortedByDescending { counts[it] }
         .take(510)
-        .map { it.key }
-    val required = requiredText.asSequence().map { it.toString() }.distinct()
-        .filter { it != "\n" && it != "�" && it !in ranked }.toList()
-    return listOf("\n", "�") + ranked + required
+        .map { it.toChar().toString() }
+        .toList()
+    val rankedSet = ranked.toHashSet()
+    val required = requiredText.asSequence().distinct()
+        .filter { it != '\\n' && it != '�' && it.toString() !in rankedSet }
+        .map { it.toString() }
+        .toList()
+    return listOf("\\n", "�") + ranked + required
 }
 private fun normalizeArabicQuestion(text: String): String {
     return text.lowercase()
