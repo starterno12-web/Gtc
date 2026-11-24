@@ -90,10 +90,15 @@ private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
     val out = StringBuilder()
     val random = java.util.Random(seed)
     val recent = ArrayDeque<String>()
+    val seenFourGrams = HashSet<String>()
     val maxChars = 100
     repeat(maxChars) { step ->
         val candidates = probabilities.indices
-            .filter { model.chars[it] != "�" && (step >= 8 || model.chars[it] != "\n") }
+            .filter { id ->
+                val token = model.chars[id]
+                token != "�" && (step >= 8 || token != "\n") &&
+                    (out.length < 3 || out.substring(out.length - 3) + token !in seenFourGrams)
+            }
             .sortedByDescending { probabilities[it] }
             .take(5)
         if (candidates.isEmpty()) return out.toString().trim()
@@ -111,8 +116,16 @@ private fun generateAnswer(model: Nlm, question: String, seed: Long): String {
         val token = model.chars[chosen]
         if (token == "\n" && step >= 8) return out.toString().trim()
         out.append(token)
+        if (out.length >= 4) seenFourGrams.add(out.substring(out.length - 4))
         recent.addLast(token)
         if (recent.size > 12) recent.removeFirst()
+        if (out.length >= 24) {
+            val n = 8
+            if (out.substring(out.length - n) == out.substring(out.length - 2 * n, out.length - n)) {
+                out.setLength(out.length - n)
+                return out.toString().trim()
+            }
+        }
         probabilities = model.stepChar(chosen, state1, state2)
     }
     return out.toString().trim()
