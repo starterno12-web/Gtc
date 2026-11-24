@@ -14,17 +14,17 @@ private fun corpusVocab(text: String, requiredText: String = ""): List<String> {
     val counts = IntArray(Char.MAX_VALUE.code + 1)
     for (c in text) counts[c.code]++
     val ranked = counts.indices.asSequence()
-        .filter { it != '\\n'.code && it != '�'.code && counts[it] > 0 }
+        .filter { it != '\n'.code && it != '�'.code && counts[it] > 0 }
         .sortedByDescending { counts[it] }
         .take(510)
         .map { it.toChar().toString() }
         .toList()
     val rankedSet = ranked.toHashSet()
     val required = requiredText.asSequence().distinct()
-        .filter { it != '\\n' && it != '�' && it.toString() !in rankedSet }
+        .filter { it != '\n' && it != '�' && it.toString() !in rankedSet }
         .map { it.toString() }
         .toList()
-    return listOf("\\n", "�") + ranked + required
+    return listOf("\n", "�") + ranked + required
 }
 private fun normalizeArabicQuestion(text: String): String {
     return text.lowercase()
