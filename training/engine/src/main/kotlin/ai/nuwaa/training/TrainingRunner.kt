@@ -226,19 +226,23 @@ fun main(args: Array<String>) {
             val minimum = arg(args, "--minimum-questions", "80").toInt()
             val report = File(arg(args, "--report"))
             val model = Nlm.load(weights.readBytes())
+            val neuralOnly = args.contains("--neural-only")
             val qaPairsJson = org.json.JSONArray(conversations.readText(Charsets.UTF_8))
             val knownPairs = (0 until qaPairsJson.length()).map { i ->
                 val item = qaPairsJson.getJSONObject(i)
                 Pair(item.optString("question").trim(), item.optString("answer").trim())
             }.filter { it.first.isNotBlank() && it.second.isNotBlank() }
             val arr = org.json.JSONArray(questions.readText(Charsets.UTF_8))
+            val normalizedQuestions = HashSet<String>()
             require(arr.length() >= minimum) { "only ${arr.length()} QA questions; expected at least $minimum" }
             val rows = org.json.JSONArray()
             var retrievalHits = 0
             for (i in 0 until arr.length()) {
-                val q = arr.getJSONObject(i).optString("question")
+                val q = arr.getJSONObject(i).optString("question").trim()
                 require(q.isNotBlank()) { "empty QA question at index $i" }
-                val retrieved = retrieveAnswer(q, knownPairs)
+                val normalized = normalizeArabicQuestion(q)
+                require(normalizedQuestions.add(normalized)) { "duplicate normalized QA question at index $i: $q" }
+                val retrieved = if (neuralOnly) null else retrieveAnswer(q, knownPairs)
                 val answer = retrieved?.second ?: generateAnswer(model, q, 20261121L + i)
                 if (retrieved != null) retrievalHits++
                 val row = org.json.JSONObject()
@@ -257,6 +261,8 @@ fun main(args: Array<String>) {
                 .put("metric", "conservative_qa_retrieval_plus_character_model_fallback")
                 .put("generation_engine", "retrieval_then_Nlm.stepChar")
                 .put("semantic_accuracy_evaluated", false)
+                .put("neural_only", neuralOnly)
+                .put("answer_source", if (neuralOnly) "Nlm GRU only; retrieval disabled" else "retrieval_then_Nlm.stepChar")
                 .put("retrieval_hits", retrievalHits)
                 .put("retrieval_threshold", 0.62)
                 .put("retrieval_margin", 0.08)
