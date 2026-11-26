@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.io.FileInputStream
+import java.io.InputStreamReader
 
 private val trainingPairs = listOf(
     "س:ما عاصمة المملكة العربية السعودية؟\nج:الرياض هي عاصمة المملكة العربية السعودية.",
@@ -50,28 +52,45 @@ private fun compatibleText(text: String, model: Nlm): String {
     }
 }
 
-private fun readUtf8Strict(bytes: ByteArray): String =
-    StandardCharsets.UTF_8.newDecoder()
+private fun readUtf8Prefix(file: File, maxChars: Int): String {
+    val decoder = StandardCharsets.UTF_8.newDecoder()
         .onMalformedInput(CodingErrorAction.REPORT)
         .onUnmappableCharacter(CodingErrorAction.REPORT)
-        .decode(ByteBuffer.wrap(bytes)).toString()
+    return InputStreamReader(FileInputStream(file), decoder).use { reader ->
+        val out = StringBuilder(maxChars)
+        val buffer = CharArray(8192)
+        while (out.length < maxChars) {
+            val count = reader.read(buffer, 0, minOf(buffer.size, maxChars - out.length))
+            if (count < 0) break
+            out.append(buffer, 0, count)
+        }
+        out.toString()
+    }
+}
 
 private fun train() {
     val input = File(System.getenv("NUWAA_INPUT_FILE") ?: "/tmp/nuwaa-source.bin")
-    require(input.isFile && input.length() in 1..(128L * 1024L * 1024L)) {
-        "Drive download is missing, empty, or larger than 128 MiB."
+    require(input.isFile && input.length() in 1..(2_000_000_000L)) {
+        "Drive download is missing, empty, or larger than the supported 2 GB input limit."
     }
-    val bytes = Files.readAllBytes(input.toPath())
-    val isNlm2 = bytes.size >= 4 &&
-        bytes[0] == 0x4E.toByte() && bytes[1] == 0x4C.toByte() &&
-        bytes[2] == 0x4D.toByte() && bytes[3] == 0x32.toByte()
+    val fileSize = input.length()
+    val prefix = ByteArray(4)
+    val prefixRead = FileInputStream(input).use { it.read(prefix) }
+    val isNlm2 = prefixRead == 4 &&
+        prefix[0] == 0x4E.toByte() && prefix[1] == 0x4C.toByte() &&
+        prefix[2] == 0x4D.toByte() && prefix[3] == 0x32.toByte()
 
-    val textCorpus = if (isNlm2) null else readUtf8Strict(bytes)
+    println("Downloaded input size: $fileSize bytes; first 4 bytes: " +
+        prefix.take(prefixRead.coerceAtLeast(0)).joinToString(" ") { "%02X".format(it) })
+    val textCorpus = if (isNlm2) null else readUtf8Prefix(input, 250_000)
     val model = if (isNlm2) {
+        require(fileSize <= 90L * 1024L * 1024L) {
+            "NLM2 checkpoint exceeds GitHub's normal single-file storage limit. Configure Git LFS or split the checkpoint before committing it."
+        }
         println("Input format: NLM2 checkpoint; loading its existing learned weights.")
-        Nlm.load(bytes)
+        Nlm.load(Files.readAllBytes(input.toPath()))
     } else {
-        println("Input format: UTF-8 text corpus; initializing the repository's NLM2 architecture.")
+        println("Input format: UTF-8 text corpus; reading at most 250,000 characters for bounded-memory training.")
         Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
     }
 
@@ -79,7 +98,7 @@ private fun train() {
     require(qa.length >= 200) {
         "The input model vocabulary cannot represent the Arabic QA training set; refusing unsafe partial training."
     }
-    val corpus = if (isNlm2) qa else compatibleText(textCorpus!!.take(250_000), model)
+    val corpus = if (isNlm2) qa else compatibleText(textCorpus!!, model)
     require(corpus.length >= 200) {
         "The supplied text file has too few characters supported by the model vocabulary."
     }
