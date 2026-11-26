@@ -1,0 +1,105 @@
+name: Train NLM2 from the single approved Drive file
+
+on:
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: "Training epochs (1-5)"
+        required: true
+        default: "2"
+        type: choice
+        options: ["1", "2", "3", "4", "5"]
+      learning_rate:
+        description: "Adam learning rate"
+        required: true
+        default: "0.0003"
+        type: choice
+        options: ["0.0001", "0.0003", "0.0005", "0.001"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nuwaa-single-drive-training
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      NUWAA_INPUT_FILE: ${{ runner.temp }}/nuwaa-drive-input.bin
+      NUWAA_EPOCHS: ${{ inputs.epochs }}
+      NUWAA_LR: ${{ inputs.learning_rate }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10"
+
+      - name: Install the Google Drive downloader
+        run: python3 -m pip install --user gdown
+
+      - name: Download only the approved Drive file
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          DRIVE_URL="https://drive.google.com/file/d/10w9FPs9cZK69QkExyHtTBYzT4eiT8-c7/view?usp=drivesdk"
+          gdown --fuzzy "$DRIVE_URL" --output "$NUWAA_INPUT_FILE"
+          test -s "$NUWAA_INPUT_FILE"
+          echo "Downloaded the single configured Drive input ($(stat -c%s "$NUWAA_INPUT_FILE") bytes)."
+
+      - name: Extract the exact NLM2 model and conversation session source
+        run: python3 .gradle-check/extract_engine.py
+
+      - name: Compile and train the real NLM2 model, then ask held-out questions
+        run: gradle -p .gradle-check --no-daemon run
+
+      - name: Verify only final root weights are staged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s nlm2.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("nlm2.bin")
+          b = p.read_bytes()
+          assert b[:4] == b"NLM2", "Root output is not an NLM2 checkpoint"
+          print(f"Verified root nlm2.bin: {len(b)} bytes")
+          PY
+
+      - name: Commit trained weights to repository root
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- nlm2.bin
+          git diff --cached --quiet && { echo "No changed trained weights to commit."; exit 1; }
+          git commit -m "Train NLM2 from approved Drive input"
+          git push origin HEAD:main
+
+      - name: Upload training report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuwaa-training-report
+          path: training-report.txt
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Remove downloaded source file
+        if: always()
+        run: rm -f "$NUWAA_INPUT_FILE"
