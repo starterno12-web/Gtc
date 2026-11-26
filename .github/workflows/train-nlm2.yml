@@ -64,6 +64,21 @@ jobs:
           test -s "$NUWAA_INPUT_FILE"
           echo "Downloaded the single configured Drive input ($(stat -c%s "$NUWAA_INPUT_FILE") bytes)."
 
+      - name: Identify the downloaded file format without exposing its contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          file "$NUWAA_INPUT_FILE"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("/tmp/nuwaa-drive-input.bin")
+          with p.open("rb") as f:
+              head = f.read(64)
+          print("Input size:", p.stat().st_size, "bytes")
+          print("Header hex:", head.hex(" "))
+          print("Header preview:", repr(head[:32]))
+          PY
+
       - name: Extract the exact NLM2 model and conversation session source
         run: python3 .gradle-check/extract_engine.py
 
