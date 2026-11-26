@@ -1165,9 +1165,16 @@ class Brain private constructor(private val ctx: Context) {
     fun growModel(newE: Int, newH: Int): String {
         val m = nlm ?: return "النموذج غير محمّل."
         if (newE < m.e || newH < m.h) return "الحجم الجديد لازم يكون أكبر من الحالي."
-        val projectedParams = Nlm.estimateParams(m.chars.size, newE, newH)      // الصيغة القديمة كانت لـGRU وتقلّل حجم الترانسفورمر بكثير
-        val heap = Runtime.getRuntime().maxMemory(); val needed = projectedParams * 4.0 * 3.0
-        if (needed > heap * 0.8) return "⚠ ما قدرت: هذا الحجم يحتاج تقريبا " + (needed / 1e6).toInt() + " MB، وذاكرة هذا الجهاز للتطبيق الآن " + (heap / 1e6).toInt() + " MB فقط. جرّب حجما أصغر."
+        if (newE % 8 != 0) return "حجم التضمين لازم يكون من مضاعفات 8 لأن المحرك يستخدم 8 رؤوس انتباه."
+        val projectedParams = Nlm.estimateParams(m.chars.size, newE, newH)
+        val rt = Runtime.getRuntime()
+        val freeHeap = (rt.maxMemory() - (rt.totalMemory() - rt.freeMemory())).coerceAtLeast(0L).toDouble()
+        // أثناء التكبير تبقى النسخة القديمة حيّة، وتُنشأ أوزان + حالتا Adam للنسخة الجديدة،
+        // ثم تحتاج نافذة السياق مخازنها أيضًا. نحسب الاثنين من heap المتبقي الآن، لا من maxHeap كله.
+        val modelBytes = projectedParams.toDouble() * 4.0 * 3.0 * 1.15
+        val windowBytes = ContextSizer.estimateWindowBytes(newE, 3, 8, newH)
+        val needed = modelBytes + windowBytes
+        if (needed > freeHeap * 0.70) return "⚠ ما قدرت: التكبير يحتاج تقريبًا " + (needed / 1e6).toInt() + " MB إضافية، والمتاح حاليًا " + (freeHeap / 1e6).toInt() + " MB. جرّب حجمًا أصغر."
         return try {
             val grown = synchronized(lock) { Nlm.grow(m, newE, newH) }
             // The safety net growModel() was missing (develop() already has its own): check the grown
@@ -1178,7 +1185,7 @@ class Brain private constructor(private val ctx: Context) {
             }
             synchronized(lock) { nlm = grown; sessions.clear() }
             saveNlm()
-            "✅ كبّرت النموذج فعلا: من " + m.paramCount() + " إلى " + grown.paramCount() + " معامل. " + ModelHealth.describe(grown) + " يبدأ بنفس سلوك القديم تماما، والمعرفة الإضافية فارغة حتى يتدرب. احفظت الحالة الجديدة؛ افتح ⚡ رفع الفهم لتدريبه."
+            "✅ كبّرت النموذج فعلا: من " + m.paramCount() + " إلى " + grown.paramCount() + " معامل. نُقلت الأوزان القديمة إلى أبعادها المناظرة، والأبعاد الجديدة بدأت بتهيئة جديدة؛ لذلك حُفظ معظم ما تعلّمه لكن السلوك ليس مطابقًا حرفيًا قبل إعادة التدريب. " + ModelHealth.describe(grown) + " احفظت الحالة الجديدة؛ درّبه من ⚡ رفع الفهم."
         } catch (e: Throwable) { "⚠ فشل التكبير: " + (e.message ?: e.javaClass.simpleName) }
     }
 
@@ -1517,16 +1524,34 @@ object EngineConfig {
  *  الهيب) عشان يضل فيه مجال للواجهة والصور وبقية التطبيق، ونخليها تحسب خطوة توليد وحدة كحد أقصى — مو كل الرد
  *  (maxChars) لأنه كل خطوة تُولَّد وتُترك فورًا (GC يرجعها)، فالخطر الحقيقي هو الذروة اللحظية لخطوة وحدة، مو تراكمها. */
 object ContextSizer {
-    fun bytesPerWindowUnit(e: Int, nLayers: Int): Long { val ff = 4L * e; return (11L * e + ff) * 4L * nLayers }
+    // تقدير محافظ لذاكرة التدريب: مخازن الطبقات تنمو خطيًا مع T، لكن مصفوفات الانتباه
+    // المحفوظة للـbackward تنمو تربيعيًا: layers × heads × T² × sizeof(Float).
+    fun bytesPerWindowUnit(e: Int, nLayers: Int): Long {
+        val ff = 4L * e
+        return (11L * e + ff) * 4L * nLayers
+    }
 
-    /** min: حد أدنى عشان حتى أضعف جوال يطلع له شي مفيد. max: سقف دفاعي بس (تجنّب أرقام فلكية لو جهاز مبلّغ
-     *  ذاكرة غير واقعية) — مو رقم محتوى أختاره، القيمة الفعلية دايمًا أقل منه بكثير على أي جوال حقيقي. */
-    fun pick(e: Int, nLayers: Int, min: Int = 256, max: Int = 2_000_000, fraction: Double = 0.12): Int {
+    fun estimateWindowBytes(e: Int, nLayers: Int, nHeads: Int, window: Int): Double {
+        val t = window.toDouble()
+        val linear = bytesPerWindowUnit(e, nLayers).toDouble() * 1.5
+        val quadratic = nHeads.toDouble() * nLayers.toDouble() * 4.0 * 1.5
+        return linear * t + quadratic * t * t
+    }
+
+    /** نختار أكبر نافذة تقع داخل نسبة آمنة من heap المتاح. الحد الأدنى ليس مفروضًا بالقوة:
+     *  إذا كانت الذاكرة لا تكفي لـ256 حرفًا نرجع نافذة أصغر بدل فرض رقم قد يسبب OOM. */
+    fun pick(e: Int, nLayers: Int, nHeads: Int = 8, min: Int = 256, max: Int = 2_000_000, fraction: Double = 0.12): Int {
         val rt = Runtime.getRuntime()
         val free = (rt.maxMemory() - (rt.totalMemory() - rt.freeMemory())).coerceAtLeast(1L)
-        val budget = (free * fraction).toLong().coerceAtLeast(1L)
-        val perUnit = bytesPerWindowUnit(e, nLayers).coerceAtLeast(1L)
-        return (budget / perUnit).toInt().coerceIn(min, max)
+        val budget = free.toDouble() * fraction.coerceIn(0.01, 0.5)
+        var low = 2
+        var high = max.coerceAtLeast(2)
+        while (low < high) {
+            val mid = low + (high - low + 1) / 2
+            if (estimateWindowBytes(e, nLayers, nHeads, mid) <= budget) low = mid else high = mid - 1
+        }
+        // min هدف مفضّل فقط؛ لا نكسر ميزانية الذاكرة لإجباره.
+        return low
     }
 }
 
@@ -2324,7 +2349,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         return (lr * (0.3 + 0.7 * 0.5 * (1.0 + Math.cos(Math.PI * t)))).toFloat()
     }
 
-    private fun trainOn(ids: IntArray, epochs: Int, lr: Float, chunk: Int) {
+    private fun trainOn(ids: IntArray, epochs: Int, lr: Float, chunk: Int = h) {
         val win = minOf(chunk, h)
         val perEpoch = maxOf(1, (ids.size - 1 + win - 1) / win)
         val total = maxOf(1, epochs * perEpoch)
@@ -2395,7 +2420,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     fun snapshot(): List<FloatArray> = P.map { it.copyOf() }
     fun restoreSnapshot(s: List<FloatArray>) { for (k in P.indices) System.arraycopy(s[k], 0, P[k], 0, P[k].size) }
 
-    fun develop(texts: List<String>, epochs: Int, lr: Float, rehearse: String = "", chunk: Int = 96): Pair<Float, Float> {
+    fun develop(texts: List<String>, epochs: Int, lr: Float, rehearse: String = "", chunk: Int = h): Pair<Float, Float> {
         val sb = StringBuilder()
         for (tx in texts) sb.append("س:").append(tx.take(6000)).append("\n")
         val heard = if (sb.length > 24000) sb.substring(sb.length - 24000) else sb.toString()
@@ -2416,7 +2441,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         return Pair(before, after)
     }
 
-    fun trainBig(corpus: String, rehearse: String, epochs: Int, lr: Float, bookChunk: Int = 3000, chunk: Int = 128): String {
+    fun trainBig(corpus: String, rehearse: String, epochs: Int, lr: Float, bookChunk: Int = 3000, chunk: Int = h): String {
         val safeCorpus = corpus
         if (safeCorpus.length < 8) return "النص قصير جدًا، ما يستاهل تدريب."
         val reh = rehearse
@@ -2486,7 +2511,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         /** عدد معاملات الترانسفورمر بالضبط (3 طبقات، ff = 4e): نفس تركيب _P فوق. الصيغة القديمة في growModel كانت لبنية GRU وما تناسب هذي. */
         fun estimateParams(v: Int, e: Int, h: Int): Long {
             val ee = e.toLong()
-            val perLayer = 12L * ee * ee + 10L * ee + 4L * ee   // 4e² (Q,K,V,O) + 8e² (FFN) + تحيّزات وLN
+            val perLayer = 12L * ee * ee + 10L * ee   // 4e² (Q,K,V,O) + 8e² (FFN) + 10e للتحيّزات وLayerNorm
             return (v + 1L) * ee + h.toLong() * ee + 3L * perLayer + 2L * ee + ee * v + v
         }
         var EMBEDDED_WEIGHTS_B64: String = ""
@@ -2518,9 +2543,65 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             return n
         }
 
-        /** تكبير الحجم لهذي البنية: ما فيه طريقة معروفة تحافظ على نفس السلوك بالضبط (خلاف الـGRU القديم اللي
-         *  كان ينسخ أعمدة الأوزان حرفيًا). نسخة صادقة: نموذج جديد بتهيئة عشوائية بالحجم الجديد، معرفة old ما تنتقل. */
-        fun grow(old: Nlm, newE: Int, newH: Int): Nlm = fresh(newE, newH, old.chars)
+        /** تكبير مع نقل الأوزان المتعلمة إلى القنوات المناظرة داخل كل رأس انتباه.
+         *  الأبعاد الجديدة تُهيّأ مسبقًا عشوائيًا ثم نملأ الجزء القديم؛ النقل يحافظ على المعرفة قدر الإمكان،
+         *  لكنه ليس تطابقًا رياضيًا كاملًا عندما يتغير e لأن LayerNorm يعمل على عرض التضمين الجديد. */
+        fun grow(old: Nlm, newE: Int, newH: Int): Nlm {
+            require(newE >= old.e && newH >= old.h) { "new dimensions must not shrink" }
+            require(newE % old.nHeads == 0 && old.e % old.nHeads == 0) { "embedding size must be divisible by head count" }
+            val n = fresh(newE, newH, old.chars)
+            val oldHd = old.hd
+            val newHd = n.hd
+            fun mapChannel(i: Int): Int = (i / oldHd) * newHd + (i % oldHd)
+
+            // Token and position embeddings: preserve each old channel within its original attention head.
+            for (token in 0..old.v) for (c in 0 until old.e) {
+                n.P[n.tokEmb][token * newE + mapChannel(c)] = old.P[old.tokEmb][token * old.e + c]
+            }
+            for (pos in 0 until old.h) for (c in 0 until old.e) {
+                n.P[n.posEmb][pos * newE + mapChannel(c)] = old.P[old.posEmb][pos * old.e + c]
+            }
+
+            fun copyEmbedVector(src: FloatArray, dst: FloatArray) {
+                for (c in 0 until old.e) dst[mapChannel(c)] = src[c]
+            }
+            fun copyEmbedMatrix(src: FloatArray, dst: FloatArray) {
+                for (row in 0 until old.e) for (col in 0 until old.e) {
+                    dst[mapChannel(row) * newE + mapChannel(col)] = src[row * old.e + col]
+                }
+            }
+
+            for (li in old.layers.indices) {
+                val a = old.layers[li]
+                val b = n.layers[li]
+                copyEmbedVector(old.P[a.ln1g], n.P[b.ln1g])
+                copyEmbedVector(old.P[a.ln1b], n.P[b.ln1b])
+                copyEmbedMatrix(old.P[a.wq], n.P[b.wq])
+                copyEmbedMatrix(old.P[a.wk], n.P[b.wk])
+                copyEmbedMatrix(old.P[a.wv], n.P[b.wv])
+                copyEmbedMatrix(old.P[a.wo], n.P[b.wo])
+                copyEmbedVector(old.P[a.bo], n.P[b.bo])
+                copyEmbedVector(old.P[a.ln2g], n.P[b.ln2g])
+                copyEmbedVector(old.P[a.ln2b], n.P[b.ln2b])
+
+                // FFN hidden channels are not split into attention heads; keep their existing order.
+                for (row in 0 until old.e) for (col in 0 until old.ff) {
+                    n.P[b.w1][mapChannel(row) * n.ff + col] = old.P[a.w1][row * old.ff + col]
+                }
+                System.arraycopy(old.P[a.b1], 0, n.P[b.b1], 0, old.ff)
+                for (row in 0 until old.ff) for (col in 0 until old.e) {
+                    n.P[b.w2][row * newE + mapChannel(col)] = old.P[a.w2][row * old.e + col]
+                }
+                copyEmbedVector(old.P[a.b2], n.P[b.b2])
+            }
+            copyEmbedVector(old.P[old.lnFg], n.P[n.lnFg])
+            copyEmbedVector(old.P[old.lnFb], n.P[n.lnFb])
+            for (row in 0 until old.e) for (col in 0 until old.v) {
+                n.P[n.wout][mapChannel(row) * old.v + col] = old.P[old.wout][row * old.v + col]
+            }
+            System.arraycopy(old.P[old.bout], 0, n.P[n.bout], 0, old.v)
+            return n
+        }
 
         fun load(b: ByteArray): Nlm {
             require(b.size > 20 && b[0] == 0x4E.toByte() && b[1] == 0x4C.toByte() && b[2] == 0x4D.toByte() && b[3] == 0x32.toByte()) { "not an NLM2 file" }
