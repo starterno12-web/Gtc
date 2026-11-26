@@ -1,7 +1,7 @@
 package ai.nuwaa
 
 fun main() {
-    val defaultChars = (" \n\t.,!?:;'\\\"()[]{}-_=+*/\\\\<>@#$%^&|~`" +
+    val defaultChars = (" \n\t.,!?:;'\"()[]{}-_=+*/\\<>@#$%^&|~" + '\u0060' +
         "0123456789" +
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
         "ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ")
