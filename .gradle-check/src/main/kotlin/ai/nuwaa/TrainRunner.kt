@@ -36,8 +36,8 @@ private val evaluationQuestions = listOf(
     "ما أكبر محيط على الأرض؟"
 )
 
-private fun defaultVocabulary(): List<String> =
-    (" \n\t.,!?:;'\\"()[]{}-_=+*/\\<>@#$%^&|~" + '`' +
+internal fun defaultVocabulary(): List<String> =
+    (" \n\t" + """.,!?:;'"()[]{}-_=+*/\\<>@#$%^&|~`""" +
         "0123456789" +
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
         "ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ")
