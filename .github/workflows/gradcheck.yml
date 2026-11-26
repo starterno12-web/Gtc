@@ -31,7 +31,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10'
-      - name: Extract the exact Android NLM2 engine
+      - name: Extract the exact Android NLM2 engine and session
         run: python3 .gradle-check/extract_engine.py
       - name: Compile and run numerical gradient check
-        run: gradle -p .gradle-check --no-daemon run
+        run: gradle -p .gradle-check --no-daemon run --args=gradcheck
