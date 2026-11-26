@@ -1538,9 +1538,9 @@ object ContextSizer {
         return linear * t + quadratic * t * t
     }
 
-    /** نختار أكبر نافذة تقع داخل نسبة آمنة من heap المتاح. الحد الأدنى ليس مفروضًا بالقوة:
-     *  إذا كانت الذاكرة لا تكفي لـ256 حرفًا نرجع نافذة أصغر بدل فرض رقم قد يسبب OOM. */
-    fun pick(e: Int, nLayers: Int, nHeads: Int = 8, min: Int = 256, max: Int = 2_000_000, fraction: Double = 0.12): Int {
+    /** نختار أكبر نافذة تقع داخل نسبة آمنة من heap المتاح. لا نفرض حدًا أدنى مصطنعًا
+     *  إذا كانت الذاكرة لا تكفي لـ256 حرفًا؛ سلامة الذاكرة أهم من بلوغ رقم ثابت. */
+    fun pick(e: Int, nLayers: Int, nHeads: Int = 8, max: Int = 2_000_000, fraction: Double = 0.12): Int {
         val rt = Runtime.getRuntime()
         val free = (rt.maxMemory() - (rt.totalMemory() - rt.freeMemory())).coerceAtLeast(1L)
         val budget = free.toDouble() * fraction.coerceIn(0.01, 0.5)
