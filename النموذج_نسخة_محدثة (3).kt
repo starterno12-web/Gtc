@@ -2583,6 +2583,11 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
                 copyEmbedVector(old.P[a.ln1b], n.P[b.ln1b])
                 copyEmbedMatrix(old.P[a.wq], n.P[b.wq])
                 copyEmbedMatrix(old.P[a.wk], n.P[b.wk])
+                // Keep the old attention-logit scale when headDim grows:
+                // newScale=1/sqrt(newHd), so Q and K each need a fourth-root factor.
+                val qkScale = Math.sqrt(Math.sqrt(newHd.toDouble() / oldHd.toDouble())).toFloat()
+                for (i in n.P[b.wq].indices) n.P[b.wq][i] *= qkScale
+                for (i in n.P[b.wk].indices) n.P[b.wk][i] *= qkScale
                 copyEmbedMatrix(old.P[a.wv], n.P[b.wv])
                 copyEmbedMatrix(old.P[a.wo], n.P[b.wo])
                 copyEmbedVector(old.P[a.bo], n.P[b.bo])
