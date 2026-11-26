@@ -16,5 +16,5 @@ kotlin {
 }
 
 application {
-    mainClass.set("ai.nuwaa.GradCheckKt")
+    mainClass.set("ai.nuwaa.TrainRunnerKt")
 }
