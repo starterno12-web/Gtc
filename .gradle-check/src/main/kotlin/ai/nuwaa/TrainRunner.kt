@@ -143,12 +143,13 @@ private fun train() {
     check(reloaded.toBytes().contentEquals(outputBytes)) {
         "Saved NLM2 failed its byte-for-byte serialization round trip."
     }
-    val output = File("nlm2.bin")
-    val temp = File("nlm2.bin.tmp")
+    val workspace = File(System.getenv("GITHUB_WORKSPACE") ?: ".")
+    val output = File(workspace, "nlm2.bin")
+    val temp = File(workspace, "nlm2.bin.tmp")
     temp.writeBytes(outputBytes)
     check(temp.renameTo(output)) { "Could not atomically move trained weights to repository root." }
     report.appendLine("Saved root artifact: nlm2.bin (${output.length()} bytes)")
-    File("training-report.txt").writeText(report.toString(), Charsets.UTF_8)
+    File(workspace, "training-report.txt").writeText(report.toString(), Charsets.UTF_8)
     println(report.toString())
 }
 
