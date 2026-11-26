@@ -85,7 +85,7 @@ jobs:
       - name: Compile and train the real NLM2 model, then ask held-out questions
         run: gradle -p .gradle-check --no-daemon run
 
-      - name: Verify only final root weights are staged
+      - name: Verify final NLM2 weights exist at repository root
         shell: bash
         run: |
           set -euo pipefail
