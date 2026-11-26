@@ -1185,7 +1185,7 @@ class Brain private constructor(private val ctx: Context) {
             }
             synchronized(lock) { nlm = grown; sessions.clear() }
             saveNlm()
-            "✅ كبّرت النموذج فعلا: من " + m.paramCount() + " إلى " + grown.paramCount() + " معامل. نُقلت الأوزان القديمة إلى أبعادها المناظرة، والأبعاد الجديدة بدأت بتهيئة جديدة؛ لذلك حُفظ معظم ما تعلّمه لكن السلوك ليس مطابقًا حرفيًا قبل إعادة التدريب. " + ModelHealth.describe(grown) + " احفظت الحالة الجديدة؛ درّبه من ⚡ رفع الفهم."
+            "✅ كبّرت النموذج فعلا: من " + m.paramCount() + " إلى " + grown.paramCount() + " معامل. نُقلت الأوزان القديمة إلى أبعادها المناظرة، والأبعاد الجديدة بدأت بقيم صفرية محايدة؛ لذلك حُفظ معظم ما تعلّمه لكن السلوك ليس مطابقًا حرفيًا قبل إعادة التدريب. " + ModelHealth.describe(grown) + " احفظت الحالة الجديدة؛ درّبه من ⚡ رفع الفهم."
         } catch (e: Throwable) { "⚠ فشل التكبير: " + (e.message ?: e.javaClass.simpleName) }
     }
 
@@ -2544,7 +2544,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         }
 
         /** تكبير مع نقل الأوزان المتعلمة إلى القنوات المناظرة داخل كل رأس انتباه.
-         *  الأبعاد الجديدة تُهيّأ مسبقًا عشوائيًا ثم نملأ الجزء القديم؛ النقل يحافظ على المعرفة قدر الإمكان،
+         *  الأبعاد الجديدة تُصفّر لتبدأ دون ضوضاء عشوائية ثم نملأ الجزء القديم؛ النقل يحافظ على المعرفة قدر الإمكان،
          *  لكنه ليس تطابقًا رياضيًا كاملًا عندما يتغير e لأن LayerNorm يعمل على عرض التضمين الجديد. */
         fun grow(old: Nlm, newE: Int, newH: Int): Nlm {
             require(newE >= old.e && newH >= old.h) { "new dimensions must not shrink" }
