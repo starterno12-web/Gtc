@@ -1,4 +1,4 @@
-name: Arabic Engine Training
+name: STOPOET
 
 on:
   workflow_dispatch:
