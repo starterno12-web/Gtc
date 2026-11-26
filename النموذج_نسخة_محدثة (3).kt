@@ -2554,6 +2554,9 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             val newHd = n.hd
             fun mapChannel(i: Int): Int = (i / oldHd) * newHd + (i % oldHd)
 
+            // New channels start inert (zero), so random expansion does not inject noise into learned behavior.
+            n.P[n.tokEmb].fill(0f)
+            n.P[n.posEmb].fill(0f)
             // Token and position embeddings: preserve each old channel within its original attention head.
             for (token in 0..old.v) for (c in 0 until old.e) {
                 n.P[n.tokEmb][token * newE + mapChannel(c)] = old.P[old.tokEmb][token * old.e + c]
@@ -2563,9 +2566,11 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             }
 
             fun copyEmbedVector(src: FloatArray, dst: FloatArray) {
+                dst.fill(0f)
                 for (c in 0 until old.e) dst[mapChannel(c)] = src[c]
             }
             fun copyEmbedMatrix(src: FloatArray, dst: FloatArray) {
+                dst.fill(0f)
                 for (row in 0 until old.e) for (col in 0 until old.e) {
                     dst[mapChannel(row) * newE + mapChannel(col)] = src[row * old.e + col]
                 }
@@ -2585,6 +2590,9 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
                 copyEmbedVector(old.P[a.ln2b], n.P[b.ln2b])
 
                 // FFN hidden channels are not split into attention heads; keep their existing order.
+                n.P[b.w1].fill(0f)
+                n.P[b.b1].fill(0f)
+                n.P[b.w2].fill(0f)
                 for (row in 0 until old.e) for (col in 0 until old.ff) {
                     n.P[b.w1][mapChannel(row) * n.ff + col] = old.P[a.w1][row * old.ff + col]
                 }
@@ -2596,6 +2604,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             }
             copyEmbedVector(old.P[old.lnFg], n.P[n.lnFg])
             copyEmbedVector(old.P[old.lnFb], n.P[n.lnFb])
+            n.P[n.wout].fill(0f)
             for (row in 0 until old.e) for (col in 0 until old.v) {
                 n.P[n.wout][mapChannel(row) * old.v + col] = old.P[old.wout][row * old.v + col]
             }
