@@ -15,6 +15,9 @@ on:
         default: "0.0003"
         type: choice
         options: ["0.0001", "0.0003", "0.0005", "0.001"]
+  push:
+    paths:
+      - '.github/workflows/train-nlm2.yml'
 
 permissions:
   contents: write
@@ -29,8 +32,8 @@ jobs:
     timeout-minutes: 360
     env:
       NUWAA_INPUT_FILE: ${{ runner.temp }}/nuwaa-drive-input.bin
-      NUWAA_EPOCHS: ${{ inputs.epochs }}
-      NUWAA_LR: ${{ inputs.learning_rate }}
+      NUWAA_EPOCHS: ${{ inputs.epochs || '2' }}
+      NUWAA_LR: ${{ inputs.learning_rate || '0.0003' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
