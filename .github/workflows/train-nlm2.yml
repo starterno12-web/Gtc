@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
-      NUWAA_INPUT_FILE: ${{ runner.temp }}/nuwaa-drive-input.bin
+      NUWAA_INPUT_FILE: /tmp/nuwaa-drive-input.bin
       NUWAA_EPOCHS: ${{ inputs.epochs || '2' }}
       NUWAA_LR: ${{ inputs.learning_rate || '0.0003' }}
     steps:
