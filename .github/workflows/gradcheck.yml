@@ -1,0 +1,37 @@
+name: NLM2 Gradient Check
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'النموذج_نسخة_محدثة (3).kt'
+      - '.github/workflows/gradcheck.yml'
+      - '.gradle-check/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nlm2-gradcheck
+  cancel-in-progress: true
+
+jobs:
+  gradcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10'
+      - name: Extract the exact Android NLM2 engine
+        run: python3 .gradle-check/extract_engine.py
+      - name: Compile and run numerical gradient check
+        run: gradle -p .gradle-check --no-daemon run
