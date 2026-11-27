@@ -2135,7 +2135,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     private fun forwardProbsLast(x: IntArray): FloatArray {
         val T = x.size; val d = e
         var cur = Array(T) { FloatArray(d) }
-        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) cur[t][q] = P[tokEmb][id * d + q] + P[posEmb][t * d + q] }
+        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) cur[t][q] = P[tokEmb][id * d + q] + P[posEmb][(posOffset + t) * d + q] }
         val scale = (1.0 / Math.sqrt(hd.toDouble())).toFloat()
         for (L in layers) {
             val ln1 = Array(T) { FloatArray(d) }; val xh1 = Array(T) { FloatArray(d) }
@@ -2179,6 +2179,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     // ---------------------------------------------------------------- forward+backward كامل فوق نافذة (للتدريب)
     private fun run(x: IntArray, y: IntArray, grads: Boolean): Pair<Float, List<FloatArray>?> {
         val T = minOf(x.size, h); val d = e
+        val posOffset = h - T // Short training windows align to the newest positions used by generation.
         val scale = (1.0 / Math.sqrt(hd.toDouble())).toFloat()
         val embIn = Array(T) { FloatArray(d) }
         for (t in 0 until T) { val id = x[t]; for (q in 0 until d) embIn[t][q] = P[tokEmb][id * d + q] + P[posEmb][t * d + q] }
@@ -2297,7 +2298,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             }
             dCur = dAttnIn
         }
-        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) { g[tokEmb][id * d + q] += dCur[t][q]; g[posEmb][t * d + q] += dCur[t][q] } }
+        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) { g[tokEmb][id * d + q] += dCur[t][q]; g[posEmb][(posOffset + t) * d + q] += dCur[t][q] } }
         return Pair(loss, g)
     }
 
@@ -2365,12 +2366,11 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     }
 
     private fun makeWindow(ids: IntArray, s0: Int, win: Int): Pair<IntArray, IntArray> {
-        val x = IntArray(h) { PAD }; val y = IntArray(h) { -1 }
-        val off = h - win                                 // لو win < h يبقى الجزء الأمامي حشو دايمًا (نفس مواضع التوليد)
+        val x = IntArray(win) { PAD }; val y = IntArray(win) { -1 }
         for (j in 0 until win) {
             val pos = s0 + j
             if (pos < 0 || pos >= ids.size - 1) continue
-            x[off + j] = ids[pos]; y[off + j] = ids[pos + 1]
+            x[j] = ids[pos]; y[j] = ids[pos + 1]
         }
         return Pair(x, y)
     }
