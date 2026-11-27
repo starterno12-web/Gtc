@@ -110,7 +110,7 @@ private fun runStreamCheck() {
         text = sample,
         epochs = 2,
         lr = 0.0001f,
-        chunk = 128
+        chunk = 16
     ) { step, total, seen ->
         check(step in 1..total && seen > 0) { "Invalid streaming progress callback." }
         progressCalls++
@@ -220,7 +220,7 @@ private fun train() {
             text = text,
             epochs = epochs,
             lr = lr,
-            chunk = 16
+            chunk = 128
         ) { step, total, seenTargets ->
             batchSteps = step
             println("TRAIN_PROGRESS batch=" + trainingBatches + " windows=" + step + "/" + total +
