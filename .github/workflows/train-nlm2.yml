@@ -15,11 +15,6 @@ on:
         default: "0.0001"
         type: choice
         options: ["0.0001", "0.0003", "0.0005", "0.001"]
-  push:
-    paths:
-      - '.github/workflows/train-nlm2.yml'
-      - '.gradle-check/src/main/kotlin/ai/nuwaa/TrainRunner.kt'
-      - 'النموذج_نسخة_محدثة (4).kt'
 
 permissions:
   contents: write
