@@ -139,56 +139,68 @@ private fun train() {
     require(epochs in 1..5) { "NUWAA_EPOCHS must be between 1 and 5." }
     require(lr.isFinite() && lr in 0.000001f..0.01f) { "NUWAA_LR is outside the safe configured range." }
 
-    // Second pass: collect a bounded set of contiguous excerpts distributed across the full source.
-    // Scanning validates the entire 1 GiB corpus; training every character with overlapping windows
-    // would create tens of millions of expensive Transformer gradient steps and take hours.
-    println("Pass 2/3: collecting representative excerpts from across the complete source.")
+    // Second pass: stream every source character through training in bounded-memory batches.
+    // Keep a context-sized overlap so no source boundary loses its next-character targets.
+    println("Pass 2/3: streaming the complete source through sequential training batches.")
     val report = StringBuilder()
     report.appendLine("Input format: complete UTF-8 text corpus")
     report.appendLine("Input bytes: " + fileSize)
     report.appendLine("Complete source characters scanned: " + totalChars)
     report.appendLine("Model: e=" + model.e + ", context=" + model.h + ", vocabulary=" + model.v + ", parameters=" + model.paramCount())
     report.appendLine("Epochs: " + epochs + "; learning rate: " + lr)
-    val sampleTarget = 4096
-    val segmentCount = 16
-    val segmentLength = sampleTarget / segmentCount
-    val starts = (0 until segmentCount).map { i ->
-        (((totalChars - segmentLength).coerceAtLeast(0) * i) / (segmentCount - 1)).toInt()
+    val batchChars = 1_000_000
+    val overlapChars = maxOf(model.h, 16)
+    val carry = StringBuilder(overlapChars)
+    val batch = StringBuilder(batchChars + overlapChars)
+    val readBuffer = CharArray(64 * 1024)
+    var trainedSourceChars = 0L
+    var trainingBatches = 0
+    var pending = 0
+
+    fun trainBatch(finalBatch: Boolean) {
+        if (batch.length <= overlapChars && !finalBatch) return
+        val text = batch.toString()
+        val freshChars = (text.length - if (trainingBatches == 0) 0 else carry.length).coerceAtLeast(0)
+        if (freshChars < 1) return
+        val result = model.trainBig(text, trainingPairs, epochs, lr, bookChunk = 1000, chunk = 16)
+        check(result.contains("قُبلت")) {
+            "Full-corpus batch " + (trainingBatches + 1) + " was rejected; checkpoint will not be published. " + result
+        }
+        trainingBatches++
+        trainedSourceChars += freshChars
+        report.appendLine("Batch " + trainingBatches + ": source characters=" + freshChars + "; accepted")
+        println("Accepted full-corpus training batch " + trainingBatches + "; source characters covered=" + trainedSourceChars)
+        val keep = minOf(overlapChars, batch.length)
+        carry.setLength(0)
+        carry.append(batch, batch.length - keep, batch.length)
+        batch.setLength(0)
+        batch.append(carry)
     }
-    val sample = StringBuilder(sampleTarget + segmentCount)
-    var position = 0L
-    var segment = 0
+
     InputStreamReader(FileInputStream(input), StandardCharsets.UTF_8.newDecoder()
         .onMalformedInput(CodingErrorAction.REPORT)
         .onUnmappableCharacter(CodingErrorAction.REPORT)).buffered(64 * 1024).use { reader ->
-        val chars = CharArray(64 * 1024)
         while (true) {
-            val n = reader.read(chars)
+            val n = reader.read(readBuffer)
             if (n < 0) break
-            for (i in 0 until n) {
-                while (segment < segmentCount && position >= starts[segment].toLong() + segmentLength) {
-                    segment++
-                    if (segment < segmentCount) sample.append('\n')
-                }
-                if (segment < segmentCount && position >= starts[segment].toLong() && chars[i] != '\uFEFF') {
-                    sample.append(chars[i])
-                }
-                position++
+            batch.append(readBuffer, 0, n)
+            pending += n
+            if (pending >= batchChars) {
+                trainBatch(false)
+                pending = batch.length - carry.length
             }
         }
     }
-    require(sample.length >= 512) { "Could not collect enough representative source text." }
-    println("Collected " + sample.length + " characters in " + segmentCount + " excerpts; starting bounded training.")
-    val result = model.trainBig(sample.toString(), trainingPairs, epochs, lr, bookChunk = 1000, chunk = 16)
-    check(result.contains("قُبلت")) {
-        "Representative corpus training was rejected; no checkpoint will be published. " + result
+    trainBatch(true)
+    check(trainingBatches > 0 && trainedSourceChars >= totalChars) {
+        "Full-corpus coverage check failed: trained " + trainedSourceChars + " of " + totalChars + " characters."
     }
-    report.appendLine("Training strategy: 16 evenly distributed contiguous excerpts")
-    report.appendLine("Training sample characters: " + sample.length)
-    report.appendLine("Accepted training calls: 1")
-    report.appendLine(result)
+    report.appendLine("Training strategy: sequential streaming over the complete source; no sampled excerpts")
+    report.appendLine("Training batch characters: " + batchChars)
+    report.appendLine("Accepted training batches: " + trainingBatches)
+    report.appendLine("Source characters covered by training batches: " + trainedSourceChars)
     report.appendLine("Source scan coverage: " + totalChars + " characters (100%)")
-    
+
     // Third pass in the requested sequence: ask exactly 30 questions, then serialize all model parameters.
     println("Pass 3/3: asking 30 questions after the complete corpus pass.")
     report.appendLine()
