@@ -2496,7 +2496,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
                 if (valid > 0) {
                     val gradients = run(window.first, window.second, true).second
                         ?: error("Gradient calculation returned null during corpus training.")
-                    adam(gradients, lrAt(step, totalSteps, lr))
+                    adam(gradients, lr)
                     trainedTargets += valid
                     step++
                     if (step % 256 == 0 || step == totalSteps) {
