@@ -1,0 +1,36 @@
+name: Verify NLM2 checkpoint continuity
+
+on:
+  push:
+    paths:
+      - ".gradle-check/**"
+      - "النموذج_نسخة_محدثة (4).kt"
+      - ".github/workflows/verify-nlm2.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10"
+
+      - name: Extract the exact NLM2 engine
+        run: python3 .gradle-check/extract_engine.py
+
+      - name: Compile and verify streaming updates, serialization, and checkpoint continuity
+        run: gradle -p .gradle-check --no-daemon run --args=streamcheck
