@@ -119,7 +119,27 @@ private fun runStreamCheck() {
     check(Nlm.load(bytes).toBytes().contentEquals(bytes)) {
         "Streaming self-test checkpoint failed serialization round-trip."
     }
-    println("STREAM_CHECK_OK targets=$trainedTargets progress_callbacks=$progressCalls weights_changed=true serialization_round_trip=true")
+    val prior = Nlm.load(bytes)
+    val continued = Nlm.loadForTraining(
+        bytes = bytes,
+        additionalChars = listOf("Ж"),
+        expectedE = prior.e,
+        expectedH = prior.h
+    )
+    check(continued.chars.take(prior.v) == prior.chars) {
+        "Checkpoint continuation changed the existing vocabulary order."
+    }
+    for (k in prior.P.indices) {
+        if (prior.P[k].size == continued.P[k].size) {
+            check(prior.P[k].contentEquals(continued.P[k])) {
+                "Checkpoint continuation changed an existing parameter array at index " + k
+            }
+        }
+    }
+    check(Nlm.load(continued.toBytes()).chars == continued.chars) {
+        "Expanded checkpoint failed reload verification."
+    }
+    println("STREAM_CHECK_OK targets=$trainedTargets progress_callbacks=$progressCalls weights_changed=true serialization_round_trip=true checkpoint_continuity=true")
 }
 
 
@@ -309,6 +329,10 @@ private fun train() {
     report.appendLine("Next-character targets used in optimizer updates: " + trainedTargets)
     report.appendLine("Unique source characters streamed: " + trainedSourceChars + " / " + totalChars)
     report.appendLine("Source scan coverage: " + totalChars + " characters (100%)")
+    val trainedCheckpoint = persistCheckpoint(model, workspace)
+    report.appendLine("Updated checkpoint persisted immediately after corpus training: " + trainedCheckpoint.length() + " bytes")
+    println("TRAINED_CHECKPOINT_PERSISTED bytes=" + trainedCheckpoint.length())
+    System.out.flush()
 
     // Third pass in the requested sequence: ask exactly 30 questions, then serialize all model parameters.
     println("Pass 3/3: asking 30 questions after the complete corpus pass.")
