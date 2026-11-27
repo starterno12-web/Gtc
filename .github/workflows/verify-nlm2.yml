@@ -10,6 +10,12 @@ on:
 permissions:
   contents: read
 
+# Share the training lock: a code-verification push must stop any stale
+# training run started from an older checkpoint-handling implementation.
+concurrency:
+  group: nuwaa-single-drive-training
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
