@@ -90,6 +90,15 @@ private fun readUtf8Prefix(file: File, maxChars: Int): String {
     }
 }
 
+private fun runGradCheck() {
+    val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
+    val result = model.gradCheck(picks = 70)
+    println(result)
+    check(result.startsWith("✅")) {
+        "NLM2 gradient check failed; training is blocked: " + result
+    }
+}
+
 private fun train() {
     val input = File(System.getenv("NUWAA_INPUT_FILE") ?: "/tmp/nuwaa-source.bin")
     require(input.isFile && input.length() in 1..2_000_000_000L) {
