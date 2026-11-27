@@ -36,4 +36,6 @@ jobs:
         run: python3 .gradle-check/extract_engine.py
 
       - name: Compile and run the numerical gradient check
-        run: gradle -p .gradle-check --no-daemon run --args=gradcheck
+        run: |
+          gradle -p .gradle-check --no-daemon run --args=gradcheck
+          gradle -p .gradle-check --no-daemon run --args=streamcheck
