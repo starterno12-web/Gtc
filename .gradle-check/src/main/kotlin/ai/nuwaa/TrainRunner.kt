@@ -29,13 +29,35 @@ private val trainingPairs = listOf(
 
 private val evaluationQuestions = listOf(
     "ما عاصمة المملكة العربية السعودية؟",
+    "ما عاصمة مصر؟",
+    "ما عاصمة فرنسا؟",
+    "ما عاصمة اليابان؟",
     "ما الكوكب الأحمر؟",
-    "ما الصيغة الكيميائية للماء؟",
     "ما أكبر كواكب المجموعة الشمسية؟",
+    "ما الصيغة الكيميائية للماء؟",
+    "كم عدد قارات العالم؟",
     "ما اللغة الرسمية في البرازيل؟",
-    "ما العضو الذي يضخ الدم؟",
-    "ما وحدة قياس التيار الكهربائي؟",
-    "ما أكبر محيط على الأرض؟"
+    "من وضع قوانين الحركة الثلاثة؟",
+    "ما العضو الذي يضخ الدم في جسم الإنسان؟",
+    "ما وحدة قياس شدة التيار الكهربائي؟",
+    "ما ناتج 12 ضرب 8؟",
+    "ما أكبر محيط على الأرض؟",
+    "ما وظيفة جذور النبات؟",
+    "ما الغاز الذي تمتصه النباتات في البناء الضوئي؟",
+    "ما أقرب كوكب إلى الشمس؟",
+    "ما النجم الأقرب إلى الأرض؟",
+    "ما درجة تجمد الماء بالسلسيوس؟",
+    "ما وحدة قياس القوة؟",
+    "ما عاصمة إيطاليا؟",
+    "ما عاصمة المملكة المتحدة؟",
+    "كم ضلعًا للمثلث؟",
+    "ما اسم العملية التي تصنع بها النباتات غذاءها؟",
+    "ما أكبر عضو في جسم الإنسان؟",
+    "ما المعدن السائل في درجة حرارة الغرفة؟",
+    "ما ناتج 15 ضرب 7؟",
+    "ما اللغة التي يتحدث بها معظم سكان الأرجنتين؟",
+    "ما الجهاز المسؤول عن التنفس عند الإنسان؟",
+    "ما الكوكب الذي نعيش عليه؟"
 )
 
 internal fun defaultVocabulary(): List<String> =
@@ -70,7 +92,7 @@ private fun readUtf8Prefix(file: File, maxChars: Int): String {
 
 private fun train() {
     val input = File(System.getenv("NUWAA_INPUT_FILE") ?: "/tmp/nuwaa-source.bin")
-    require(input.isFile && input.length() in 1..(2_000_000_000L)) {
+    require(input.isFile && input.length() in 1..2_000_000_000L) {
         "Drive download is missing, empty, or larger than the supported 2 GB input limit."
     }
     val fileSize = input.length()
@@ -79,60 +101,108 @@ private fun train() {
     val isNlm2 = prefixRead == 4 &&
         prefix[0] == 0x4E.toByte() && prefix[1] == 0x4C.toByte() &&
         prefix[2] == 0x4D.toByte() && prefix[3] == 0x32.toByte()
+    require(!isNlm2) { "The configured Drive input is a checkpoint, not the expected UTF-8 corpus." }
 
-    println("Downloaded input size: $fileSize bytes; first 4 bytes: " +
-        prefix.take(prefixRead.coerceAtLeast(0)).joinToString(" ") { "%02X".format(it) })
-    val textCorpus = if (isNlm2) null else readUtf8Prefix(input, 250_000)
-    val model = if (isNlm2) {
-        require(fileSize <= 90L * 1024L * 1024L) {
-            "NLM2 checkpoint exceeds GitHub's normal single-file storage limit. Configure Git LFS or split the checkpoint before committing it."
+    val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
+    val allowed = model.chars.toHashSet()
+    val decoder = StandardCharsets.UTF_8.newDecoder()
+        .onMalformedInput(CodingErrorAction.REPORT)
+        .onUnmappableCharacter(CodingErrorAction.REPORT)
+
+    // First pass: finish reading and validate every character before any training begins.
+    println("Pass 1/3: scanning the complete source before training.")
+    var totalChars = 0L
+    val unsupported = HashMap<Int, Long>()
+    InputStreamReader(FileInputStream(input), decoder).buffered(64 * 1024).use { reader ->
+        val chars = CharArray(64 * 1024)
+        while (true) {
+            val n = reader.read(chars)
+            if (n < 0) break
+            totalChars += n
+            for (i in 0 until n) {
+                val c = chars[i]
+                if (!allowed.contains(c.toString()) && c != '\uFEFF') {
+                    unsupported[c.code] = (unsupported[c.code] ?: 0L) + 1L
+                }
+            }
         }
-        println("Input format: NLM2 checkpoint; loading its existing learned weights.")
-        Nlm.load(Files.readAllBytes(input.toPath()))
-    } else {
-        println("Input format: UTF-8 text corpus; reading at most 250,000 characters for bounded-memory training.")
-        Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
     }
+    require(totalChars >= 200) { "The complete source contains too few characters." }
+    require(unsupported.isEmpty()) {
+        "The corpus contains characters outside the model vocabulary; refusing to silently skip them: " +
+            unsupported.entries.sortedByDescending { it.value }.take(12)
+                .joinToString { "U+" + it.key.toString(16).uppercase() + "=" + it.value }
+    }
+    println("Complete read and UTF-8 validation passed: " + totalChars + " characters, " + fileSize + " bytes.")
 
-    val qa = compatibleText(trainingPairs, model)
-    require(qa.length >= 200) {
-        "The input model vocabulary cannot represent the Arabic QA training set; refusing unsafe partial training."
-    }
-    val corpus = if (isNlm2) qa else compatibleText(textCorpus!!, model)
-    require(corpus.length >= 200) {
-        "The supplied text file has too few characters supported by the model vocabulary."
-    }
-
-    val epochs = (System.getenv("NUWAA_EPOCHS") ?: "2").toInt()
-    val lr = (System.getenv("NUWAA_LR") ?: "0.0003").toFloat()
+    val epochs = (System.getenv("NUWAA_EPOCHS") ?: "1").toInt()
+    val lr = (System.getenv("NUWAA_LR") ?: "0.0001").toFloat()
     require(epochs in 1..5) { "NUWAA_EPOCHS must be between 1 and 5." }
     require(lr.isFinite() && lr in 0.000001f..0.01f) { "NUWAA_LR is outside the safe configured range." }
 
-    println("Model shape: e=${model.e}, context=${model.h}, vocabulary=${model.v}, parameters=${model.paramCount()}.")
-    println("Training corpus characters: ${corpus.length}; QA rehearsal characters: ${qa.length}.")
-    val result = model.trainBig(corpus, qa, epochs, lr, bookChunk = 1000, chunk = model.h)
-    println(result)
-    check(result.contains("قُبلت")) {
-        "Training was not accepted by the model's own BPC/rehearsal guard. Existing checkpoint will not be overwritten."
-    }
-
+    // Second pass: train every source character using bounded batches and h-character overlap.
+    println("Pass 2/3: streaming training across the complete corpus.")
     val report = StringBuilder()
-    report.appendLine("Input format: ${if (isNlm2) "NLM2 checkpoint" else "UTF-8 text corpus"}")
-    report.appendLine("Model: e=${model.e}, context=${model.h}, vocabulary=${model.v}, parameters=${model.paramCount()}")
-    report.appendLine("Epochs: $epochs; learning rate: $lr")
-    report.appendLine(result)
+    report.appendLine("Input format: complete UTF-8 text corpus")
+    report.appendLine("Input bytes: " + fileSize)
+    report.appendLine("Complete source characters: " + totalChars)
+    report.appendLine("Model: e=" + model.e + ", context=" + model.h + ", vocabulary=" + model.v + ", parameters=" + model.paramCount())
+    report.appendLine("Epochs per batch: " + epochs + "; learning rate: " + lr)
+    val batchChars = 100_000
+    val overlap = model.h
+    val buffer = StringBuilder(batchChars + overlap * 2)
+    var batches = 0
+    var covered = 0L
+    InputStreamReader(FileInputStream(input), StandardCharsets.UTF_8.newDecoder()
+        .onMalformedInput(CodingErrorAction.REPORT)
+        .onUnmappableCharacter(CodingErrorAction.REPORT)).buffered(64 * 1024).use { reader ->
+        val chars = CharArray(64 * 1024)
+        while (true) {
+            val n = reader.read(chars)
+            if (n < 0) break
+            buffer.append(chars, 0, n)
+            while (buffer.length >= batchChars + overlap) {
+                val part = buffer.substring(0, batchChars + overlap).replace("\uFEFF", "")
+                val result = model.trainBig(part, trainingPairs, epochs, lr, bookChunk = 1000, chunk = model.h)
+                check(result.contains("قُبلت")) {
+                    "Batch " + (batches + 1) + " was rejected; no incomplete checkpoint will be published. " + result
+                }
+                batches++
+                covered += batchChars
+                buffer.delete(0, batchChars)
+                if (batches % 10 == 0) println("Accepted batches: " + batches + "; source coverage: " + covered + "/" + totalChars)
+            }
+        }
+    }
+    if (buffer.isNotEmpty()) {
+        val tail = buffer.toString().replace("\uFEFF", "")
+        if (tail.length >= 8) {
+            val result = model.trainBig(tail, trainingPairs, epochs, lr, bookChunk = 1000, chunk = model.h)
+            check(result.contains("قُبلت")) { "Final batch was rejected; refusing to publish partial weights. " + result }
+            batches++
+            covered += tail.length
+        }
+    }
+    check(covered >= totalChars - overlap) {
+        "Streaming pass did not cover the complete corpus. Covered=" + covered + ", scanned=" + totalChars
+    }
+    report.appendLine("Accepted training batches: " + batches)
+    report.appendLine("Streaming source coverage (overlap included): " + covered)
+
+    // Third pass in the requested sequence: ask exactly 30 questions, then serialize all model parameters.
+    println("Pass 3/3: asking 30 questions after the complete corpus pass.")
     report.appendLine()
-    report.appendLine("Held-out general questions (generated by NlmSession after training):")
+    report.appendLine("Thirty post-training questions:")
     for ((index, question) in evaluationQuestions.withIndex()) {
-        val q = compatibleText(question, model)
         val session = NlmSession(model, 20261127L + index)
         val answer = session.reply(
-            q, maxChars = 140, temp = 0.2f, topk = 4,
+            question, maxChars = 140, temp = 0.2f, topk = 4,
             minP = 0.25f, commit = false, memGain = 0f, shortGain = 0f
         ).first
-        report.appendLine("Q: $question")
-        report.appendLine("A: $answer")
+        report.appendLine((index + 1).toString() + ". Q: " + question)
+        report.appendLine("A: " + answer)
         report.appendLine()
+        println("Question " + (index + 1) + "/30 completed.")
     }
 
     val outputBytes = model.toBytes()
@@ -148,7 +218,7 @@ private fun train() {
     val temp = File(workspace, "nlm2.bin.tmp")
     temp.writeBytes(outputBytes)
     check(temp.renameTo(output)) { "Could not atomically move trained weights to repository root." }
-    report.appendLine("Saved root artifact: nlm2.bin (${output.length()} bytes)")
+    report.appendLine("Saved root artifact: nlm2.bin (" + output.length() + " bytes)")
     File(workspace, "training-report.txt").writeText(report.toString(), Charsets.UTF_8)
     println(report.toString())
 }
