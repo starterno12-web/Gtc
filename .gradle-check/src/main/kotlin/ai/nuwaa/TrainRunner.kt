@@ -5,6 +5,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.io.FileInputStream
 import java.io.InputStreamReader
 
@@ -121,6 +122,28 @@ private fun runStreamCheck() {
     println("STREAM_CHECK_OK targets=$trainedTargets progress_callbacks=$progressCalls weights_changed=true serialization_round_trip=true")
 }
 
+
+private fun persistCheckpoint(model: Nlm, workspace: File): File {
+    val output = File(workspace, "nlm2.bin")
+    val temp = File(workspace, "nlm2.bin.tmp")
+    val bytes = model.toBytes()
+    Files.write(temp.toPath(), bytes)
+    Files.move(
+        temp.toPath(),
+        output.toPath(),
+        StandardCopyOption.REPLACE_EXISTING,
+        StandardCopyOption.ATOMIC_MOVE
+    )
+    check(output.isFile && output.length() == bytes.size.toLong()) {
+        "Checkpoint persistence verification failed: root nlm2.bin is missing or truncated."
+    }
+    val restored = Nlm.load(output.readBytes())
+    check(restored.toBytes().contentEquals(bytes)) {
+        "Checkpoint persistence verification failed: reloaded weights differ from the saved bytes."
+    }
+    return output
+}
+
 private fun train() {
     val input = File(System.getenv("NUWAA_INPUT_FILE") ?: "/tmp/nuwaa-source.bin")
     require(input.isFile && input.length() in 1..2_000_000_000L) {
@@ -161,9 +184,25 @@ private fun train() {
         }
     }
     require(totalChars >= 200) { "The complete source contains too few characters." }
-    val model = Nlm.fresh(e = 88, h = 256, chars = vocabulary, seed = 20261127L)
+    val workspace = File(System.getenv("GITHUB_WORKSPACE") ?: ".")
+    val checkpoint = File(workspace, "nlm2.bin")
+    val model = if (checkpoint.isFile && checkpoint.length() > 0L) {
+        println("Restoring existing root nlm2.bin before training; saved weights will be continued, not reset.")
+        Nlm.loadForTraining(
+            bytes = checkpoint.readBytes(),
+            additionalChars = vocabulary,
+            expectedE = 88,
+            expectedH = 256,
+            seed = 20261127L
+        )
+    } else {
+        println("No non-empty root checkpoint exists; creating the first NLM2 weights.")
+        Nlm.fresh(e = 88, h = 256, chars = vocabulary, seed = 20261127L)
+    }
+    val startingCheckpoint = persistCheckpoint(model, workspace)
+    println("Starting weights durably written to repository root: " + startingCheckpoint.length() + " bytes.")
     println("Complete read and UTF-8 validation passed: " + totalChars + " characters, " + fileSize + " bytes.")
-    println("Corpus-aware vocabulary: " + model.v + " distinct UTF-16 units.")
+    println("Corpus-aware vocabulary (including saved tokens): " + model.v + " distinct UTF-16 units.")
     println("Pre-training gradient check: testing the model backward pass before spending time on the corpus.")
     val gradientReport = model.gradCheck(picks = 70)
     println(gradientReport)
@@ -295,11 +334,7 @@ private fun train() {
     check(reloaded.toBytes().contentEquals(outputBytes)) {
         "Saved NLM2 failed its byte-for-byte serialization round trip."
     }
-    val workspace = File(System.getenv("GITHUB_WORKSPACE") ?: ".")
-    val output = File(workspace, "nlm2.bin")
-    val temp = File(workspace, "nlm2.bin.tmp")
-    temp.writeBytes(outputBytes)
-    check(temp.renameTo(output)) { "Could not atomically move trained weights to repository root." }
+    val output = persistCheckpoint(reloaded, workspace)
     report.appendLine("Saved root artifact: nlm2.bin (" + output.length() + " bytes)")
     File(workspace, "training-report.txt").writeText(report.toString(), Charsets.UTF_8)
     println(report.toString())
