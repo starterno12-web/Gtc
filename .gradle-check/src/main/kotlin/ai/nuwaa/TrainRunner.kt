@@ -110,7 +110,7 @@ private fun runStreamCheck() {
         text = sample,
         epochs = 2,
         lr = 0.0001f,
-        chunk = 16
+        chunk = 128
     ) { step, total, seen ->
         check(step in 1..total && seen > 0) { "Invalid streaming progress callback." }
         progressCalls++
@@ -170,7 +170,7 @@ private fun train() {
         }
     }
     require(totalChars >= 200) { "The complete source contains too few characters." }
-    val model = Nlm.fresh(e = 88, h = 64, chars = vocabulary, seed = 20261127L)
+    val model = Nlm.fresh(e = 88, h = 256, chars = vocabulary, seed = 20261127L)
     println("Complete read and UTF-8 validation passed: " + totalChars + " characters, " + fileSize + " bytes.")
     println("Corpus-aware vocabulary: " + model.v + " distinct UTF-16 units.")
     println("Pre-training gradient check: testing the model backward pass before spending time on the corpus.")

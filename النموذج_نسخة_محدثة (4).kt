@@ -2356,21 +2356,28 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
      *  يتدرب بسياق طويل، وآخر نافذة تغطي الذيل كامل، وترتيبها يتبدّل كل دورة. */
     private fun windowStarts(n: Int, win: Int, stride: Int): List<Int> {
         if (n <= 0) return emptyList()
-        if (n <= win) return listOf(n - win)
         val out = ArrayList<Int>()
-        out.add(-(win / 2))
         var s0 = 0
-        while (s0 <= n - win) { out.add(s0); s0 += stride }
-        if (out[out.size - 1] != n - win) out.add(n - win)
+        while (s0 < n) { out.add(s0); s0 += stride }
         return out
     }
 
+    /**
+     * Predict only the next win characters, while supplying up to h-win
+     * preceding characters as real context. Previously each short training
+     * chunk was left-padded, so training on 16 characters never exercised
+     * the long context available during generation.
+     */
     private fun makeWindow(ids: IntArray, s0: Int, win: Int): Pair<IntArray, IntArray> {
-        val x = IntArray(win) { PAD }; val y = IntArray(win) { -1 }
-        for (j in 0 until win) {
-            val pos = s0 + j
-            if (pos < 0 || pos >= ids.size - 1) continue
-            x[j] = ids[pos]; y[j] = ids[pos + 1]
+        require(win in 1..h)
+        val x = IntArray(h) { PAD }
+        val y = IntArray(h) { -1 }
+        val contextStart = s0 - (h - win)
+        for (j in 0 until h) {
+            val pos = contextStart + j
+            if (pos < 0 || pos >= ids.size) continue
+            x[j] = ids[pos]
+            if (pos >= s0 && pos < s0 + win && pos < ids.size - 1) y[j] = ids[pos + 1]
         }
         return Pair(x, y)
     }
@@ -2379,7 +2386,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         val n = ids.size - 1
         if (n < 2) return
         val win = minOf(chunk, h).coerceAtLeast(2)
-        val starts = windowStarts(n, win, maxOf(1, win / 2))
+        val starts = windowStarts(n, win, win)
         val total = maxOf(1, epochs * starts.size)
         var step = 0
         for (ep in 0 until epochs) {
@@ -2474,7 +2481,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         text: String,
         epochs: Int,
         lr: Float,
-        chunk: Int = 16,
+        chunk: Int = 128,
         progress: (Int, Int, Int) -> Unit = { _, _, _ -> }
     ): Int {
         require(epochs in 1..5) { "epochs must be between 1 and 5" }
@@ -2535,7 +2542,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         return Pair(before, after)
     }
 
-    fun trainBig(corpus: String, rehearse: String, epochs: Int, lr: Float, bookChunk: Int = 3000, chunk: Int = h): String {   // كان 128 ثابت — نفس المشكلة بالضبط: النافذة الديناميكية الجديدة (ContextSizer) ما كانت توصل فعليًا لخطوات التدريب. تنبيه صادق: نافذة تدريب = h يعني كل خطوة تدريب (تقدم + تدرّج) تاخذ ذاكرة أكبر من مجرد التوليد (التدرّج يحتاج يخزّن كل شي مرتين تقريبًا) — إذا صار بطيء جدًا أو وقف البرنامج، مرّر chunk أصغر يدويًا.
+    fun trainBig(corpus: String, rehearse: String, epochs: Int, lr: Float, bookChunk: Int = 3000, chunk: Int = minOf(128, h)): String {   // كان 128 ثابت — نفس المشكلة بالضبط: النافذة الديناميكية الجديدة (ContextSizer) ما كانت توصل فعليًا لخطوات التدريب. تنبيه صادق: نافذة تدريب = h يعني كل خطوة تدريب (تقدم + تدرّج) تاخذ ذاكرة أكبر من مجرد التوليد (التدرّج يحتاج يخزّن كل شي مرتين تقريبًا) — إذا صار بطيء جدًا أو وقف البرنامج، مرّر chunk أصغر يدويًا.
         val safeCorpus = corpus
         if (safeCorpus.length < 8) return "النص قصير جدًا، ما يستاهل تدريب."
         val reh = rehearse
