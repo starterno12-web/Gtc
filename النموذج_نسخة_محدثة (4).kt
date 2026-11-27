@@ -2461,6 +2461,56 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         if (g != null) adam(g, lr)
         return (res.first / Math.log(2.0)).toFloat()
     }
+
+    /**
+     * Memory-bounded corpus training path. Each target character is visited once per epoch
+     * (except context overlap supplied by the caller). Unlike trainBig, this does not build
+     * a mixed copy of the whole corpus, shuffle a huge window list, or run full-corpus BPC
+     * evaluations before and after every chunk.
+     *
+     * Returns the exact number of non-PAD next-character targets used in optimizer updates.
+     */
+    fun trainStreamChunk(
+        text: String,
+        epochs: Int,
+        lr: Float,
+        chunk: Int = 16,
+        progress: (Int, Int, Int) -> Unit = { _, _, _ -> }
+    ): Int {
+        require(epochs in 1..5) { "epochs must be between 1 and 5" }
+        require(lr.isFinite() && lr > 0f) { "learning rate must be finite and positive" }
+        require(chunk in 2..h) { "chunk must be between 2 and model context" }
+        val ids = encode(text)
+        val n = ids.size - 1
+        if (n < 1) return 0
+        val win = chunk
+        val windowsPerEpoch = (n + win - 1) / win
+        val totalSteps = windowsPerEpoch * epochs
+        var step = 0
+        var trainedTargets = 0
+        for (ep in 0 until epochs) {
+            var start = 0
+            while (start < n) {
+                val window = makeWindow(ids, start, win)
+                val valid = window.second.count { it >= 0 }
+                if (valid > 0) {
+                    val gradients = run(window.first, window.second, true).second
+                        ?: error("Gradient calculation returned null during corpus training.")
+                    adam(gradients, lrAt(step, totalSteps, lr))
+                    trainedTargets += valid
+                    step++
+                    if (step % 256 == 0 || step == totalSteps) {
+                        progress(step, totalSteps, trainedTargets)
+                    }
+                }
+                start += win
+            }
+        }
+        check(trainedTargets >= n * epochs) {
+            "Target accounting mismatch: trained $trainedTargets targets for $n source transitions across $epochs epochs."
+        }
+        return trainedTargets
+    }
     fun snapshot(): List<FloatArray> = P.map { it.copyOf() }
     fun restoreSnapshot(s: List<FloatArray>) { for (k in P.indices) System.arraycopy(s[k], 0, P[k], 0, P[k].size) }
 
