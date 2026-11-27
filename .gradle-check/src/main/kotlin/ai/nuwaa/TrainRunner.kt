@@ -133,27 +133,36 @@ private fun train() {
     val model = Nlm.fresh(e = 88, h = 64, chars = vocabulary, seed = 20261127L)
     println("Complete read and UTF-8 validation passed: " + totalChars + " characters, " + fileSize + " bytes.")
     println("Corpus-aware vocabulary: " + model.v + " distinct UTF-16 units.")
+    println("Pre-training gradient check: testing the model backward pass before spending time on the corpus.")
+    val gradientReport = model.gradCheck(picks = 70)
+    println(gradientReport)
+    check(gradientReport.startsWith("✅")) {
+        "Training stopped before corpus processing because the gradient check failed: " + gradientReport
+    }
 
     val epochs = (System.getenv("NUWAA_EPOCHS") ?: "1").toInt()
     val lr = (System.getenv("NUWAA_LR") ?: "0.0001").toFloat()
     require(epochs in 1..5) { "NUWAA_EPOCHS must be between 1 and 5." }
     require(lr.isFinite() && lr in 0.000001f..0.01f) { "NUWAA_LR is outside the safe configured range." }
 
-    // Second pass: stream every source character through training in bounded-memory batches.
-    // Keep a context-sized overlap so no source boundary loses its next-character targets.
-    println("Pass 2/3: streaming the complete source through sequential training batches.")
+    // Second pass: stream the complete UTF-8 source through bounded-size optimizer chunks.
+    // Sixteen prior characters are retained as context at every boundary.
+    println("Pass 2/3: streaming the complete source through bounded-memory optimizer chunks.")
     val report = StringBuilder()
     report.appendLine("Input format: complete UTF-8 text corpus")
     report.appendLine("Input bytes: " + fileSize)
     report.appendLine("Complete source characters scanned: " + totalChars)
     report.appendLine("Model: e=" + model.e + ", context=" + model.h + ", vocabulary=" + model.v + ", parameters=" + model.paramCount())
     report.appendLine("Epochs: " + epochs + "; learning rate: " + lr)
-    val batchChars = 1_000_000
-    val overlapChars = maxOf(model.h, 16)
+    report.appendLine("Training mode: direct streaming optimizer updates; no per-chunk full-corpus BPC scan")
+    val batchChars = 65_536
+    val overlapChars = 16
     val carry = StringBuilder(overlapChars)
     val batch = StringBuilder(batchChars + overlapChars)
     val readBuffer = CharArray(64 * 1024)
     var trainedSourceChars = 0L
+    var trainedTargets = 0L
+    var optimizerUpdates = 0L
     var trainingBatches = 0
     var pending = 0
 
@@ -162,14 +171,36 @@ private fun train() {
         val text = batch.toString()
         val freshChars = (text.length - if (trainingBatches == 0) 0 else carry.length).coerceAtLeast(0)
         if (freshChars < 1) return
-        val result = model.trainBig(text, trainingPairs, epochs, lr, bookChunk = 1000, chunk = 16)
-        check(result.contains("قُبلت")) {
-            "Full-corpus batch " + (trainingBatches + 1) + " was rejected; checkpoint will not be published. " + result
-        }
         trainingBatches++
-        trainedSourceChars += freshChars
-        report.appendLine("Batch " + trainingBatches + ": source characters=" + freshChars + "; accepted")
-        println("Accepted full-corpus training batch " + trainingBatches + "; source characters covered=" + trainedSourceChars)
+        println("TRAIN_BATCH_START batch=" + trainingBatches + " chars=" + text.length +
+            " new_source_chars=" + freshChars + " source_progress_before=" + trainedSourceChars + "/" + totalChars)
+        System.out.flush()
+        var batchSteps = 0
+        val targets = model.trainStreamChunk(
+            text = text,
+            epochs = epochs,
+            lr = lr,
+            chunk = 16
+        ) { step, total, seenTargets ->
+            batchSteps = step
+            println("TRAIN_PROGRESS batch=" + trainingBatches + " windows=" + step + "/" + total +
+                " targets_in_batch=" + seenTargets + " source_progress_before=" + trainedSourceChars + "/" + totalChars)
+            System.out.flush()
+        }
+        check(targets >= text.length - 1) {
+            "Batch " + trainingBatches + " did not train every available next-character target: " +
+                targets + " targets for " + text.length + " characters."
+        }
+        trainedTargets += targets.toLong()
+        optimizerUpdates += batchSteps.toLong()
+        trainedSourceChars += freshChars.toLong()
+        report.appendLine(
+            "Batch " + trainingBatches + ": new source chars=" + freshChars +
+                "; optimizer updates=" + batchSteps + "; next-character targets=" + targets + "; accepted"
+        )
+        println("TRAIN_BATCH_DONE batch=" + trainingBatches + " optimizer_updates=" + batchSteps +
+            " targets=" + targets + " source_progress=" + trainedSourceChars + "/" + totalChars)
+        System.out.flush()
         val keep = minOf(overlapChars, batch.length)
         carry.setLength(0)
         carry.append(batch, batch.length - keep, batch.length)
@@ -192,13 +223,21 @@ private fun train() {
         }
     }
     trainBatch(true)
-    check(trainingBatches > 0 && trainedSourceChars >= totalChars) {
-        "Full-corpus coverage check failed: trained " + trainedSourceChars + " of " + totalChars + " characters."
+    check(trainingBatches > 0 && trainedSourceChars == totalChars) {
+        "Full-corpus coverage check failed: source chars covered=" + trainedSourceChars +
+            " of " + totalChars + "."
+    }
+    check(trainedTargets >= (totalChars - 1L) * epochs) {
+        "Training-target coverage check failed: " + trainedTargets +
+            " targets for expected minimum " + ((totalChars - 1L) * epochs) + "."
     }
     report.appendLine("Training strategy: sequential streaming over the complete source; no sampled excerpts")
-    report.appendLine("Training batch characters: " + batchChars)
+    report.appendLine("Optimizer chunk characters: " + batchChars)
+    report.appendLine("Context overlap characters: " + overlapChars)
     report.appendLine("Accepted training batches: " + trainingBatches)
-    report.appendLine("Source characters covered by training batches: " + trainedSourceChars)
+    report.appendLine("Optimizer updates executed: " + optimizerUpdates)
+    report.appendLine("Next-character targets used in optimizer updates: " + trainedTargets)
+    report.appendLine("Unique source characters streamed: " + trainedSourceChars + " / " + totalChars)
     report.appendLine("Source scan coverage: " + totalChars + " characters (100%)")
 
     // Third pass in the requested sequence: ask exactly 30 questions, then serialize all model parameters.
