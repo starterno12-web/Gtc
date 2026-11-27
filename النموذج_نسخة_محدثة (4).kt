@@ -2719,6 +2719,62 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
             for (a in m.P) for (i in a.indices) a[i] = bb.float
             return m
         }
+
+        /**
+         * Restore an existing checkpoint as the starting point for a new corpus run.
+         * Existing vocabulary order and every existing token's embedding/output weights
+         * are retained. New corpus characters are appended with fresh initialized rows.
+         * Architecture may grow, but it is never silently shrunk or reset.
+         */
+        fun loadForTraining(
+            bytes: ByteArray,
+            additionalChars: List<String>,
+            expectedE: Int,
+            expectedH: Int,
+            seed: Long = 20261127L
+        ): Nlm {
+            val saved = load(bytes)
+            require(expectedE >= saved.e && expectedH >= saved.h) {
+                "Checkpoint architecture (" + saved.e + "," + saved.h +
+                    ") cannot be reduced to requested (" + expectedE + "," + expectedH +
+                    "); refusing to discard trained weights."
+            }
+            val resized = if (expectedE != saved.e || expectedH != saved.h)
+                grow(saved, expectedE, expectedH)
+            else saved
+            val mergedChars = LinkedHashSet<String>()
+            mergedChars.addAll(resized.chars)
+            mergedChars.addAll(additionalChars)
+            if (mergedChars.size == resized.v) return resized
+
+            val expanded = fresh(resized.e, resized.h, mergedChars.toList(), seed)
+            val oldToNew = IntArray(resized.v) { i -> expanded.chars.indexOf(resized.chars[i]) }
+            val tokenEmbedding = resized.tokEmb
+            val outputWeights = resized.wout
+            val outputBias = resized.bout
+
+            for (k in resized.P.indices) {
+                if (k == tokenEmbedding || k == outputWeights || k == outputBias) continue
+                require(resized.P[k].size == expanded.P[k].size) {
+                    "Checkpoint parameter shape mismatch at parameter " + k +
+                        "; refusing to overwrite trained weights."
+                }
+                System.arraycopy(resized.P[k], 0, expanded.P[k], 0, resized.P[k].size)
+            }
+            for (oldId in 0 until resized.v) {
+                val newId = oldToNew[oldId]
+                System.arraycopy(resized.P[tokenEmbedding], oldId * resized.e,
+                    expanded.P[tokenEmbedding], newId * expanded.e, resized.e)
+                expanded.P[outputBias][newId] = resized.P[outputBias][oldId]
+                for (row in 0 until resized.e) {
+                    expanded.P[outputWeights][row * expanded.v + newId] =
+                        resized.P[outputWeights][row * resized.v + oldId]
+                }
+            }
+            System.arraycopy(resized.P[tokenEmbedding], resized.v * resized.e,
+                expanded.P[tokenEmbedding], expanded.v * expanded.e, resized.e)
+            return expanded
+        }
     }
 }
 
