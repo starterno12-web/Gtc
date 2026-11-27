@@ -95,16 +95,32 @@ jobs:
           print(f"Verified root nlm2.bin: {len(b)} bytes")
           PY
 
-      - name: Commit trained weights to repository root
+      - name: Persist the latest valid checkpoint to the repository
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
+          if [[ ! -s nlm2.bin ]]; then
+            echo "No non-empty checkpoint was produced; leaving the repository's previous checkpoint untouched."
+            exit 0
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("nlm2.bin")
+          data = p.read_bytes()
+          assert data[:4] == b"NLM2", "Refusing to commit an invalid NLM2 checkpoint"
+          assert len(data) > 20, "Refusing to commit an empty/truncated NLM2 checkpoint"
+          print(f"Checkpoint ready for persistence: {len(data)} bytes")
+          PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- nlm2.bin
-          git diff --cached --quiet && { echo "No changed trained weights to commit."; exit 1; }
-          git commit -m "Train NLM2 from approved Drive input"
-          git push origin HEAD:main
+          if git diff --cached --quiet; then
+            echo "The repository already contains this exact checkpoint; no commit is needed."
+          else
+            git commit -m "Persist NLM2 checkpoint"
+            git push origin HEAD:main
+          fi
 
       - name: Upload training report
         if: always()
