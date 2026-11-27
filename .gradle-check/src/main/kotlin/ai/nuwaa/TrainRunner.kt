@@ -103,8 +103,10 @@ private fun train() {
         prefix[2] == 0x4D.toByte() && prefix[3] == 0x32.toByte()
     require(!isNlm2) { "The configured Drive input is a checkpoint, not the expected UTF-8 corpus." }
 
-    val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
-    val allowed = model.chars.toHashSet()
+    // Discover the exact UTF-16 character vocabulary while scanning the entire source.
+    // This preserves punctuation and symbols present in the approved corpus instead of dropping them.
+    val vocabulary = defaultVocabulary().toMutableList()
+    val allowed = vocabulary.toHashSet()
     val decoder = StandardCharsets.UTF_8.newDecoder()
         .onMalformedInput(CodingErrorAction.REPORT)
         .onUnmappableCharacter(CodingErrorAction.REPORT)
@@ -121,19 +123,16 @@ private fun train() {
             totalChars += n
             for (i in 0 until n) {
                 val c = chars[i]
-                if (!allowed.contains(c.toString()) && c != '\uFEFF') {
-                    unsupported[c.code] = (unsupported[c.code] ?: 0L) + 1L
+                if (c != '\uFEFF' && allowed.add(c.toString())) {
+                    vocabulary.add(c.toString())
                 }
             }
         }
     }
     require(totalChars >= 200) { "The complete source contains too few characters." }
-    require(unsupported.isEmpty()) {
-        "The corpus contains characters outside the model vocabulary; refusing to silently skip them: " +
-            unsupported.entries.sortedByDescending { it.value }.take(12)
-                .joinToString { "U+" + it.key.toString(16).uppercase() + "=" + it.value }
-    }
+    val model = Nlm.fresh(e = 88, h = 64, chars = vocabulary, seed = 20261127L)
     println("Complete read and UTF-8 validation passed: " + totalChars + " characters, " + fileSize + " bytes.")
+    println("Corpus-aware vocabulary: " + model.v + " distinct UTF-16 units.")
 
     val epochs = (System.getenv("NUWAA_EPOCHS") ?: "1").toInt()
     val lr = (System.getenv("NUWAA_LR") ?: "0.0001").toFloat()
