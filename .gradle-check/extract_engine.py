@@ -1,6 +1,6 @@
 from pathlib import Path
 
-source = Path("النموذج_نسخة_محدثة (3).kt").read_text(encoding="utf-8")
+source = Path("النموذج_نسخة_محدثة (4).kt").read_text(encoding="utf-8")
 start = source.index("class NMem {")
 end = source.index("class SimWorld(", start)
 engine = source[start:end]
