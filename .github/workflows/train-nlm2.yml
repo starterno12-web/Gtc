@@ -59,8 +59,8 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.local/bin:$PATH"
-          DRIVE_FILE_ID="10w9FPs9cZK69QkExyHtTBYzT4eiT8-c7"
-          gdown "$DRIVE_FILE_ID" --output "$NUWAA_INPUT_FILE"
+          DRIVE_FILE_URL="https://drive.google.com/file/d/10w9FPs9cZK69QkExyHtTBYzT4eiT8-c7/view?usp=drivesdk"
+          gdown "$DRIVE_FILE_URL" --output "$NUWAA_INPUT_FILE"
           test -s "$NUWAA_INPUT_FILE"
           echo "Downloaded the single configured Drive input ($(stat -c%s "$NUWAA_INPUT_FILE") bytes)."
 
