@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'النموذج_نسخة_محدثة (3).kt'
+      - 'النموذج_نسخة_محدثة (4).kt'
       - '.github/workflows/gradcheck.yml'
       - '.gradle-check/**'
 
