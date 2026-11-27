@@ -2135,7 +2135,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     private fun forwardProbsLast(x: IntArray): FloatArray {
         val T = x.size; val d = e
         var cur = Array(T) { FloatArray(d) }
-        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) cur[t][q] = P[tokEmb][id * d + q] + P[posEmb][(posOffset + t) * d + q] }
+        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) cur[t][q] = P[tokEmb][id * d + q] + P[posEmb][t * d + q] }
         val scale = (1.0 / Math.sqrt(hd.toDouble())).toFloat()
         for (L in layers) {
             val ln1 = Array(T) { FloatArray(d) }; val xh1 = Array(T) { FloatArray(d) }
@@ -2182,7 +2182,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         val posOffset = h - T // Short training windows align to the newest positions used by generation.
         val scale = (1.0 / Math.sqrt(hd.toDouble())).toFloat()
         val embIn = Array(T) { FloatArray(d) }
-        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) embIn[t][q] = P[tokEmb][id * d + q] + P[posEmb][t * d + q] }
+        for (t in 0 until T) { val id = x[t]; for (q in 0 until d) embIn[t][q] = P[tokEmb][id * d + q] + P[posEmb][(posOffset + t) * d + q] }
 
         // كاش كل طبقة (لازم للخلف): مدخل الطبقة، LN الأول وxhat/rstd، Q/K/V، أوزان الانتباه لكل رأس، ctx، hMid، LN الثاني وxhat/rstd، f1 (بعد relu)
         data class Cache(val inp: Array<FloatArray>, val ln1: Array<FloatArray>, val xh1: Array<FloatArray>, val rstd1: FloatArray,
