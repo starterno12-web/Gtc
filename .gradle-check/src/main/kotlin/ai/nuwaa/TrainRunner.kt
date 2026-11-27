@@ -139,6 +139,28 @@ private fun runStreamCheck() {
     check(Nlm.load(continued.toBytes()).chars == continued.chars) {
         "Expanded checkpoint failed reload verification."
     }
+    val repositoryCheckpoint = File(System.getenv("GITHUB_WORKSPACE") ?: ".", "nlm2.bin")
+    if (repositoryCheckpoint.isFile && repositoryCheckpoint.length() > 0L) {
+        val repositoryModel = Nlm.load(repositoryCheckpoint.readBytes())
+        val resumedRepositoryModel = Nlm.loadForTraining(
+            bytes = repositoryCheckpoint.readBytes(),
+            additionalChars = defaultVocabulary(),
+            expectedE = 88,
+            expectedH = 256
+        )
+        check(resumedRepositoryModel.e == 88 && resumedRepositoryModel.h == 256) {
+            "Repository checkpoint did not resume at the configured training dimensions."
+        }
+        check(resumedRepositoryModel.chars.take(repositoryModel.v) == repositoryModel.chars) {
+            "Resuming the repository checkpoint changed its existing vocabulary."
+        }
+        println("REPOSITORY_CHECKPOINT_RESUME_OK old_e=" + repositoryModel.e +
+            " old_h=" + repositoryModel.h + " old_vocab=" + repositoryModel.v +
+            " resumed_e=" + resumedRepositoryModel.e + " resumed_h=" + resumedRepositoryModel.h +
+            " resumed_vocab=" + resumedRepositoryModel.v)
+    } else {
+        error("Repository root nlm2.bin is missing or empty; refusing to claim checkpoint persistence.")
+    }
     println("STREAM_CHECK_OK targets=$trainedTargets progress_callbacks=$progressCalls weights_changed=true serialization_round_trip=true checkpoint_continuity=true")
 }
 
