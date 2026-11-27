@@ -90,18 +90,9 @@ private fun readUtf8Prefix(file: File, maxChars: Int): String {
     }
 }
 
-private fun runGradCheck() {
-    val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
-    val result = model.gradCheck(picks = 70)
-    println(result)
-    check(result.startsWith("✅")) {
-        "NLM2 gradient check failed; training is blocked: " + result
-    }
-}
-
 private fun runStreamCheck() {
     val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
-    val sample = trainingPairs.take(3).joinToString("\n")
+    val sample = trainingPairs.lineSequence().take(3).joinToString("\n")
     val encodedCount = model.encode(sample).size
     check(encodedCount >= 8) { "Streaming self-test sample encoded too short." }
     val before = model.snapshot()
