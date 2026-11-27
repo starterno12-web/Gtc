@@ -99,6 +99,37 @@ private fun runGradCheck() {
     }
 }
 
+private fun runStreamCheck() {
+    val model = Nlm.fresh(e = 88, h = 64, chars = defaultVocabulary(), seed = 20261127L)
+    val sample = trainingPairs.take(3).joinToString("\n")
+    val encodedCount = model.encode(sample).size
+    check(encodedCount >= 8) { "Streaming self-test sample encoded too short." }
+    val before = model.snapshot()
+    var progressCalls = 0
+    val trainedTargets = model.trainStreamChunk(
+        text = sample,
+        epochs = 2,
+        lr = 0.0001f,
+        chunk = 16
+    ) { step, total, seen ->
+        check(step in 1..total && seen > 0) { "Invalid streaming progress callback." }
+        progressCalls++
+    }
+    val expectedTargets = (encodedCount - 1) * 2
+    check(trainedTargets == expectedTargets) {
+        "Streaming target count mismatch: $trainedTargets vs $expectedTargets."
+    }
+    check(progressCalls > 0) { "Streaming trainer did not emit progress." }
+    val after = model.snapshot()
+    val changed = before.indices.any { !before[it].contentEquals(after[it]) }
+    check(changed) { "Streaming trainer reported targets but did not update any model weights." }
+    val bytes = model.toBytes()
+    check(Nlm.load(bytes).toBytes().contentEquals(bytes)) {
+        "Streaming self-test checkpoint failed serialization round-trip."
+    }
+    println("STREAM_CHECK_OK targets=$trainedTargets progress_callbacks=$progressCalls weights_changed=true serialization_round_trip=true")
+}
+
 private fun train() {
     val input = File(System.getenv("NUWAA_INPUT_FILE") ?: "/tmp/nuwaa-source.bin")
     require(input.isFile && input.length() in 1..2_000_000_000L) {
@@ -284,5 +315,5 @@ private fun train() {
 }
 
 fun main(args: Array<String>) {
-    if (args.firstOrNull() == "gradcheck") runGradCheck() else train()
+    when (args.firstOrNull()) { "gradcheck" -> runGradCheck(); "streamcheck" -> runStreamCheck(); else -> train() }
 }
