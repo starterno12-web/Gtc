@@ -2086,6 +2086,30 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
     private val mAdam = P.map { FloatArray(it.size) }
     private val vAdam = P.map { FloatArray(it.size) }
     private var tAdam = 0
+
+    private data class TrainingSnapshot(
+        val weights: List<FloatArray>,
+        val firstMoment: List<FloatArray>,
+        val secondMoment: List<FloatArray>,
+        val adamStep: Int
+    )
+
+    private fun snapshotTrainingState() = TrainingSnapshot(
+        weights = P.map { it.copyOf() },
+        firstMoment = mAdam.map { it.copyOf() },
+        secondMoment = vAdam.map { it.copyOf() },
+        adamStep = tAdam
+    )
+
+    private fun restoreTrainingState(snapshot: TrainingSnapshot) {
+        for (k in P.indices) {
+            System.arraycopy(snapshot.weights[k], 0, P[k], 0, P[k].size)
+            System.arraycopy(snapshot.firstMoment[k], 0, mAdam[k], 0, mAdam[k].size)
+            System.arraycopy(snapshot.secondMoment[k], 0, vAdam[k], 0, vAdam[k].size)
+        }
+        tAdam = snapshot.adamStep
+    }
+
     val long = NMem()
 
     fun cid(c: Char): Int = vocab[c.toString()] ?: 1
@@ -2531,12 +2555,12 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         val rids = if (reh.length > 8) encode(reh) else null
         val before = bpc(ids)
         val rBefore = if (rids != null) bpc(rids) else 0f
-        val snap = P.map { it.copyOf() }
+        val snap = snapshotTrainingState()
         trainOn(encode(heard + reh), epochs, lr, chunk)
         val after = bpc(ids)
         val rAfter = if (rids != null) bpc(rids) else 0f
         if (after > before || (rids != null && rAfter > rBefore * 1.08f)) {
-            for (k in P.indices) System.arraycopy(snap[k], 0, P[k], 0, P[k].size)
+            restoreTrainingState(snap)
             return Pair(before, before)
         }
         return Pair(before, after)
@@ -2575,7 +2599,7 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         val bookIds = encode(safeCorpus)
         val beforeBook = bpc(bookIds)
         val beforeReh = if (rids != null) bpc(rids) else 0f
-        val snap = P.map { it.copyOf() }
+        val snap = snapshotTrainingState()
         trainOn(ids, epochs, lr, chunk)
         val afterBook = bpc(bookIds)
         val afterReh = if (rids != null) bpc(rids) else 0f
@@ -2584,12 +2608,12 @@ class Nlm private constructor(val e: Int, val h: Int, val chars: List<String>) {
         sb2.append("النص: ").append(f(beforeBook)).append(" ← ").append(f(afterBook)).append(" بت/حرف\n")
         if (rids != null) sb2.append("الكلام (rehearse): ").append(f(beforeReh)).append(" ← ").append(f(afterReh)).append(" بت/حرف\n")
         if (afterBook > beforeBook) {
-            for (k in P.indices) System.arraycopy(snap[k], 0, P[k], 0, P[k].size)
+            restoreTrainingState(snap)
             sb2.append("❌ رُفضت: ما تحسّن على النص نفسه حتى، فرجعت للأوزان القديمة. جرّب تخفّض lr أو تزيد epochs.")
             return sb2.toString()
         }
         if (rids != null && afterReh > beforeReh * 1.08f) {
-            for (k in P.indices) System.arraycopy(snap[k], 0, P[k], 0, P[k].size)
+            restoreTrainingState(snap)
             sb2.append("❌ رُفضت: تحسّن على النص، بس خرّب قدرة الكلام أكثر من 8%، فرجعت للأوزان القديمة. جرّب تخفّض lr أو تقلّل bookChunk.")
             return sb2.toString()
         }
